@@ -1,0 +1,261 @@
+package ru.ifmo.md.lesson8;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import ru.ifmo.md.lesson8.provider.WeatherDatabaseHelper;
+import ru.ifmo.md.lesson8.provider.WeatherProvider;
+
+
+/**
+ * Created by pva701 on 22.11.14.
+ */
+public class CommonWeatherFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    //private static String CUR_CITY = "St.Petersburg";
+    public static String CITY_ID_EXTRA = "city_id";
+    public static String CITY_NAME_EXTRA = "city_name";
+    private int cityId;
+    private String cityName;
+
+    private ForecastListAdapter adapter;
+    private RecyclerView forecastList;
+    private LinearLayout describeWeatherLayout;
+    private int selectedDay = -1;
+    private Handler handler;
+    private boolean userRequestUpdate = false;
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(getActivity(), WeatherProvider.FORECAST_CONTENT_URI, null, WeatherDatabaseHelper.FORECAST_CITY_ID + " = " + cityId, null,
+                WeatherDatabaseHelper.FORECAST_DATE + " asc");
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        if (adapter == null) {
+            adapter = new ForecastListAdapter(getActivity());
+            adapter.setOnItemClickListener(new ForecastListAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View v, int pos) {
+                    adapter.setCurrentItem(pos);
+                    setDescriptionWeather(pos);
+                }
+            });
+            forecastList.setAdapter(adapter);
+        }
+        if (cursor.isAfterLast())
+            return;
+        adapter.clear();
+        WeatherDatabaseHelper.WeatherCursor wc = new WeatherDatabaseHelper.WeatherCursor(cursor);
+        while (cursor.moveToNext())
+            adapter.add(wc.getWeather());
+        adapter.notifyDataSetChanged();
+        setDescriptionWeather(0);
+        adapter.setCurrentItem(0);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor>cursorLoader) {
+        adapter = null;
+        forecastList.setAdapter(null);
+    }
+
+    public int getBackgroundRes(ShortWeatherData weatherData) {
+        int code = weatherData.getConditionCode();
+        if (code < 600)
+            return R.drawable.rain;
+        if (code < 700)
+            return R.drawable.snow;
+        if (code < 800)
+            return R.drawable.mist;
+        if (code == 800)
+            return R.drawable.clear;
+        if (code < 900)
+            return R.drawable.clouds;
+        return R.drawable.clear;
+    }
+
+    public String temp(int x) {
+        String ret;
+        if (x > 0)
+            ret = "+" + x + "°";
+        else
+            ret = x + "°";
+        return ret;
+    }
+
+    public void setDescriptionWeather(int id) {
+        ShortWeatherData weather = adapter.getItem(id);
+        selectedDay = id;
+        if (describeWeatherLayout.getBackground() == null) {
+            int backgroundRes = getBackgroundRes(weather);
+            describeWeatherLayout.setBackgroundResource(backgroundRes);
+        } else {
+            int backgroundRes = getBackgroundRes(weather);
+            Drawable from = describeWeatherLayout.getBackground();
+            Drawable to = getActivity().getResources().getDrawable(backgroundRes);
+            TransitionDrawable td = new TransitionDrawable(new Drawable[]{from, to});
+            describeWeatherLayout.setBackground(td);
+            td.startTransition(800);
+        }
+        ((TextView)describeWeatherLayout.findViewById(R.id.temp)).setText(temp(weather.getTemp()));
+        ((TextView)describeWeatherLayout.findViewById(R.id.temp_max)).setText(temp(weather.getTempMax()));
+        ((TextView)describeWeatherLayout.findViewById(R.id.temp_min)).setText(temp(weather.getTempMin()));
+        if (weather.getWeatherMain().toLowerCase().equals(weather.getWeatherDescription()))
+            ((TextView)describeWeatherLayout.findViewById(R.id.describe)).setText(weather.getWeatherMain());
+        else
+            ((TextView)describeWeatherLayout.findViewById(R.id.describe)).setText(weather.getWeatherMain() + ", " + weather.getWeatherDescription());
+        ((TextView)describeWeatherLayout.findViewById(R.id.wind)).setText("Wind: " + weather.getWindSpeed() + " m/s");
+        if (weather.getHumidity() != 0)
+            ((TextView)describeWeatherLayout.findViewById(R.id.humidity)).setText("Humidity: " + weather.getHumidity() + "%");
+        else
+            ((TextView)describeWeatherLayout.findViewById(R.id.humidity)).setText("");
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        cityId = getArguments().getInt(CITY_ID_EXTRA);
+        cityName = getArguments().getString(CITY_NAME_EXTRA);
+        setRetainInstance(true);
+        if (isOnline())
+            startLoading(false);
+        else
+            Toast.makeText(getActivity(), "Check your internet connection", Toast.LENGTH_SHORT).show();
+
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == NetworkLoaderService.DATABASE_UPDATED) {
+                    getActivity().getLoaderManager().restartLoader(0, null, CommonWeatherFragment.this);
+                    stopLoading();
+                } else if (msg.what == NetworkLoaderService.UPDATING_STARTED)
+                    getActivity().getActionBar().setSubtitle(R.string.updating);
+                else if (msg.what == NetworkLoaderService.ALREADY_UPDATED) {
+                    stopLoading();
+                    if (userRequestUpdate)
+                        Toast.makeText(getActivity(), "Weather already has been updated", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_common_weather, menu);
+    }
+
+    public void startLoading(boolean userRequestUpdate) {
+        this.userRequestUpdate = userRequestUpdate;
+        NetworkLoaderService.loadCity(getActivity(), cityName);
+        //getActivity().getActionBar().setSubtitle(R.string.updating);
+    }
+
+    public void stopLoading() {
+        getActivity().getActionBar().setSubtitle(null);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_refresh) {
+            if (!isOnline())
+                Toast.makeText(getActivity(), "Check your internet connection", Toast.LENGTH_SHORT).show();
+            else
+                startLoading(true);
+        }
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_common_weather, container, false);
+        setHasOptionsMenu(true);
+        describeWeatherLayout = (LinearLayout) view.findViewById(R.id.main);
+        forecastList = (RecyclerView)view.findViewById(R.id.forecast_list);
+        if (forecastList.getTag().equals("horizontal"))
+            forecastList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        else
+            forecastList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        forecastList.setItemAnimator(new DefaultItemAnimator());
+        forecastList.setHasFixedSize(true);
+        if (selectedDay != -1) {
+            setDescriptionWeather(selectedDay);
+            adapter.setCurrentItem(selectedDay);
+        } if (adapter != null)
+            forecastList.setAdapter(adapter);
+        else
+            getLoaderManager().restartLoader(0, null, this);
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        NetworkLoaderService.setHandler(handler);
+        Log.i("Comm", "onResume");
+        if (NetworkLoaderService.isLoading(cityName))//TODO wrong
+            getActivity().getActionBar().setSubtitle(R.string.updating);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        NetworkLoaderService.setHandler(null);
+        getActivity().getActionBar().setSubtitle(null);
+    }
+}

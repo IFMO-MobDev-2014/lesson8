@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="title_candidate_detail">Candidate Detail</string>
+    <string name = "updating">Updating...</string>
 
 </resources>
