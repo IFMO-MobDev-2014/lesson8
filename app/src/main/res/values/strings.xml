@@ -3,5 +3,13 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="title_activity_weather">WeatherActivity</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="times_of_day">
+        <item>Morning</item>
+        <item>Day</item>
+        <item>Evening</item>
+        <item>Night</item>
+    </string-array>
 
 </resources>
