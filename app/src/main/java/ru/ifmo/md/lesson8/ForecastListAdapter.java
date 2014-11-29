@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by pva701 on 27.11.14.
@@ -125,7 +126,7 @@ public class ForecastListAdapter extends RecyclerView.Adapter<ForecastListAdapte
             root.setOnClickListener(this);
         }
         public void setDate(Date d) {
-            day.setText(new SimpleDateFormat("d MMM, EEE").format(d));
+            day.setText(new SimpleDateFormat("d MMM, EEE", Locale.ENGLISH).format(d));
         }
 
         public void setTempMin(String t) {
