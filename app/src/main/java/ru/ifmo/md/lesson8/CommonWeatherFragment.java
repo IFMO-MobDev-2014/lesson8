@@ -136,10 +136,12 @@ public class CommonWeatherFragment extends Fragment
         } else {
             int backgroundRes = getBackgroundRes(weather);
             Drawable from = describeWeatherLayout.getBackground();
-            Drawable to = getActivity().getResources().getDrawable(backgroundRes);
-            TransitionDrawable td = new TransitionDrawable(new Drawable[]{from, to});
-            describeWeatherLayout.setBackground(td);
-            td.startTransition(800);
+            if (getActivity() != null && getActivity().getResources() != null) {
+                Drawable to = getActivity().getResources().getDrawable(backgroundRes);
+                TransitionDrawable td = new TransitionDrawable(new Drawable[]{from, to});
+                describeWeatherLayout.setBackground(td);
+                td.startTransition(800);
+            }
         }
         ((TextView)describeWeatherLayout.findViewById(R.id.temp)).setText(temp(weather.getTemp()));
         ((TextView)describeWeatherLayout.findViewById(R.id.temp_max)).setText(temp(weather.getTempMax()));
@@ -187,7 +189,7 @@ public class CommonWeatherFragment extends Fragment
                 else if (msg.what == NetworkLoaderService.ALREADY_UPDATED) {
                     stopLoading();
                     if (userRequestUpdate)
-                        Toast.makeText(getActivity(), "Weather already has been updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Weather has already been updated", Toast.LENGTH_SHORT).show();
                 }
             }
         };

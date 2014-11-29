@@ -1,6 +1,5 @@
 package ru.ifmo.md.lesson8;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -9,7 +8,6 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
