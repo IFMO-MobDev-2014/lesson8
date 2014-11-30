@@ -10,13 +10,18 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ru.ifmo.md.lesson8.WeatherActivity">
 
+    <Space
+        android:id="@+id/top"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize" />
+
     <ImageView
         android:id="@+id/weather_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/shift_view"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/top"
         android:adjustViewBounds="true"
         android:src="@drawable/moon_cloud" />
 
@@ -25,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/top"
         android:layout_marginBottom="8dip"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_pictures"
         android:text="Saint Petersburg"

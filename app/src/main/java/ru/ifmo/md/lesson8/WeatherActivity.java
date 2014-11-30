@@ -2,16 +2,24 @@ package ru.ifmo.md.lesson8;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
 public class WeatherActivity extends FragmentActivity {
+    CitiesAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_weather);
+
+        adapter = new CitiesAdapter(getSupportFragmentManager());
+        adapter.addCity("Saint Petersburg");
+        adapter.addCity("New York");
+        ((ViewPager) findViewById(R.id.city_pager)).setAdapter(adapter);
     }
 
     @Override

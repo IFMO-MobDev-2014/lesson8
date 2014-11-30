@@ -1,22 +1,24 @@
 package ru.ifmo.md.lesson8;
 
+import java.util.Date;
+
+import ru.ifmo.md.lesson8.json.subcontainers.Main;
+import ru.ifmo.md.lesson8.json.subcontainers.Weather;
+import ru.ifmo.md.lesson8.json.subcontainers.Wind;
+
 /**
  * Created by dimatomp on 29.11.14.
  */
 public class WeatherInfo {
-    public int temperature;
-    public float windSpeed;
-    public float windAngle;
-    public int humidity;
-    public int pressure;
-    public int weatherDescription;
+    public final Date date;
+    public final Main mainInfo;
+    public final Wind wind;
+    public final Weather description;
 
-    public WeatherInfo(int temperature, float windSpeed, float windAngle, int humidity, int pressure, int weatherDescription) {
-        this.temperature = temperature;
-        this.windSpeed = windSpeed;
-        this.windAngle = windAngle;
-        this.humidity = humidity;
-        this.pressure = pressure;
-        this.weatherDescription = weatherDescription;
+    public WeatherInfo(Date date, Main mainInfo, Wind wind, Weather description) {
+        this.date = date;
+        this.mainInfo = mainInfo;
+        this.wind = wind;
+        this.description = description;
     }
 }

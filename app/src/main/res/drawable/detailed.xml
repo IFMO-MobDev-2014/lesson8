@@ -17,7 +17,7 @@
     </item>
     <item app:state_night="true">
         <shape>
-            <gradient android:angle="-90" android:endColor="#ff292e7b" android:startColor="#0f0f0f" />
+            <gradient android:angle="-90" android:endColor="#ff292e7b" android:startColor="@android:color/transparent" />
         </shape>
     </item>
 </selector>

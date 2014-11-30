@@ -1,20 +1,47 @@
 package ru.ifmo.md.lesson8;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CalendarView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 /**
  * Created by dimatomp on 30.11.14.
  */
-public class CityWeather extends Fragment implements WeatherNow.Callbacks, WeatherSoon.Callbacks {
+public class CityWeather extends Fragment implements WeatherNow.Callbacks, WeatherSoon.Callbacks, LoaderManager.LoaderCallbacks<Cursor> {
     WeatherSoon activated;
-
     View[] briefViews = new View[4];
+
+    public String getCity() {
+        return getArguments().getString("cityName");
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CalendarView calendar = (CalendarView) getView().findViewById(R.id.calendar);
+        return new CursorLoader(getActivity(), Uri.parse("content://net.dimatomp.weather.provider/weather?" +
+                "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()), null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Toast.makeText(getActivity(), "You have loaded something.", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Toast.makeText(getActivity(), "You have reset the loader.", Toast.LENGTH_LONG).show();
+    }
 
     @Override
     public void addBriefView(TimeOfDay timeOfDay, View view) {
@@ -26,6 +53,7 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         for (View otherView : briefViews)
             briefLayout.addView(otherView, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         briefViews = null;
+        getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
@@ -45,7 +73,7 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.city_weather, container);
+        View result = inflater.inflate(R.layout.city_weather, container, false);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
         WeatherNow weatherNow = new WeatherNow();
