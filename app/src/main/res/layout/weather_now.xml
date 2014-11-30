@@ -1,10 +1,12 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ru.ifmo.md.lesson8.RelativeWeatherLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/weather_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/detailed"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin_pictures"
-    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:paddingStart="@dimen/activity_horizontal_margin_pictures"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ru.ifmo.md.lesson8.WeatherActivity">
 
@@ -128,4 +130,4 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/pressure"
         android:textAppearance="@style/WeatherDetails" />
-</RelativeLayout>
+</ru.ifmo.md.lesson8.RelativeWeatherLayout>

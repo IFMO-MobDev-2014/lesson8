@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TimeOfDayState">
+        <attr name="state_morning" format="boolean" />
+        <attr name="state_daytime" format="boolean" />
+        <attr name="state_evening" format="boolean" />
+        <attr name="state_night" format="boolean" />
+    </declare-styleable>
+</resources>

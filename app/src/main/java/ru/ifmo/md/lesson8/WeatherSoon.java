@@ -15,10 +15,19 @@ public class WeatherSoon extends Fragment {
     TimeOfDay timeOfDay;
     int weatherImg;
     boolean active;
+    Callbacks callbacks;
+
+    public void setCallbackInstance(Callbacks callbacks) {
+        this.callbacks = callbacks;
+    }
 
     public void setWeatherImg(int weatherImg) {
         this.weatherImg = weatherImg;
         updateBackground();
+    }
+
+    public TimeOfDay getTimeOfDay() {
+        return timeOfDay;
     }
 
     public void setTimeOfDay(TimeOfDay timeOfDay) {
@@ -32,36 +41,45 @@ public class WeatherSoon extends Fragment {
             getView().setSelected(active);
     }
 
-    void updateBackground(View view) {
+    void updateBackground(WeatherView view) {
         if (timeOfDay != null) {
             // TODO add transition effect
-            view.setBackgroundResource(timeOfDay.tabBackground);
-            ((ImageView) view.findViewById(R.id.weather_image)).setImageResource(
+            view.setTimeOfDay(timeOfDay);
+            ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
                     timeOfDay.weatherPictures[weatherImg]);
-            ((TextView) view.findViewById(R.id.time_of_day)).setText(
+            ((TextView) ((View) view).findViewById(R.id.time_of_day)).setText(
                     getResources().getStringArray(R.array.times_of_day)[timeOfDay.ordinal()]);
         }
     }
 
     void updateBackground() {
-        updateBackground(getView());
+        if (getView() != null)
+            updateBackground((WeatherView) getView().findViewById(R.id.weather_view));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.weather_soon, container);
-        updateBackground(result);
+        updateBackground((WeatherView) result);
         result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((Callbacks) getActivity()).onActivate(WeatherSoon.this);
+                callbacks.onActivate(WeatherSoon.this);
             }
         });
-        result.setSelected(active);
         return result;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        if (active)
+            callbacks.onActivate(this);
+        callbacks.addBriefView(timeOfDay, view);
     }
 
     public interface Callbacks {
         void onActivate(WeatherSoon activated);
+
+        void addBriefView(TimeOfDay timeOfDay, View view);
     }
 }

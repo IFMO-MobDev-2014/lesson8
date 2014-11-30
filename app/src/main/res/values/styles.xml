@@ -1,16 +1,7 @@
-<resources><!--
-    <style name="Widget.TransparentActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
-    <style name="AppTheme" parent="@android:style/Theme.Holo">
-        <item name="android:actionBarStyle">@style/Widget.TransparentActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-    </style>-->
+<resources>
 
     <style name="WeatherDetails" parent="android:TextAppearance.Medium">
         <item name="android:textSize">16sp</item>
         <item name="android:paddingBottom">4dip</item>
     </style>
-
 </resources>

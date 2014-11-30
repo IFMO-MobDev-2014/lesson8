@@ -10,27 +10,35 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 public class WeatherNow extends Fragment {
-    private WeatherSoon tab;
+    Callbacks callbacks;
+    private TimeOfDay timeOfDay;
+    private int weatherImg;
 
-    public void setActiveTab(WeatherSoon tab) {
-        if (this.tab != null)
-            this.tab.setActive(false);
-        this.tab = tab;
-        tab.setActive(true);
+    public void setCallbackInstance(Callbacks callbacks) {
+        this.callbacks = callbacks;
+    }
+
+    public void setTimeOfDay(TimeOfDay timeOfDay) {
+        this.timeOfDay = timeOfDay;
         updateBackground();
     }
 
-    void updateBackground(View view) {
-        if (tab != null && tab.timeOfDay != null) {
+    public void setWeatherImg(int weatherImg) {
+        this.weatherImg = weatherImg;
+    }
+
+    void updateBackground(WeatherView view) {
+        if (timeOfDay != null) {
             // TODO add transition effect
-            view.setBackgroundResource(tab.timeOfDay.mainBackground);
-            ((ImageView) view.findViewById(R.id.weather_image)).setImageResource(
-                    tab.timeOfDay.weatherPictures[tab.weatherImg]);
+            view.setTimeOfDay(timeOfDay);
+            ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
+                    timeOfDay.weatherPictures[weatherImg]);
         }
     }
 
     void updateBackground() {
-        updateBackground(getView());
+        if (getView() != null)
+            updateBackground((WeatherView) getView().findViewById(R.id.weather_view));
     }
 
     @Override
@@ -50,7 +58,16 @@ public class WeatherNow extends Fragment {
                 return true;
             }
         });
-        updateBackground(result);
+        updateBackground((WeatherView) result);
         return result;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        callbacks.addDetailedView(view);
+    }
+
+    public interface Callbacks {
+        void addDetailedView(View view);
     }
 }
