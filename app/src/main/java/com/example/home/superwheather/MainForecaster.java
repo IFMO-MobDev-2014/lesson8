@@ -124,7 +124,9 @@ public class MainForecaster extends Activity
     }
 
     public void onSectionAttached(int number) {
-        mTitle = (String) mNavigationDrawerFragment.getAdapter().getItem(number - 1);
+        if (mNavigationDrawerFragment != null) {
+            mTitle = (String) mNavigationDrawerFragment.getAdapter().getItem(number - 1);
+        }
         sectionNumber = number;
     }
 
@@ -698,7 +700,7 @@ public class MainForecaster extends Activity
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null && cursor.getCount() > 0) {
-                cursor.moveToNext();
+                cursor.moveToFirst();
 
                 if (view != null) {
                     ((TextView) view.findViewById(R.id.temperature)).setText(cursor.getString(0));
@@ -713,7 +715,7 @@ public class MainForecaster extends Activity
                                     "3", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) view.findViewById(R.id.header1)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) view.findViewById(R.id.temp_1_1)).setText(temps[0]);
@@ -734,7 +736,7 @@ public class MainForecaster extends Activity
                                     "4", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) view.findViewById(R.id.header2)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) view.findViewById(R.id.temp_2_1)).setText(temps[0]);
@@ -755,7 +757,7 @@ public class MainForecaster extends Activity
                                     "5", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) view.findViewById(R.id.header3)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) view.findViewById(R.id.temp_3_1)).setText(temps[0]);
@@ -776,7 +778,7 @@ public class MainForecaster extends Activity
                                     "6", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) view.findViewById(R.id.header4)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) view.findViewById(R.id.temp_4_1)).setText(temps[0]);
@@ -797,7 +799,7 @@ public class MainForecaster extends Activity
                                     "7", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) view.findViewById(R.id.header5)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) view.findViewById(R.id.temp_5_1)).setText(temps[0]);
@@ -825,7 +827,7 @@ public class MainForecaster extends Activity
                                     "3", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) MainForecaster.this.findViewById(R.id.header1)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) MainForecaster.this.findViewById(R.id.temp_1_1)).setText(temps[0]);
@@ -846,7 +848,7 @@ public class MainForecaster extends Activity
                                     "4", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) MainForecaster.this.findViewById(R.id.header2)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) MainForecaster.this.findViewById(R.id.temp_2_1)).setText(temps[0]);
@@ -867,7 +869,7 @@ public class MainForecaster extends Activity
                                     "5", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) MainForecaster.this.findViewById(R.id.header3)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) MainForecaster.this.findViewById(R.id.temp_3_1)).setText(temps[0]);
@@ -888,7 +890,7 @@ public class MainForecaster extends Activity
                                     "6", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) MainForecaster.this.findViewById(R.id.header4)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) MainForecaster.this.findViewById(R.id.temp_4_1)).setText(temps[0]);
@@ -909,7 +911,7 @@ public class MainForecaster extends Activity
                                     "7", city}, null);
 
                     if (cursor.getCount() > 0) {
-                        cursor.moveToNext();
+                        cursor.moveToFirst();
                         ((TextView) MainForecaster.this.findViewById(R.id.header5)).setText(cursor.getString(5));
                         String[] temps = cursor.getString(0).split("&");
                         ((TextView) MainForecaster.this.findViewById(R.id.temp_5_1)).setText(temps[0]);

@@ -26,21 +26,24 @@
                 android:id="@+id/imageView"
                 android:contentDescription="@string/desc"
                 android:src="@drawable/i96_2"
-                android:layout_alignParentStart="true"/>
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"/>
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_toEndOf="@+id/imageView"
-                android:layout_marginStart="31dp">
+                android:layout_toRightOf="@+id/imageView"
+                android:layout_marginStart="31dp"
+                android:layout_marginLeft="31dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/sample_temperature"
                     android:id="@+id/temperature"
-                    style="@android:style/TextAppearance.DeviceDefault.Large"
+                    style="@android:style/TextAppearance.Large"
                     android:textSize="50dp"/>
 
                 <TextView
@@ -121,7 +124,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_1_1" />
 
@@ -130,7 +133,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_1_2" />
 
@@ -139,7 +142,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_1_3" />
                 </LinearLayout>
@@ -222,7 +225,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_2_1" />
 
@@ -231,7 +234,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_2_2" />
 
@@ -240,7 +243,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_2_3" />
                 </LinearLayout>
@@ -323,7 +326,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_3_1" />
 
@@ -332,7 +335,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_3_2" />
 
@@ -341,7 +344,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_3_3" />
                 </LinearLayout>
@@ -424,7 +427,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_4_1" />
 
@@ -433,7 +436,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_4_2" />
 
@@ -442,7 +445,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_4_3" />
                 </LinearLayout>
@@ -525,7 +528,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_5_1" />
 
@@ -534,7 +537,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_5_2" />
 
@@ -543,7 +546,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="3°C"
+                        android:text=""
                         android:gravity="center"
                         android:id="@+id/temp_5_3" />
                 </LinearLayout>
