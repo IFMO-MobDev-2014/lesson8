@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.1"
 
     defaultConfig {
-        applicationId "lesson8.md.ifmo.ru.weather"
+        applicationId "ru.ifmo.md.lesson8"
         minSdkVersion 15
         targetSdkVersion 21
         versionCode 1
