@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -17,23 +16,17 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -66,11 +59,10 @@ public class NavigationDrawerFragment extends Fragment {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
-//    private ListView mDrawerListView;
-    private LinearLayout mDrawerListView;
+    protected LinearLayout mDrawerListView;
     private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 0;
+    protected int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -113,6 +105,49 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
                 getFragmentManager().executePendingTransactions();
                 mCallbacks.onNavigationDrawerItemSelected(-1);
+            }
+        });
+        ((ListView) mDrawerListView.findViewById(R.id.city_list)).setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(final AdapterView<?> adapterView, View view, final int id, long l) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Удаление города").setMessage("Вы уверены, что хотите удалить этот город?");
+                builder.setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int id2) {
+
+                        getActivity().getContentResolver().delete(MyContentProvider.CONTENT_URI, MyTable.COLUMN_T_ID + " = ? AND " + MyTable.COLUMN_TITLE + " = ?",
+                                new String[] {"1", (String) getAdapter().getItem(id)});
+
+                        ArrayList<String> elements_list = new ArrayList<>();
+
+                        Cursor cursor = getActivity().getContentResolver().query(MyContentProvider.CONTENT_URI, new String[]{MyTable.COLUMN_TITLE}, MyTable.COLUMN_T_ID + " = ?", new String[]{"1"}, null);
+
+                        for (int i = 0; i < cursor.getCount(); i++) {
+                            cursor.moveToNext();
+                            elements_list.add(cursor.getString(0));
+                        }
+
+                        ((ListView) mDrawerListView.findViewById(R.id.city_list)).setAdapter(new ArrayAdapter<>(
+                                getActionBar().getThemedContext(),
+                                android.R.layout.simple_list_item_activated_1,
+                                android.R.id.text1,
+                                elements_list));
+
+                        ((ListView) mDrawerListView.findViewById(R.id.city_list)).setItemChecked(0, true);
+                        mCallbacks.onNavigationDrawerItemSelected(0);
+                        mCallbacks.onNavigationDrawerItemSelected(-2);
+                        mCallbacks.onNavigationDrawerItemSelected(-1);
+
+                    }
+                });
+                builder.setNegativeButton("Отмена", null);
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                return true;
             }
         });
 
@@ -300,24 +335,9 @@ public class NavigationDrawerFragment extends Fragment {
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
             showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-//        if (item.getItemId() == R.id.action_example) {
-//            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
-//            return true;
-//        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**

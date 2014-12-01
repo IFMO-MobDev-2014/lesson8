@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "forecasting.db";
-    private static final int DB_VERSION = 14;
+    private static final int DB_VERSION = 1;
 
     public DbOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

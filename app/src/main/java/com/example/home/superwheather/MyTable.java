@@ -40,11 +40,11 @@ public class MyTable {
         database.execSQL("INSERT INTO " + TABLE_NAME + " (" + COLUMN_T_ID + ", " + COLUMN_TITLE + ", "
                 + COLUMN_TEMP + ", " + COLUMN_CLOUD + ", "
                 + COLUMN_HUM + ", " + COLUMN_PRESS + ", "
-                + COLUMN_DATE + ") VALUES (1, 'Moscow', '', '', '', '', '')");
+                + COLUMN_DATE + ") VALUES (1, 'Moscow, Russia', '', '', '', '', '')");
         database.execSQL("INSERT INTO " + TABLE_NAME + " (" + COLUMN_T_ID + ", " + COLUMN_TITLE + ", "
                 + COLUMN_TEMP + ", " + COLUMN_CLOUD + ", "
                 + COLUMN_HUM + ", " + COLUMN_PRESS + ", "
-                + COLUMN_DATE + ") VALUES (1, 'London', '', '', '', '', '')");
+                + COLUMN_DATE + ") VALUES (1, 'London, United Kingdom', '', '', '', '', '')");
     }
 
     public static void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {

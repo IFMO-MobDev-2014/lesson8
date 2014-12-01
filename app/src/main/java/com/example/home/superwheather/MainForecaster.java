@@ -13,11 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,13 +22,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.content.CursorLoader;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 
 public class MainForecaster extends Activity
@@ -85,6 +84,9 @@ public class MainForecaster extends Activity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
+        if (position < -1) {
+            sectionNumber = -position - 1;
+        } else
         if (position == -1) {
             loading = true;
             View rootView = ((PlaceholderFragment) getFragmentManager().findFragmentById(R.id.container)).getRootView();
@@ -92,8 +94,6 @@ public class MainForecaster extends Activity
             String city = (String) mNavigationDrawerFragment.getAdapter().getItem(sectionNumber - 1);
 
             getLoaderManager().restartLoader(0, null, new LoaderCallbacksHolder(city, rootView));
-
-            ((ImageView) rootView.findViewById(R.id.imageView)).setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.i96_2));
 
             Intent serviceIntent = new Intent(MainForecaster.this, MyService.class);
             startService(serviceIntent.putExtra("city", (String) mNavigationDrawerFragment.getAdapter().getItem(sectionNumber - 1)));
@@ -165,6 +165,31 @@ public class MainForecaster extends Activity
 
                 if (intent.getBooleanExtra("succeed", false)) {
 
+                    ContentValues values = new ContentValues();
+                    values.put(MyTable.COLUMN_T_ID, "1");
+                    values.put(MyTable.COLUMN_TITLE, intent.getStringExtra("cityName"));
+
+                    getActionBar().setTitle(intent.getStringExtra("cityName"));
+
+                    getContentResolver().update(MyContentProvider.CONTENT_URI, values, MyTable.COLUMN_T_ID + " = ? AND " + MyTable.COLUMN_TITLE + " = ?",
+                            new String[] {"1", intent.getStringExtra("city")});
+
+                    ArrayList<String> elements_list = new ArrayList<>();
+
+                    Cursor cursor = getContentResolver().query(MyContentProvider.CONTENT_URI, new String[]{MyTable.COLUMN_TITLE}, MyTable.COLUMN_T_ID + " = ?", new String[]{"1"}, null);
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        cursor.moveToNext();
+                        elements_list.add(cursor.getString(0));
+                    }
+
+                    ((ListView) mNavigationDrawerFragment.mDrawerListView.findViewById(R.id.city_list)).setAdapter(new ArrayAdapter<>(
+                            getActionBar().getThemedContext(),
+                            android.R.layout.simple_list_item_activated_1,
+                            android.R.id.text1,
+                            elements_list));
+                    ((ListView) mNavigationDrawerFragment.mDrawerListView.findViewById(R.id.city_list)).setItemChecked(mNavigationDrawerFragment.mCurrentSelectedPosition, true);
+
                     ((TextView) findViewById(R.id.temperature)).setText(intent.getStringExtra("temp") + "°C");
                     ((TextView) findViewById(R.id.cloudcover)).setText("Облачность: " + intent.getStringExtra("cloud") + "%");
                     ((TextView) findViewById(R.id.humidity)).setText("Влажность: " + intent.getStringExtra("hum") + "%");
@@ -182,7 +207,7 @@ public class MainForecaster extends Activity
                     }
                     ((ImageView) findViewById(R.id.imageView)).setImageBitmap(BitmapFactory.decodeResource(getResources(), id));
 
-                    ContentValues values = new ContentValues();
+                    values = new ContentValues();
 
                     String city = intent.getStringExtra("city");
 
@@ -194,7 +219,7 @@ public class MainForecaster extends Activity
                     values.put(MyTable.COLUMN_PRESS, "Давление: " + Integer.toString((int) (Integer.valueOf(intent.getStringExtra("press")) / 1.33322368d)) + " мм.рт.ст.");
                     values.put(MyTable.COLUMN_PIC_ID, "" + id);
 
-                    Cursor cursor = MainForecaster.this.getContentResolver().query(MyContentProvider.CONTENT_URI, new String[]{
+                    cursor = MainForecaster.this.getContentResolver().query(MyContentProvider.CONTENT_URI, new String[]{
                                     MyTable.COLUMN_TEMP, MyTable.COLUMN_CLOUD, MyTable.COLUMN_HUM, MyTable.COLUMN_PRESS},
                             MyTable.COLUMN_T_ID + " = ? AND " + MyTable.COLUMN_TITLE + " = ?", new String[]{
                                     "2", city}, null);

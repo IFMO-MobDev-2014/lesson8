@@ -79,6 +79,7 @@ public class MyService extends IntentService {
         String[] result = new String[]{};
         String[][][] forecast = new String[][][] {};
         String[] dates = new String[5];
+        String cityName = city;
 
         boolean cityTroubles = false;
 
@@ -90,6 +91,8 @@ public class MyService extends IntentService {
             JSONObject res = results.getJSONObject(0);
             result = new String[]{res.getString("cloudcover"), res.getString("temp_C"), res.getString("pressure"), res.getString("humidity"), res.getString("observation_time"),
                     res.getJSONArray("weatherIconUrl").getJSONObject(0).getString("value")};
+
+            cityName = response.getJSONObject("data").getJSONArray("request").getJSONObject(0).getString("query");
 
             results = response.getJSONObject("data").getJSONArray("weather");
             forecast = new String[5][][];
@@ -118,6 +121,7 @@ public class MyService extends IntentService {
             intentResponse.addCategory(Intent.CATEGORY_DEFAULT);
 
             intentResponse.putExtra("city", city);
+            intentResponse.putExtra("cityName", cityName);
             intentResponse.putExtra("temp", result[1]);
             intentResponse.putExtra("cloud", result[0]);
             intentResponse.putExtra("hum", result[3]);

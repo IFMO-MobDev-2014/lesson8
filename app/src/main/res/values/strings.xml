@@ -8,9 +8,9 @@
     <string name="action_settings">Settings</string>
     <string name="refresh">Обновить</string>
     <string name="add_button">Добавить</string>
-    <string name="sample_pressure">Давление: 775 мм.рт.ст.</string>
-    <string name="sample_humidity">Влажность: 54%</string>
-    <string name="sample_cloudcover">Облачность: 23%</string>
+    <string name="sample_pressure"></string>
+    <string name="sample_humidity"></string>
+    <string name="sample_cloudcover"></string>
     <string name="sample_temperature"></string>
     <string name="desc">weahter visual state</string>
     <string name="forecast_desc">Прогноз погоды (в 00:00, 12:00 и 21:00)</string>
