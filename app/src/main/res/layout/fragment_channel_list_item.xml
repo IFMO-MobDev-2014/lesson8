@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <odeen.magictextview.MagicTextView android:id="@+id/channel_list_item_channelName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="30dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:textColor="#FFFFFFFF"
+        android:text="name"
+        app:innerShadowColor="#FF606060"
+        app:innerShadowDy="1dp"
+        app:innerShadowRadius="1dp"/>
+
+
+</LinearLayout>
