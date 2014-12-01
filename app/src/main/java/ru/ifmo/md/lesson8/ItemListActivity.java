@@ -1,8 +1,22 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.Activity;
+import android.app.ListActivity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -22,18 +36,80 @@ import android.support.v4.app.FragmentActivity;
  * to listen for item selections.
  */
 public class ItemListActivity extends FragmentActivity
-        implements ItemListFragment.Callbacks {
+        implements ItemListFragment.Callbacks, LoaderManager.LoaderCallbacks<Cursor> {
+
+
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
+    final String[] cities = new String[]{"London", "Paris", "Moscow", "Berlin", "Rome"};
+    final String request = "http://api.openweathermap.org/data/2.5/weather?q=";
+
     private boolean mTwoPane;
+
+    SimpleCursorAdapter cursorAdapter;
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] Columns = new String[]{MyContentProvider.COLUMN_ID, MyContentProvider.COLUMN_CITY_NAME, MyContentProvider.COLUMN_WEATHER, MyContentProvider.COLUMN_WEATHER_ICON, MyContentProvider.COLUMN_WIND, MyContentProvider.COLUMN_WIND_SPEED, MyContentProvider.COLUMN_TEMP};
+        return new CursorLoader(this, MyContentProvider.TABLE_CITIES_URI, Columns, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        cursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+
+        for (int i = 0; i<cities.length; i++) {
+            fetchCurrCityWeather(cities[i], i+1);
+        }
+
+        String[] Columns = new String[]{MyContentProvider.COLUMN_CITY_NAME, MyContentProvider.COLUMN_WEATHER, MyContentProvider.COLUMN_WEATHER_ICON, MyContentProvider.COLUMN_WIND, MyContentProvider.COLUMN_WIND_SPEED, MyContentProvider.COLUMN_TEMP};
+        int[] elements = new int[]{R.id.city_name_textview, R.id.city_weather_textview, R.id.curr_weather_imgview, R.id.wind_textview, R.id.wind_speed_textview, R.id.temperature_textview};
+
+        cursorAdapter = new SimpleCursorAdapter(this, R.layout.list_element, null, Columns, elements, 0);
+        ((ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list)).setListAdapter(cursorAdapter);
+
+        cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int i) {
+                    if (view.getId() == R.id.curr_weather_imgview) {
+                        ImageView imgView = (ImageView)view;
+                        String imgName = "i"+cursor.getString(3);
+                        int imgResource = getResources().getIdentifier(imgName, "drawable", getPackageName());
+                        imgView.setImageBitmap(BitmapFactory.decodeResource(getResources(), imgResource));
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        Button updateButton = (Button)findViewById(R.id.update_button);
+        Log.d("Button", Boolean.toString(updateButton == null));
+        updateButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i<cities.length; i++) {
+                    fetchCurrCityWeather(cities[i], i+1);
+                }
+                Toast.makeText(getApplicationContext(), "Force update started", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        getLoaderManager().initLoader(0, null, this);
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -44,12 +120,21 @@ public class ItemListActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((ItemListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.item_list))
-                    .setActivateOnItemClick(true);
+            Log.d("Activated state", "true");
+            ((ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list)).setActivateOnItemClick(true);
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
+    }
+
+    void fetchCurrCityWeather(String city, int city_id) {
+        String link = request + city + "&mode=xml";
+        Intent loadFeed = new Intent(ItemListActivity.this, MyLoaderIntentService.class);
+        loadFeed.putExtra("link", link);
+        loadFeed.putExtra("city_name", city);
+        loadFeed.putExtra("city_id", city_id);
+        loadFeed.putExtra("mode", 2);
+        startService(loadFeed);
     }
 
     /**
@@ -64,6 +149,7 @@ public class ItemListActivity extends FragmentActivity
             // fragment transaction.
             Bundle arguments = new Bundle();
             arguments.putString(ItemDetailFragment.ARG_ITEM_ID, id);
+            arguments.putString("city_name", cities[Integer.parseInt(id)-1]);
             ItemDetailFragment fragment = new ItemDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -74,7 +160,9 @@ public class ItemListActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, ItemDetailActivity.class);
-            detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, Integer.toString(Integer.parseInt(id)-1));
+            Log.d("onItemSelected",cities[Integer.parseInt(id)-1]+ " "+ (Integer.parseInt(id)-1));
+            detailIntent.putExtra("city_name", cities[Integer.parseInt(id) - 1]);
             startActivity(detailIntent);
         }
     }
