@@ -5,7 +5,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -17,13 +16,24 @@ public class WeatherSoon extends Fragment {
     boolean active;
     Callbacks callbacks;
 
+    WeatherInfo weatherInfo;
+
     public void setCallbackInstance(Callbacks callbacks) {
         this.callbacks = callbacks;
     }
 
-    public void setWeatherImg(int weatherImg) {
-        this.weatherImg = weatherImg;
-        updateBackground();
+    public WeatherInfo getWeatherInfo() {
+        return weatherInfo;
+    }
+
+    public void setWeatherInfo(WeatherInfo weatherInfo) {
+        this.weatherInfo = weatherInfo;
+
+        TextView view = (TextView) getView().findViewById(R.id.temperature_range);
+        if (Math.round(weatherInfo.mainInfo.tempMin) == Math.round(weatherInfo.mainInfo.tempMax))
+            view.setText(Integer.toString(Math.round(weatherInfo.mainInfo.temp)) + "°C");
+        else
+            view.setText(String.format(getString(R.string.temperature_range), Math.round(weatherInfo.mainInfo.tempMin), Math.round(weatherInfo.mainInfo.tempMax)));
     }
 
     public TimeOfDay getTimeOfDay() {
@@ -44,9 +54,9 @@ public class WeatherSoon extends Fragment {
     void updateBackground(WeatherView view) {
         if (timeOfDay != null) {
             // TODO add transition effect
-            view.setTimeOfDay(timeOfDay);
+            view.setTimeOfDay(timeOfDay);/*
             ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
-                    timeOfDay.weatherPictures[weatherImg]);
+                    timeOfDay.weatherPictures[weatherImg]);*/
             ((TextView) ((View) view).findViewById(R.id.time_of_day)).setText(
                     getResources().getStringArray(R.array.times_of_day)[timeOfDay.ordinal()]);
         }

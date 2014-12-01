@@ -5,7 +5,8 @@
     </style>
 
     <style name="WeatherDetails" parent="android:TextAppearance.Medium">
+        <!-- TODO Remove sp from everywhere -->
         <item name="android:textSize">16sp</item>
-        <item name="android:paddingBottom">4dip</item>
+        <item name="android:layout_marginTop">4dip</item>
     </style>
 </resources>

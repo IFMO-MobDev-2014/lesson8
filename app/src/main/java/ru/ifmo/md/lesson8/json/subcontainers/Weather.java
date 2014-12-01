@@ -16,12 +16,12 @@ import static ru.ifmo.md.lesson8.WeatherColumns.IN_BRIEF;
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Weather implements WeatherEntry {
-    public String main;
+    public String icon;
     public String description;
 
     @Override
     public void inflate(ContentValues values) {
-        values.put(IN_BRIEF, main);
+        values.put(IN_BRIEF, icon);
         values.put(DESCRIPTION, description);
     }
 }

@@ -8,11 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-public class WeatherNow extends Fragment {
+public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawListener {
     Callbacks callbacks;
+    float windAngle;
+    String weatherImg;
     private TimeOfDay timeOfDay;
-    private int weatherImg;
 
     public void setCallbackInstance(Callbacks callbacks) {
         this.callbacks = callbacks;
@@ -23,8 +25,21 @@ public class WeatherNow extends Fragment {
         updateBackground();
     }
 
-    public void setWeatherImg(int weatherImg) {
-        this.weatherImg = weatherImg;
+    public void inflateWeatherInfo(WeatherInfo weatherInfo) {
+        ((TextView) getView().findViewById(R.id.temperature)).setText(
+                String.format(getString(R.string.single_temperature), (int) weatherInfo.mainInfo.temp));
+        ((TextView) getView().findViewById(R.id.wind_speed)).setText(
+                String.format(getString(R.string.wind_speed), weatherInfo.wind.speed));
+        ((TextView) getView().findViewById(R.id.humidity)).setText(
+                String.format(getString(R.string.humidity), (int) weatherInfo.mainInfo.humidity));
+        ((TextView) getView().findViewById(R.id.pressure)).setText(
+                String.format(getString(R.string.pressure), (int) (weatherInfo.mainInfo.pressure)));
+        ((TextView) getView().findViewById(R.id.weather_description)).setText(weatherInfo.description.description);
+        // TODO Verify correctness with WindGURU
+        windAngle = -45 - weatherInfo.wind.deg;
+        weatherImg = weatherInfo.description.icon;
+        onPreDraw();
+        updateBackground();
     }
 
     void updateBackground(WeatherView view) {
@@ -32,7 +47,8 @@ public class WeatherNow extends Fragment {
             // TODO add transition effect
             view.setTimeOfDay(timeOfDay);
             ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
-                    timeOfDay.weatherPictures[weatherImg]);
+                    weatherImg != null ? getResources().getIdentifier("weather_" + weatherImg.substring(0, 2)
+                            + (timeOfDay == TimeOfDay.NIGHT ? "n" : "d"), "drawable", getActivity().getPackageName()) : R.drawable.na);
         }
     }
 
@@ -42,22 +58,23 @@ public class WeatherNow extends Fragment {
     }
 
     @Override
+    public boolean onPreDraw() {
+        ImageView arrow = (ImageView) getView().findViewById(R.id.wind_direction);
+        Matrix turnMatrix = new Matrix();
+        float scale = 1.2f * arrow.getMeasuredHeight() / arrow.getDrawable().getIntrinsicHeight();
+        turnMatrix.setScale(scale, scale);
+        turnMatrix.postScale((float) Math.sqrt(0.3), (float) Math.sqrt(0.3),
+                arrow.getMeasuredWidth() / 2, arrow.getMeasuredHeight() / 2);
+        turnMatrix.postRotate(windAngle, arrow.getMeasuredWidth() / 2, arrow.getMeasuredHeight() / 2);
+        arrow.setImageMatrix(turnMatrix);
+        return true;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.weather_now, container);
-        final ImageView arrow = (ImageView) result.findViewById(R.id.wind_direction);
-        final Matrix turnMatrix = new Matrix();
-        arrow.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                float scale = (float) arrow.getMeasuredHeight() / arrow.getDrawable().getMinimumHeight();
-                turnMatrix.setScale(scale, scale);
-                turnMatrix.postRotate(-90, arrow.getMeasuredWidth() / 2, arrow.getMeasuredHeight() / 2);
-                arrow.setScaleType(ImageView.ScaleType.MATRIX);
-                arrow.setImageMatrix(turnMatrix);
-                return true;
-            }
-        });
+        result.getViewTreeObserver().addOnPreDrawListener(this);
         updateBackground((WeatherView) result);
         return result;
     }
