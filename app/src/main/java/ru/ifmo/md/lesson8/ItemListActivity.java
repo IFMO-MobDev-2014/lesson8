@@ -57,8 +57,6 @@ public class ItemListActivity extends ActionBarActivity
                     .setActivateOnItemClick(true);
         }
         GsonGetter<ResponseContainer> currentGetter = new GsonGetter<>(ResponseContainer.class);
-
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
     /**
