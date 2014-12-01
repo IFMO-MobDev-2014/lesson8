@@ -8,7 +8,7 @@
         android:src="@drawable/delete"
         android:background="#FFFFFF"
         android:id="@+id/button_delete"
-        android:layout_margin="13dp"
+        android:padding="11dp"
         android:layout_alignParentRight="true"
         android:gravity="center"/>
     <TextView
