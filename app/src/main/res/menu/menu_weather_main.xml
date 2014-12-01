@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ru.ifmo.md.lesson8.WeatherMain">
+
+    <item
+        android:id="@+id/default_activity_button"
+        android:icon="@android:drawable/stat_notify_sync"
+        android:title="@string/forecast"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+</menu>

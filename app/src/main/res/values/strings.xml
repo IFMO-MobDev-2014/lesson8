@@ -3,5 +3,13 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="title_activity_weather_min">WeatherMin</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_weather_main">WeatherMain</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hourly">Weather conditions during this day</string>
+    <string name="naxt">Next days weather forecast</string>
+    <string name="forecast">Weather forecast</string>
 
 </resources>
