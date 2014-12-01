@@ -1,14 +1,23 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 
-import ru.ifmo.md.lesson8.dummy.DummyContent;
+import java.text.CharacterIterator;
+
+import ru.ifmo.md.lesson8.adapters.CitiesAdapter;
+import ru.ifmo.md.lesson8.db.CitiesTable;
+import ru.ifmo.md.lesson8.db.WeatherContentProvider;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -19,7 +28,7 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -39,6 +48,11 @@ public class ItemListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
     /**
+     * List adapter for fragment.
+     */
+    private CitiesAdapter mAdapter;
+
+    /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
      * selections.
@@ -47,7 +61,7 @@ public class ItemListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(String id, Bundle data);
     }
 
     /**
@@ -56,7 +70,7 @@ public class ItemListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(String id, Bundle data) {
         }
     };
 
@@ -71,18 +85,16 @@ public class ItemListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        mAdapter = new CitiesAdapter(getActivity(), null);
+        setListAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        setEmptyText(getResources().getString(R.string.cities_list_empty_text));
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
@@ -116,7 +128,13 @@ public class ItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        Cursor c = ((CitiesAdapter) listView.getAdapter()).getCursor();
+        c.moveToPosition(position);
+        String cityId = c.getString(c.getColumnIndexOrThrow(CitiesTable._ID));
+        long woeid = c.getLong(c.getColumnIndexOrThrow(CitiesTable.COLUMN_NAME_WOEID));
+        Bundle data = new Bundle();
+        data.putLong(ItemDetailFragment.WOEID, woeid);
+        mCallbacks.onItemSelected(cityId, data);
     }
 
     @Override
@@ -148,5 +166,23 @@ public class ItemListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(),
+                WeatherContentProvider.CITIES_CONTENT_URL,
+                new String[] {"*"},
+                null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
     }
 }

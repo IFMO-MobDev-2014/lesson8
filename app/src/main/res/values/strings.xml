@@ -3,5 +3,13 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
-
+    <string name="action_update">Update forecast</string>
+    <string name="cities_list_empty_text">Loading cities…</string>
+    <string name="forecasts_loading_text">Getting the forecasts…</string>
+    <string name="forecasts_empty_text">No forecasts are available.</string>
+    <string name="forecasts_invalid_text">No city was specified.</string>
+    <string name="fetching_error">Error while fetching forecasts</string>
+    <string name="parsing_error">Invalid forecast data; cannot parse</string>
+    <string name="feed_refresh_toast">Refreshing the forecast…</string>
+    <string name="long_dash"> — </string>
 </resources>
