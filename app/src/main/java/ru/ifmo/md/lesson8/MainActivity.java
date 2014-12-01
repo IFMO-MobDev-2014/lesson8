@@ -221,6 +221,7 @@ public class MainActivity extends ActionBarActivity
                         data.getInt(data.getColumnIndex(WeatherProvider.YDAY))));
             }
             data.close();
+            adapter.notifyItemRangeChanged(0, adapter.mDataset.size());
             adapter.notifyDataSetChanged();
         }
 

@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -28,11 +29,13 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Weathe
 
     public static class WeatherViewHolder extends RecyclerView.ViewHolder {
         protected TextView desc, day;
+        protected WebView icon;
 
         public WeatherViewHolder(View v) {
             super(v);
             desc = (TextView) v.findViewById(R.id.info_text);
             day = (TextView) v.findViewById(R.id.day);
+            icon = (WebView) v.findViewById(R.id.iconView);
         }
     }
 
@@ -78,6 +81,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Weathe
         // - replace the contents of the view with that element
         holder.desc.setText(mDataset.get(position).text);
         holder.day.setText(mDataset.get(position).wday);
+        holder.icon.loadUrl(mDataset.get(position).icon);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
