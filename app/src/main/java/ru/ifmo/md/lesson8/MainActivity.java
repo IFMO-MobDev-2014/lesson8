@@ -1,7 +1,9 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,11 +25,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-
-    public final String API_KEY = "f59a47febebdfe9a";
-
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -53,7 +54,7 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         if (mNavigationDrawerFragment.adapter != null && mNavigationDrawerFragment.adapter.getCount() > 0)
-            onNavigationDrawerItemSelected(0);
+            onNavigationDrawerItemSelected(-1);
     }
 
     @Override
@@ -216,15 +217,17 @@ public class MainActivity extends ActionBarActivity
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            ArrayList<ForecastAdapter.WeatherEntry> tmp = new ArrayList<>();
             while (data.moveToNext()) {
-                adapter.mDataset.add(new ForecastAdapter.WeatherEntry(data.getBlob(data.getColumnIndex(WeatherProvider.ICON)),
+                tmp.add(new ForecastAdapter.WeatherEntry(data.getBlob(data.getColumnIndex(WeatherProvider.ICON)),
                         data.getString(data.getColumnIndex(WeatherProvider.TXT)),
                         data.getString(data.getColumnIndex(WeatherProvider.WDAY)),
                         data.getInt(data.getColumnIndex(WeatherProvider.YEAR)),
                         data.getInt(data.getColumnIndex(WeatherProvider.YDAY))));
             }
             data.close();
-            adapter.notifyItemRangeChanged(0, adapter.mDataset.size());
+            adapter.mDataset = tmp;
+
             adapter.notifyDataSetChanged();
         }
 

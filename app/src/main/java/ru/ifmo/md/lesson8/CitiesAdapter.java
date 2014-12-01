@@ -2,6 +2,7 @@ package ru.ifmo.md.lesson8;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,12 @@ public class CitiesAdapter extends BaseAdapter {
     ArrayList<String> citiesZMW = new ArrayList<>();
     Context mainContext;
     NavigationDrawerFragment drawer;
+    private int activePosition;
 
-    public CitiesAdapter(Context c, NavigationDrawerFragment ndf) {
+    public CitiesAdapter(Context c, NavigationDrawerFragment ndf, int activePosition) {
         mainContext = c;
         drawer = ndf;
+        this.activePosition = activePosition;
 
         Cursor cursor = mainContext.getContentResolver().
                 query(WeatherProvider.CITIES_URI, null, null, null, WeatherProvider.NAME);
@@ -37,11 +40,18 @@ public class CitiesAdapter extends BaseAdapter {
     public void addCity(String c, String zwm) {
         citiesNames.add(c);
         citiesZMW.add(zwm);
+        activePosition = citiesNames.size() - 1;
 
         ContentValues cv = new ContentValues();
         cv.put(WeatherProvider.NAME, c);
         cv.put(WeatherProvider.ZMW, zwm);
         mainContext.getContentResolver().insert(WeatherProvider.CITIES_URI, cv);
+
+        Intent loadForecast = new Intent(mainContext, WeatherService.class);
+        loadForecast.putExtra(WeatherProvider.NAME, c);
+        loadForecast.putExtra(WeatherProvider.ZMW, zwm);
+        loadForecast.putExtra("force", true);
+        mainContext.startService(loadForecast);
     }
 
     public void delCity(String name) {
@@ -52,14 +62,24 @@ public class CitiesAdapter extends BaseAdapter {
         if (pos != -1) {
             citiesNames.remove(pos);
             citiesZMW.remove(pos);
+
+            if (pos <= activePosition) {
+                if (pos == activePosition)
+                    drawer.displayFragment(Math.max(0, citiesNames.size() - 1));
+                activePosition = Math.max(0, citiesNames.size() - 1);
+            }
         }
+
         notifyDataSetChanged();
     }
 
     public void goTo(String s) {
         int pos = citiesNames.indexOf(s);
-        if (pos != -1)
+        if (pos != -1) {
             drawer.selectItem(pos - 1);
+            activePosition = pos;
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -99,6 +119,9 @@ public class CitiesAdapter extends BaseAdapter {
         TextView text = (TextView) entry.findViewById(R.id.cityName);
         text.setText(cityName);
         text.setOnClickListener(new OnCityChoose(this, cityName));
+        if (position == activePosition) {
+            entry.setBackgroundColor(mainContext.getResources().getColor(R.color.transperent_gray));
+        }
         return entry;
     }
 

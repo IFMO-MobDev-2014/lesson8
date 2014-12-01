@@ -61,7 +61,7 @@ public class NavigationDrawerFragment extends Fragment
 
     private final int AUTOCOMPLETE_LOADER = 1;
 
-    private DrawerLayout mDrawerLayout;
+    public DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
@@ -111,14 +111,14 @@ public class NavigationDrawerFragment extends Fragment
                              Bundle savedInstanceState) {
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
-        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+/*        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectItem(position);
             }
-        });
+        });*/
 
-        adapter = new CitiesAdapter(getActionBar().getThemedContext(), this);
+        adapter = new CitiesAdapter(getActionBar().getThemedContext(), this, mCurrentSelectedPosition);
         mDrawerListView.setAdapter(adapter);
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
@@ -299,7 +299,7 @@ public class NavigationDrawerFragment extends Fragment
         chooseDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
     }
 
-    private void displayFragment(int position) {
+    public void displayFragment(int position) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, MainActivity.PlaceholderFragment.newInstance(
@@ -321,11 +321,13 @@ public class NavigationDrawerFragment extends Fragment
                 addCity();
                 return true;
             case R.id.action_refresh:
-                Intent loadForecast = new Intent(getActivity(), WeatherService.class);
-                loadForecast.putExtra(WeatherProvider.NAME, adapter.citiesNames.get(mCurrentSelectedPosition + 1));
-                loadForecast.putExtra(WeatherProvider.ZMW, adapter.citiesZMW.get(mCurrentSelectedPosition + 1));
-                loadForecast.putExtra("force", true);
-                getActivity().startService(loadForecast);
+                if (mCurrentSelectedPosition < adapter.getCount()) {
+                    Intent loadForecast = new Intent(getActivity(), WeatherService.class);
+                    loadForecast.putExtra(WeatherProvider.NAME, adapter.citiesNames.get(mCurrentSelectedPosition + 1));
+                    loadForecast.putExtra(WeatherProvider.ZMW, adapter.citiesZMW.get(mCurrentSelectedPosition + 1));
+                    loadForecast.putExtra("force", true);
+                    getActivity().startService(loadForecast);
+                }
                 return true;
         }
 

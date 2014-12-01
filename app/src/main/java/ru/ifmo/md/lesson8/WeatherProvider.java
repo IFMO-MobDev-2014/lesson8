@@ -77,6 +77,11 @@ public class WeatherProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(CREATE_CITIES_TABLE);
             db.execSQL(CREATE_WEATHER_TABLE);
+            // default cities
+            db.execSQL("INSERT INTO " + CITIES_TABLE_NAME + " (" + ZMW + ", " + NAME + ")" +
+                                        "VALUES ('00000.1.26063', 'Saint Petersburg, Russia')");
+            db.execSQL("INSERT INTO " + CITIES_TABLE_NAME + " (" + ZMW + ", " + NAME + ")" +
+                                        "VALUES ('00000.1.27612', 'Moscow, Russia')");
         }
 
         @Override
