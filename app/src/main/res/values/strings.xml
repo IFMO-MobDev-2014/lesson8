@@ -2,6 +2,14 @@
 <resources>
 
     <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="temperature">Temperature: </string>
+    <string name="humidity">Humidity: </string>
+    <string name="pressure">Pressure: </string>
+    <string name="wind_speed">Wind speed: </string>
+    <string name="button_add">Add</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="after">Day after tomorrow</string>
+    <string name="update">Update</string>
 
 </resources>
