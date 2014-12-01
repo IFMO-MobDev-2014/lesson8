@@ -2,12 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <Button
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_drawer"
-        android:drawableLeft="@drawable/ic_drawer"
+        android:src="@drawable/delete"
+        android:background="#FFFFFF"
         android:id="@+id/button_delete"
+        android:layout_margin="13dp"
         android:layout_alignParentRight="true"
         android:gravity="center"/>
     <TextView

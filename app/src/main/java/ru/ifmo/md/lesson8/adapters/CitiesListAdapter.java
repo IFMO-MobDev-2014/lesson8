@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import ru.ifmo.md.lesson8.R;
 import ru.ifmo.md.lesson8.database.DataProvider;
@@ -50,7 +51,7 @@ public class CitiesListAdapter extends BaseAdapter {
                 dp.cityListFragment.selectItem(i);
             }
         });
-        Button delete = (Button) v.findViewById(R.id.button_delete);
+        ImageButton delete = (ImageButton) v.findViewById(R.id.button_delete);
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
