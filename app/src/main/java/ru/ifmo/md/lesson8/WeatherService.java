@@ -4,11 +4,16 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -71,19 +76,32 @@ public class WeatherService extends IntentService{
                 cv.put(WeatherProvider.NAME, name);
                 cv.put(WeatherProvider.YEAR, simpleRow.getJSONObject("date").getInt("year"));
                 cv.put(WeatherProvider.YDAY, simpleRow.getJSONObject("date").getInt("yday"));
-                cv.put(WeatherProvider.ICON, txtRow.getString("icon_url"));
+                cv.put(WeatherProvider.ICON, getRawImage(txtRow.getString("icon_url")));
                 cv.put(WeatherProvider.WDAY, txtRow.getString("title"));
                 cv.put(WeatherProvider.TXT, txtRow.getString("fcttext_metric"));
                 getContentResolver().insert(WeatherProvider.WEATHER_URI, cv);
                 txtRow = txtForecast.getJSONObject(2 * i + 1);
-                cv.put(WeatherProvider.ICON, txtRow.getString("icon_url"));
+                cv.put(WeatherProvider.ICON, getRawImage(txtRow.getString("icon_url")));
                 cv.put(WeatherProvider.WDAY, txtRow.getString("title"));
                 cv.put(WeatherProvider.TXT, txtRow.getString("fcttext_metric"));
                 getContentResolver().insert(WeatherProvider.WEATHER_URI, cv);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private byte[] getRawImage(String url) {
+        InputStream in;
+        try {
+            in = new URL(url).openStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        Bitmap icon = BitmapFactory.decodeStream(in);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        icon.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
     }
 }

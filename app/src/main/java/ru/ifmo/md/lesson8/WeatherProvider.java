@@ -25,7 +25,7 @@ public class WeatherProvider extends ContentProvider {
     static final String _ID = "_id";
     static final String NAME = "name";
     static final String ZMW = "zwm";
-    static final String ICON = "icon_url";
+    static final String ICON = "icon_raw";
     static final String YEAR = "year";
     static final String YDAY = "year_day";
     static final String TXT = "text";
@@ -62,7 +62,7 @@ public class WeatherProvider extends ContentProvider {
                     " (" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     ZMW + " TEXT NOT NULL, " +
                     NAME + " TEXT NOT NULL, " +
-                    ICON + " TEXT, " +
+                    ICON + " BLOB, " +
                     YEAR + " INTEGER," +
                     YDAY + " INTEGER," +
                     WDAY + " INTEGER," +

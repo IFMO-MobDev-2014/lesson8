@@ -1,12 +1,15 @@
 package ru.ifmo.md.lesson8;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -14,11 +17,12 @@ import java.util.ArrayList;
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.WeatherViewHolder> {
 
     static class WeatherEntry {
-        public String icon, text, wday;
+        public byte[] icon;
+        public String text, wday;
         public int year, yday;
 
         public WeatherEntry() {}
-        public WeatherEntry(String icon, String text, String wday, int year, int yday) {
+        public WeatherEntry(byte[] icon, String text, String wday, int year, int yday) {
             this.icon = icon;
             this.text = text;
             this.wday = wday;
@@ -29,13 +33,13 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Weathe
 
     public static class WeatherViewHolder extends RecyclerView.ViewHolder {
         protected TextView desc, day;
-        protected WebView icon;
+        protected ImageView icon;
 
         public WeatherViewHolder(View v) {
             super(v);
             desc = (TextView) v.findViewById(R.id.info_text);
             day = (TextView) v.findViewById(R.id.day);
-            icon = (WebView) v.findViewById(R.id.iconView);
+            icon = (ImageView) v.findViewById(R.id.iconView);
         }
     }
 
@@ -81,7 +85,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Weathe
         // - replace the contents of the view with that element
         holder.desc.setText(mDataset.get(position).text);
         holder.day.setText(mDataset.get(position).wday);
-        holder.icon.loadUrl(mDataset.get(position).icon);
+        holder.icon.setImageBitmap(BitmapFactory.decodeByteArray(mDataset.get(position).icon,
+                0, mDataset.get(position).icon.length));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

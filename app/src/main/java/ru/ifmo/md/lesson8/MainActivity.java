@@ -51,6 +51,9 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        if (mNavigationDrawerFragment.adapter != null && mNavigationDrawerFragment.adapter.getCount() > 0)
+            onNavigationDrawerItemSelected(0);
     }
 
     @Override
@@ -214,7 +217,7 @@ public class MainActivity extends ActionBarActivity
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             while (data.moveToNext()) {
-                adapter.mDataset.add(new ForecastAdapter.WeatherEntry(data.getString(data.getColumnIndex(WeatherProvider.ICON)),
+                adapter.mDataset.add(new ForecastAdapter.WeatherEntry(data.getBlob(data.getColumnIndex(WeatherProvider.ICON)),
                         data.getString(data.getColumnIndex(WeatherProvider.TXT)),
                         data.getString(data.getColumnIndex(WeatherProvider.WDAY)),
                         data.getInt(data.getColumnIndex(WeatherProvider.YEAR)),
