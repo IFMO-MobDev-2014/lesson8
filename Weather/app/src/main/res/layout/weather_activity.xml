@@ -4,16 +4,25 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:background="@drawable/bar">
+
         <TextView android:layout_height="wrap_content"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:textSize="21sp"
             android:textStyle="bold"
             android:id="@+id/city_name"
             android:textColor="#fffdfdfe" />
+
+        <Button
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/refresh"
+            android:background="@drawable/refresh" />
+
     </LinearLayout>
     <ScrollView android:layout_width="match_parent"
         android:layout_height="match_parent">

@@ -8,6 +8,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 
 
 public class WeatherActivity extends Activity {
+    Button refresh;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +39,16 @@ public class WeatherActivity extends Activity {
         String city = intent.getStringExtra(MainActivity.CODE);
         TextView cityName = (TextView) findViewById(R.id.city_name);
         cityName.setText(city);
-        String city_eng = intent.getStringExtra(MainActivity.CODE_ENG);
+        final String city_eng = intent.getStringExtra(MainActivity.CODE_ENG);
         new WeatherTask().execute(city_eng);
+        refresh = (Button)findViewById(R.id.refresh);
+        refresh.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                new WeatherTask().execute(city_eng);
+            }
+
+        });
     }
 
     HashMap<Integer, String> weatherTexts;
