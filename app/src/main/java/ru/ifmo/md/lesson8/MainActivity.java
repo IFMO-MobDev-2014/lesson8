@@ -151,7 +151,6 @@ public class MainActivity extends ActionBarActivity
         }
 
         private void reloadData() {
-            adapter.mDataset.clear();
             getLoaderManager().restartLoader(1, null, this);
         }
 

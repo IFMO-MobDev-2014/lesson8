@@ -27,7 +27,7 @@ public class CitiesAdapter extends BaseAdapter {
         this.activePosition = activePosition;
 
         Cursor cursor = mainContext.getContentResolver().
-                query(WeatherProvider.CITIES_URI, null, null, null, WeatherProvider.NAME);
+                query(WeatherProvider.CITIES_URI, null, null, null, WeatherProvider._ID);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 citiesNames.add(cursor.getString(cursor.getColumnIndex(WeatherProvider.NAME)));
