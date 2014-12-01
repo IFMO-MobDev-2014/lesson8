@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Weather>, ActionBar.OnNavigationListener {
     public static final String APP_PREFERENCES = "mySettings";
@@ -57,6 +60,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         bar.setListNavigationCallbacks(adapter, this);
 
         getLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
+
+        if (!isOnline()) Toast.makeText(this, "no internet :(", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -132,10 +137,12 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         Log.d("debug1", "NavigationItemSelected, i = " + Integer.toString(i));
         currentCity = i;
         display();
-        startService(new Intent(this, WeatherDownloadService.class).
-                putExtra(WeatherDownloadService.URL_TAG, urls[i]).
-                putExtra(WeatherDownloadService.CITY_TAG, cities[i])
-        );
+        if (isOnline()) {
+            startService(new Intent(this, WeatherDownloadService.class).
+                            putExtra(WeatherDownloadService.URL_TAG, urls[i]).
+                            putExtra(WeatherDownloadService.CITY_TAG, cities[i])
+            );
+        }
         return true;
     }
 
@@ -163,13 +170,21 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                startService(new Intent(this, WeatherDownloadService.class).
-                                putExtra(WeatherDownloadService.URL_TAG, urls[currentCity]).
-                                putExtra(WeatherDownloadService.CITY_TAG, cities[currentCity])
-                );
+                if (!isOnline()) Toast.makeText(this, "no internet :(", Toast.LENGTH_SHORT).show(); else {
+                    startService(new Intent(this, WeatherDownloadService.class).
+                                    putExtra(WeatherDownloadService.URL_TAG, urls[currentCity]).
+                                    putExtra(WeatherDownloadService.CITY_TAG, cities[currentCity])
+                    );
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isAvailable() && netInfo.isConnected();
     }
 }
