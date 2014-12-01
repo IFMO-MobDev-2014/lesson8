@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bar">
+
+        <TextView
+            android:layout_margin="10dp"
+            android:id="@+id/tvChooser"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/choose"
+            android:textSize="21dp"
+            android:textStyle="bold">
+        </TextView>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lvChooser"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </ListView>
+
+</LinearLayout>
