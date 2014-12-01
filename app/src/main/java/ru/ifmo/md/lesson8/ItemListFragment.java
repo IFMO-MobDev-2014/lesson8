@@ -1,14 +1,15 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.app.ListFragment;
+import android.widget.SimpleCursorAdapter;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
-
-
-import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -19,7 +20,7 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class ItemListFragment extends ListFragment implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -46,8 +47,9 @@ public class ItemListFragment extends ListFragment {
     public interface Callbacks {
         /**
          * Callback for when an item has been selected.
+         * @param id
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(long id);
     }
 
     /**
@@ -56,7 +58,7 @@ public class ItemListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(long id) {
         }
     };
 
@@ -70,13 +72,7 @@ public class ItemListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        fillData();
     }
 
     @Override
@@ -116,7 +112,7 @@ public class ItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(id);
     }
 
     @Override
@@ -148,5 +144,28 @@ public class ItemListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+
+    private void fillData() {
+        getLoaderManager().initLoader(0, null, this);
+        setListAdapter(new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1, null,
+                new String[]{DBAdapter.KEY_WEATHER_CITY},
+                new int[]{android.R.id.text1}, 0));
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(),
+                WeatherContentProvider.WEATHER_URI, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        ((CursorAdapter)getListAdapter()).swapCursor((Cursor)data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        ((CursorAdapter)getListAdapter()).swapCursor(null);
     }
 }

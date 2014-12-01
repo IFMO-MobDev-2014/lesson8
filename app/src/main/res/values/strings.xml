@@ -3,5 +3,16 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="NoInternet">No Internet</string>
+    <string name="Now">Now</string>
+    <string name="celcius">°</string>
+    <string name="humidity">Humidity: </string>
+    <string name="percents_sign">%</string>
+    <string name="pressure">Pr.: </string>
+    <string name="wind">Wind: </string>
+    <string name="metres_per_second">m/s</string>
+    <string name="pressure_unit">" mm Hg"</string>
+    <string name="dayToday">Today</string>
+    <string name="dayTommorow">Tomorrow</string>
 
 </resources>
