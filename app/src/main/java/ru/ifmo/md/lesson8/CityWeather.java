@@ -130,6 +130,20 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         calendar.add(Calendar.MONTH, -1);
         calendarView.setMinDate(calendar.getTimeInMillis());
         calendarView.setDate(System.currentTimeMillis(), false, false);
+
+        long time = System.currentTimeMillis();
+        long[] period = WeatherStorage.getDayRange(time);
+        time = (time / 1000 - period[0]) * 24 / (period[1] - period[0]);
+        WeatherSoon toActivate;
+        if (time < 7)
+            toActivate = (WeatherSoon) getChildFragmentManager().findFragmentByTag("nightTab");
+        else if (time < 11)
+            toActivate = (WeatherSoon) getChildFragmentManager().findFragmentByTag("morningTab");
+        else if (time < 19)
+            toActivate = (WeatherSoon) getChildFragmentManager().findFragmentByTag("daytimeTab");
+        else
+            toActivate = (WeatherSoon) getChildFragmentManager().findFragmentByTag("eveningTab");
+        onActivate(toActivate);
     }
 
     @Override

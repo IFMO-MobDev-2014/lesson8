@@ -22,6 +22,7 @@
         android:layout_alignBottom="@+id/shift_view"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/top"
+        android:layout_toEndOf="@+id/weather_description"
         android:src="@drawable/na" />
 
     <TextView
@@ -71,7 +72,7 @@
         android:layout_alignStart="@id/thermometer"
         android:layout_alignTop="@+id/wind_speed"
         android:scaleType="matrix"
-        android:src="@drawable/down_right1" />
+        android:src="@drawable/down_right" />
 
     <TextView
         android:id="@+id/wind_speed"

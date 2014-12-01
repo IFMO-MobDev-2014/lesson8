@@ -33,7 +33,7 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
         ((TextView) getView().findViewById(R.id.humidity)).setText(
                 String.format(getString(R.string.humidity), (int) weatherInfo.mainInfo.humidity));
         ((TextView) getView().findViewById(R.id.pressure)).setText(
-                String.format(getString(R.string.pressure), (int) (weatherInfo.mainInfo.pressure)));
+                String.format(getString(R.string.pressure), (int) (weatherInfo.mainInfo.pressure * 0.75)));
         ((TextView) getView().findViewById(R.id.weather_description)).setText(weatherInfo.description.description);
         // TODO Verify correctness with WindGURU
         windAngle = -45 - weatherInfo.wind.deg;
@@ -44,7 +44,6 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
 
     void updateBackground(WeatherView view) {
         if (timeOfDay != null) {
-            // TODO add transition effect
             view.setTimeOfDay(timeOfDay);
             ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
                     weatherImg != null ? getResources().getIdentifier("weather_" + weatherImg.substring(0, 2)
@@ -63,7 +62,7 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
         Matrix turnMatrix = new Matrix();
         float scale = 1.2f * arrow.getMeasuredHeight() / arrow.getDrawable().getIntrinsicHeight();
         turnMatrix.setScale(scale, scale);
-        turnMatrix.postScale((float) Math.sqrt(0.3), (float) Math.sqrt(0.3),
+        turnMatrix.postScale((float) Math.sqrt(0.4), (float) Math.sqrt(0.4),
                 arrow.getMeasuredWidth() / 2, arrow.getMeasuredHeight() / 2);
         turnMatrix.postRotate(windAngle, arrow.getMeasuredWidth() / 2, arrow.getMeasuredHeight() / 2);
         arrow.setImageMatrix(turnMatrix);

@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -12,10 +13,8 @@ import android.widget.TextView;
  */
 public class WeatherSoon extends Fragment {
     TimeOfDay timeOfDay;
-    int weatherImg;
-    boolean active;
     Callbacks callbacks;
-
+    boolean active;
     WeatherInfo weatherInfo;
 
     public void setCallbackInstance(Callbacks callbacks) {
@@ -34,6 +33,7 @@ public class WeatherSoon extends Fragment {
             view.setText(Integer.toString(Math.round(weatherInfo.mainInfo.temp)) + "°C");
         else
             view.setText(String.format(getString(R.string.temperature_range), Math.round(weatherInfo.mainInfo.tempMin), Math.round(weatherInfo.mainInfo.tempMax)));
+        updateBackground();
     }
 
     public TimeOfDay getTimeOfDay() {
@@ -53,10 +53,11 @@ public class WeatherSoon extends Fragment {
 
     void updateBackground(WeatherView view) {
         if (timeOfDay != null) {
-            // TODO add transition effect
-            view.setTimeOfDay(timeOfDay);/*
-            ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
-                    timeOfDay.weatherPictures[weatherImg]);*/
+            view.setTimeOfDay(timeOfDay);
+            if (weatherInfo != null)
+                ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(getResources().getIdentifier(
+                        "weather_" + weatherInfo.description.icon.substring(0, 2) + (timeOfDay == TimeOfDay.NIGHT ? "n" : "d")
+                        , "drawable", getActivity().getPackageName()));
             ((TextView) ((View) view).findViewById(R.id.time_of_day)).setText(
                     getResources().getStringArray(R.array.times_of_day)[timeOfDay.ordinal()]);
         }
@@ -82,9 +83,9 @@ public class WeatherSoon extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        callbacks.addBriefView(timeOfDay, view);
         if (active)
             callbacks.onActivate(this);
-        callbacks.addBriefView(timeOfDay, view);
     }
 
     public interface Callbacks {
