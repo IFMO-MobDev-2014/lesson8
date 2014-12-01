@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="170dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/frame9"
+    android:layout_margin="4dp"
+    android:padding="4dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <odeen.magictextview.MagicTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="27 Nov, Tue"
+        android:id="@+id/day_textView"
+        android:textSize="20dp"
+        android:padding="4dp"
+        android:layout_margin="4dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:textStyle="bold"
+        android:textColor="#FFFFFFFF"
+        app:innerShadowColor="#FF606060"
+        app:innerShadowDy="1dp"
+        app:innerShadowRadius="1dp"
+        />
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/n50"
+        android:id="@+id/iconView"
+        android:layout_gravity="center_horizontal"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+        <odeen.magictextview.MagicTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12C"
+            android:id="@+id/temp_textView"
+            android:textSize="15dp"
+            android:layout_margin="4dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"
+            app:innerShadowColor="#FF606060"
+            app:innerShadowDy="1dp"
+            app:innerShadowRadius="1dp"
+            />
+        <odeen.magictextview.MagicTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="94%"
+            android:id="@+id/hum_textView"
+            android:textSize="15dp"
+            android:layout_margin="4dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"
+            app:innerShadowColor="#FF606060"
+            app:innerShadowDy="1dp"
+            app:innerShadowRadius="1dp"
+            />
+        <odeen.magictextview.MagicTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3.0 m/s"
+            android:id="@+id/wind_textView"
+            android:textSize="15dp"
+            android:layout_margin="4dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"
+            app:innerShadowColor="#FF606060"
+            app:innerShadowDy="1dp"
+            app:innerShadowRadius="1dp"
+            />
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
