@@ -8,25 +8,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Weather>, ActionBar.OnNavigationListener {
+    public static final String APP_PREFERENCES = "mySettings";
+    public static final String APP_PREFERENCES_CURRENT_CITY = "currentCity";
+    SharedPreferences settings;
     private static final int WEATHER_LOADER_ID = 0;
-    private static final String[] cities = new String[]{"Санкт-Петербург", "Москва", "Сидней", "Нью-Йорк", "Лондон"};
+    private static final String[] cities = new String[]{"Санкт-Петербург", "Москва", "Сидней", "Нью-Йорк", "Лондон", "Оймякон", "Бангкок"};
     private static final String[] urls = new String[]{
-            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=saint_petersburg&num_of_days=5&tp=24&format=xml",
-            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=moscow&num_of_days=5&tp=24&format=xml",
-            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=sydney&num_of_days=5&tp=24&format=xml",
-            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=new_york&num_of_days=5&tp=24&format=xml",
-            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=london&num_of_days=5&tp=24&format=xml"
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=saint_petersburg&num_of_days=5&tp=24&showlocaltime=yes&format=xml",
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=moscow&num_of_days=5&tp=24&showlocaltime=yes&format=xml",
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=sydney&num_of_days=5&tp=24&showlocaltime=yes&format=xml",
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=new_york&num_of_days=5&tp=24&showlocaltime=yes&format=xml",
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=london&num_of_days=5&tp=24&showlocaltime=yes&format=xml",
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=oymyakon&num_of_days=5&tp=24&showlocaltime=yes&format=xml",
+            "http://api.worldweatheronline.com/free/v2/weather.ashx?key=05489d954c3b344b296d7ef09e4b7&q=Bangkok&num_of_days=5&tp=24&showlocaltime=yes&format=xml"
     };
     private ActionBar bar;
-    private int currentCity = 0;
+    private int currentCity;
     private MyBroadcastReceiver myBroadcastReceiver;
 
     @Override
@@ -34,18 +42,41 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+
         myBroadcastReceiver = new MyBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter(WeatherDownloadService.ACTION_RESPONSE);
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(myBroadcastReceiver, intentFilter);
 
-        ActionBar bar = getActionBar();
+        bar = getActionBar();
+        bar.setDisplayShowTitleEnabled(false);
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, cities);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         bar.setListNavigationCallbacks(adapter, this);
 
         getLoaderManager().initLoader(WEATHER_LOADER_ID, null, this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(APP_PREFERENCES_CURRENT_CITY, currentCity);
+        editor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (settings.contains(APP_PREFERENCES_CURRENT_CITY)) {
+            currentCity = settings.getInt(APP_PREFERENCES_CURRENT_CITY, 0);
+        } else currentCity = 0;
+        bar.setSelectedNavigationItem(currentCity);
+        display();
     }
 
     @Override
@@ -108,7 +139,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         return true;
     }
 
-    void display() {
+    private void display() {
         getLoaderManager().restartLoader(WEATHER_LOADER_ID, null, this);
     }
 
@@ -118,6 +149,27 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         public void onReceive(Context context, Intent intent) {
             Log.d("debug1", "onRecive!");
             display();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                startService(new Intent(this, WeatherDownloadService.class).
+                                putExtra(WeatherDownloadService.URL_TAG, urls[currentCity]).
+                                putExtra(WeatherDownloadService.CITY_TAG, cities[currentCity])
+                );
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

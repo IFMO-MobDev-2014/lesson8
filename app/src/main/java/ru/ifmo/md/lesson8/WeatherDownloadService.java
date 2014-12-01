@@ -35,12 +35,12 @@ public class WeatherDownloadService extends IntentService {
             xpp.setInput(stream, null);
 
             while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
+                if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("localtime")) {
+                    xpp.next();
+                    weather.date = xpp.getText();
+                }
                 if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("current_condition")) {
                     while (!(xpp.getEventType() == XmlPullParser.END_TAG && xpp.getName().equals("current_condition"))) {
-                        if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("observation_time")) {
-                            xpp.next();
-                            weather.date = xpp.getText();
-                        }
                         if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("temp_C")) {
                             xpp.next();
                             weather.tempr = xpp.getText();
