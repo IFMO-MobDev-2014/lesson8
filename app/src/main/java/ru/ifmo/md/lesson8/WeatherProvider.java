@@ -1,4 +1,4 @@
-package lesson8.md.ifmo.ru.weather;
+package ru.ifmo.md.lesson8;
 
 import android.net.Uri;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import android.text.TextUtils;
 
 public class WeatherProvider extends ContentProvider {
 
-    static final String PROVIDER_NAME = "lesson8.md.ifmo.ru.weather.WeatherProvider";
+    static final String PROVIDER_NAME = "ru.ifmo.md.lesson8.WeatherProvider";
     static final String URL_WEATHER = "content://" + PROVIDER_NAME + "/weather";
     static final String URL_CITIES = "content://" + PROVIDER_NAME + "/cities";
     static final Uri WEATHER_URI = Uri.parse(URL_WEATHER);

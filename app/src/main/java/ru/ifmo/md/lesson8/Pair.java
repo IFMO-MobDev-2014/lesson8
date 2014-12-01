@@ -1,4 +1,4 @@
-package lesson8.md.ifmo.ru.weather;
+package ru.ifmo.md.lesson8;
 
 public class Pair<E> {
     E x, y;

@@ -1,6 +1,5 @@
-package lesson8.md.ifmo.ru.weather;
+package ru.ifmo.md.lesson8;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 
 import org.json.JSONArray;

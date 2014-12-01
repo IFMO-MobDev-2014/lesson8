@@ -1,4 +1,4 @@
-package lesson8.md.ifmo.ru.weather;
+package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
 import android.content.Intent;

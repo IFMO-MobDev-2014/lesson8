@@ -1,4 +1,4 @@
-package lesson8.md.ifmo.ru.weather;
+package ru.ifmo.md.lesson8;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,15 +25,12 @@ public class CitiesAdapter extends BaseAdapter {
 
         Cursor cursor = mainContext.getContentResolver().
                 query(WeatherProvider.CITIES_URI, null, null, null, WeatherProvider.NAME);
-        while (cursor.moveToNext()) {
-            citiesNames.add(cursor.getString(cursor.getColumnIndex(WeatherProvider.NAME)));
-            citiesZMW.add(cursor.getString(cursor.getColumnIndex(WeatherProvider.ZMW)));
-        }
-        cursor.close();
-
-        if (citiesZMW.size() == 0) {
-            citiesNames.add("test");
-            citiesZMW.add("test");
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                citiesNames.add(cursor.getString(cursor.getColumnIndex(WeatherProvider.NAME)));
+                citiesZMW.add(cursor.getString(cursor.getColumnIndex(WeatherProvider.ZMW)));
+            }
+            cursor.close();
         }
     }
 
