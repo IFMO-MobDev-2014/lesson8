@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.ifmo.md.lesson8" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -24,6 +26,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ItemListActivity" />
         </activity>
+
+        <provider
+            android:name="ru.ifmo.md.lesson8.db.WeatherContentProvider"
+            android:authorities="ru.ifmo.md.lesson8.db.WeatherContentProvider"
+            android:enabled="true"
+            android:exported="true" >
+        </provider>
+
+        <service
+            android:name="ru.ifmo.md.lesson8.service.ForecastService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="primary_list_item_text_size">16sp</dimen>
+    <dimen name="secondary_list_item_text_size">14sp</dimen>
+    <dimen name="weather_icon_side">50dp</dimen>
+    <dimen name="weather_icon_side_small">25dp</dimen>
+</resources>
