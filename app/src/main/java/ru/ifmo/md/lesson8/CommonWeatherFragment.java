@@ -1,18 +1,11 @@
 package ru.ifmo.md.lesson8;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.ConnectivityManager;
@@ -23,26 +16,16 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 import ru.ifmo.md.lesson8.provider.WeatherDatabaseHelper;
 import ru.ifmo.md.lesson8.provider.WeatherProvider;
@@ -148,8 +131,13 @@ public class CommonWeatherFragment extends Fragment
         ((TextView)describeWeatherLayout.findViewById(R.id.temp_min)).setText(temp(weather.getTempMin()));
         if (weather.getWeatherMain().toLowerCase().equals(weather.getWeatherDescription()))
             ((TextView)describeWeatherLayout.findViewById(R.id.describe)).setText(weather.getWeatherMain());
-        else
-            ((TextView)describeWeatherLayout.findViewById(R.id.describe)).setText(weather.getWeatherMain() + ", " + weather.getWeatherDescription());
+        else {
+            char c = weather.getWeatherDescription().charAt(0);
+            if ('a' <= c && c <= 'z')
+                c -= 32;
+            String res = c + weather.getWeatherDescription().substring(1);
+            ((TextView) describeWeatherLayout.findViewById(R.id.describe)).setText(res);
+        }
         ((TextView)describeWeatherLayout.findViewById(R.id.wind)).setText("Wind: " + weather.getWindSpeed() + " m/s");
         if (weather.getHumidity() != 0)
             ((TextView)describeWeatherLayout.findViewById(R.id.humidity)).setText("Humidity: " + weather.getHumidity() + "%");
@@ -249,8 +237,7 @@ public class CommonWeatherFragment extends Fragment
     public void onResume() {
         super.onResume();
         NetworkLoaderService.setHandler(handler);
-        Log.i("Comm", "onResume");
-        if (NetworkLoaderService.isLoading(cityName))//TODO wrong
+        if (NetworkLoaderService.isLoading(cityName))
             getActivity().getActionBar().setSubtitle(R.string.updating);
     }
 
