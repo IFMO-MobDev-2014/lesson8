@@ -26,8 +26,6 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-        //WeatherLoaderService.startActionGetAll(getApplicationContext()); // refresh when created
-
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -41,8 +39,8 @@ public class MainActivity extends Activity
     protected void onResume() {
         super.onResume();
 
-        if((System.currentTimeMillis() - lastUpdate) / 1000L > 1800) {
-            //WeatherLoaderService.startActionGetAll(getApplicationContext());
+        if((System.currentTimeMillis() - lastUpdate) / 1000L > 1800) { // magic: 30 minuntes
+            WeatherLoaderService.startActionGetAll(getApplicationContext());
         }
     }
 
