@@ -46,7 +46,7 @@ public class GsonGetter<TResult> {
             URI uri;
             try {
                 if (params.length > 0) {
-                    String strUri =params[0].replace("*", URLEncoder.encode("*", "UTF-8"));
+                    String strUri = params[0].replace("*", URLEncoder.encode("*", "UTF-8"));
                     uri = new URI(strUri);
                 }
                 else

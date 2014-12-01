@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Евгения on 29.11.2014.
  */
 public class DBAdapter {
+    public static final String CURRENT_LOCATION = "######CURRENT_LOCATION";
+
     public static final String KEY_ID = "_id";
 
     //Weather
@@ -114,6 +116,11 @@ public class DBAdapter {
                 sqLiteDatabase.insert(TABLE_NAME_WEATHER, null, cv);
             }
 
+            if (cv.containsKey(KEY_WEATHER_CITY))
+                cv.remove(KEY_WEATHER_CITY);
+            cv.put(KEY_WEATHER_CITY, CURRENT_LOCATION);
+            sqLiteDatabase.insert(TABLE_NAME_WEATHER, null, cv);
+
             sqLiteDatabase.execSQL(CREATE_TABLE_FORECASTS);
         }
 
@@ -200,7 +207,14 @@ public class DBAdapter {
         return db.query(TABLE_NAME_WEATHER, new String[]{
                 KEY_ID, KEY_WEATHER_CITY, KEY_WEATHER_WIND_DIRECTION, KEY_WEATHER_WIND_SPEED, KEY_WEATHER_ATMOSPHERE_HUMIDITY,
                 KEY_WEATHER_ATMOSPHERE_PRESSURE, KEY_WEATHER_CODE, KEY_WEATHER_DATE, KEY_WEATHER_TEMPERATURE, KEY_WEATHER_TEXT
-        }, null, null, null, null, null);
+        }, KEY_WEATHER_CITY+"!="+CURRENT_LOCATION, null, null, null, null);
+    }
+
+    public Cursor getCurrentLocationWeather() {
+        return db.query(TABLE_NAME_WEATHER, new String[]{
+                KEY_ID, KEY_WEATHER_CITY, KEY_WEATHER_WIND_DIRECTION, KEY_WEATHER_WIND_SPEED, KEY_WEATHER_ATMOSPHERE_HUMIDITY,
+                KEY_WEATHER_ATMOSPHERE_PRESSURE, KEY_WEATHER_CODE, KEY_WEATHER_DATE, KEY_WEATHER_TEMPERATURE, KEY_WEATHER_TEXT
+        }, KEY_WEATHER_CITY+"="+CURRENT_LOCATION, null, null, null, null);
     }
 
     public boolean deleteWeather(long weatherId) {

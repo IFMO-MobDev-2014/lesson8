@@ -1,11 +1,18 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.widget.CursorAdapter;
@@ -20,7 +27,7 @@ import android.widget.ListView;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
+public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -38,6 +45,15 @@ public class ItemListFragment extends ListFragment implements android.support.v4
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.add) {
+            new AddCityDialog().show(getActivity().getFragmentManager(), "DLG_ADD_CITY");
+        } else if (v.getId() == R.id.location) {
+
+        }
+    }
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -62,6 +78,19 @@ public class ItemListFragment extends ListFragment implements android.support.v4
         }
     };
 
+    ListView lvCities = null;
+    View add = null;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View result = inflater.inflate(R.layout.cities_fragment, container, false);
+        lvCities = ((ListView) result.findViewById(android.R.id.list));
+        add = result.findViewById(R.id.add);
+        add.setOnClickListener(this);
+        return result;
+    }
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -72,6 +101,7 @@ public class ItemListFragment extends ListFragment implements android.support.v4
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         fillData();
     }
 

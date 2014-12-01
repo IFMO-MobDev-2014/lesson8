@@ -62,34 +62,52 @@ public class WeatherFetchingService extends IntentService {
 
     private void handleActionUpdateWeather(final long weatherId) {
         final DBAdapter db = DBAdapter.getOpenedInstance(this);
-        String name = db.getCityByWeatherId(weatherId);
+        String name = db.getCityByWeatherId(weatherId).replace(' ', '_').replace("'", "");
+
+        if (name.equals(DBAdapter.CURRENT_LOCATION)) {
+            new CurrentCityResolver() {
+                @Override
+                protected void onPostExecute(String s) {
+                    fetchWeatherByCityName(weatherId, db, s);
+                }
+            }.execute(0., 0.);
+        } else
+            fetchWeatherByCityName(weatherId, db, name);
+    }
+
+    private void fetchWeatherByCityName(final long weatherId, final DBAdapter db, String name) {
         try {
             name = URLEncoder.encode(name, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return;
         }
-        String url = URL_PART1 + name + URL_PART2;
+        String url = null;
+        url = URL_PART1 + name + URL_PART2;
         GsonGetter.Callback<ResponseContainer> callback = new GsonGetter.Callback<ResponseContainer>() {
             @Override
             public void onComplete(GsonGetter sender, ResponseContainer result) {
                 db.deleteForecasts(weatherId);
-                for (ForecastItem item :
-                        result.query.results.weather.rss.channel.item.forecast ) {
-                    ContentValues values = db.getContentValuesByForecastItem(item, weatherId);
-                    getContentResolver().insert(Uri.parse(WeatherContentProvider.FORECAST_URI.toString()
-                            + "/" + weatherId), values);
-                    getContentResolver().notifyChange(Uri.parse(WeatherContentProvider.FORECAST_URI.toString() + "/"
+                if (result.query.results.weather.rss.channel.item.forecast != null) {
+                    for (ForecastItem item :
+                            result.query.results.weather.rss.channel.item.forecast) {
+                        ContentValues values = db.getContentValuesByForecastItem(item, weatherId);
+                        getContentResolver().insert(Uri.parse(WeatherContentProvider.FORECAST_URI.toString()
+                                + "/" + weatherId), values);
+                        getContentResolver().notifyChange(Uri.parse(WeatherContentProvider.FORECAST_URI.toString() + "/"
+                                + weatherId), null);
+                    }
+                    ContentValues values = db.getContentValuesByChannel(result.query.results.weather.rss.channel);
+                    values.put(DBAdapter.KEY_ID, weatherId);
+                    getContentResolver().update(Uri.parse(WeatherContentProvider.WEATHER_URI.toString()), values, null, null);
+                    getContentResolver().notifyChange(Uri.parse(WeatherContentProvider.WEATHER_URI.toString() + "/"
                             + weatherId), null);
                 }
-                ContentValues values = db.getContentValuesByChannel(result.query.results.weather.rss.channel);
-                values.put(DBAdapter.KEY_ID, weatherId);
-                getContentResolver().update(Uri.parse(WeatherContentProvider.WEATHER_URI.toString()), values, null, null);
-                getContentResolver().notifyChange(Uri.parse(WeatherContentProvider.WEATHER_URI.toString() + "/"
-                        + weatherId), null);
             }
         };
-        new GsonGetter<ResponseContainer>(ResponseContainer.class).get(url, callback);
+        new GsonGetter<>(ResponseContainer.class).get(
+                url,
+                callback);
     }
 
     private void handleActionUpdateAllWeather() {

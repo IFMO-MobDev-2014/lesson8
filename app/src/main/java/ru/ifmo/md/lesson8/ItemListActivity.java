@@ -56,7 +56,6 @@ public class ItemListActivity extends ActionBarActivity
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
         }
-        GsonGetter<ResponseContainer> currentGetter = new GsonGetter<>(ResponseContainer.class);
     }
 
     /**

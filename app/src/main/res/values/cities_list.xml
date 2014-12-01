@@ -2,6 +2,7 @@
 <resources>
     <string-array name="cities_list">
         <item>Moscow</item>
+        <item>St. Petersburg</item>
         <item>Paris</item>
         <item>Berlin</item>
         <item>Sydney</item>

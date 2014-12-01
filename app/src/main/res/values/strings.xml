@@ -14,5 +14,8 @@
     <string name="pressure_unit">" mm Hg"</string>
     <string name="dayToday">Today</string>
     <string name="dayTommorow">Tomorrow</string>
+    <string name="addText">Add a city</string>
+    <string name="dlgAddCity_title">Add a city</string>
+    <string name="location_text">Determining your location</string>
 
 </resources>
