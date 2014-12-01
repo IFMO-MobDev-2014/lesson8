@@ -58,6 +58,8 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
 
     @Override
     public boolean onPreDraw() {
+        if (getView() == null || getView().findViewById(R.id.wind_direction) == null)
+            return false;
         ImageView arrow = (ImageView) getView().findViewById(R.id.wind_direction);
         Matrix turnMatrix = new Matrix();
         float scale = 1.2f * arrow.getMeasuredHeight() / arrow.getDrawable().getIntrinsicHeight();

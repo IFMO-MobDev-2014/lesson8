@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 
 import ru.ifmo.md.lesson8.json.WeatherForecast;
@@ -53,21 +52,12 @@ public class WeatherStorage extends ContentProvider {
         return mapper.readValue(connection.getInputStream(), datatype);
     }
 
-    public static long[] getDayRange(long time) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-        long result[] = new long[2];
-        result[0] = calendar.getTimeInMillis() / 1000;
-        calendar.add(Calendar.DATE, 1);
-        result[1] = calendar.getTimeInMillis() / 1000;
-        return result;
-    }
-
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        if (uri.getPathSegments().size() == 1 && uri.getLastPathSegment().equals("city")
+                && uri.getQueryParameterNames().contains("name"))
+            return database.getWritableDatabase().delete(CITIES, CITY_NAME + " = ?", new String[]{uri.getQueryParameter("name")});
+        throw new IllegalArgumentException("Wrong delete URI");
     }
 
     @Override
@@ -92,26 +82,23 @@ public class WeatherStorage extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        if (uri.getPathSegments().size() == 1 && uri.getLastPathSegment().equals("weather")) {
-            String city, cityCondition;
-            if (uri.getQueryParameterNames().contains("city")) {
-                city = uri.getQueryParameter("city");
-                cityCondition = "(SELECT " + CITY_NAME + " FROM " + CITIES + " WHERE " + _ID + " = " + CITY_ID + ") = ?";
-            } else {
-                city = uri.getQueryParameter("id");
-                cityCondition = CITY_ID + " = ?";
-            }
-            long[] period = getDayRange(Long.parseLong(uri.getQueryParameter("time")));
-            Cursor result = database.getReadableDatabase().query(WEATHER_DATA, null, cityCondition +
-                    " AND " + TIME + " >= " + period[0] + " AND " + TIME + " <= " + period[1], new String[]{city}, null, null, TIME + " ASC");
-            for (WeatherInfo info : CityWeather.findAppropriateTimes(period, result))
-                if (info == null) {
-                    update(uri, null, null, null);
+        if (uri.getPathSegments().size() == 1)
+            switch (uri.getLastPathSegment()) {
+                case "weather":
+                    String city, cityCondition;
+                    if (uri.getQueryParameterNames().contains("city")) {
+                        city = uri.getQueryParameter("city");
+                        cityCondition = "(SELECT " + CITY_NAME + " FROM " + CITIES + " WHERE " + _ID + " = " + CITY_ID + ") = ?";
+                    } else {
+                        city = uri.getQueryParameter("id");
+                        cityCondition = CITY_ID + " = ?";
+                    }
+                    long[] period = CityWeather.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
                     return database.getReadableDatabase().query(WEATHER_DATA, null, cityCondition +
                             " AND " + TIME + " >= " + period[0] + " AND " + TIME + " <= " + period[1], new String[]{city}, null, null, TIME + " ASC");
-                }
-            return result;
-        }
+                case "cities":
+                    return database.getReadableDatabase().query(CITIES, new String[]{CITY_NAME}, null, null, null, null, null);
+            }
         throw new IllegalArgumentException("Wrong query URI");
     }
 
@@ -126,7 +113,7 @@ public class WeatherStorage extends ContentProvider {
                 city = "q=" + Uri.encode(cityName);
             } else
                 city = "id=" + Uri.encode(uri.getQueryParameter("id"));
-            long[] period = getDayRange(Long.parseLong(uri.getQueryParameter("time")));
+            long[] period = CityWeather.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
             ContentValues past[];
             try {
                 past = downloadFromUrl("http://api.openweathermap.org/data/2.5/history/city?" +

@@ -26,6 +26,24 @@ public class CitiesAdapter extends FragmentStatePagerAdapter {
         fragment.setArguments(args);
         manager.beginTransaction().attach(fragment).commit();
         fragments.add(fragment);
+        notifyDataSetChanged();
+    }
+
+    public void remove(int index) {
+        remove(index, true);
+    }
+
+    private void remove(int index, boolean notify) {
+        manager.beginTransaction().remove(fragments.get(index));
+        fragments.remove(index);
+        if (notify)
+            notifyDataSetChanged();
+    }
+
+    public void clear() {
+        for (int i = fragments.size() - 1; i >= 0; i--)
+            remove(i, false);
+        notifyDataSetChanged();
     }
 
     @Override

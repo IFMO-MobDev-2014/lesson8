@@ -1,8 +1,11 @@
 package ru.ifmo.md.lesson8;
 
+import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.CalendarView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -28,6 +30,23 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
     static final int[][] apprTimes = new int[][]{new int[]{1, 6}, new int[]{7, 9}, new int[]{11, 16}, new int[]{19, 22}};
     WeatherSoon activated;
     View[] briefViews = new View[4];
+    boolean progress;
+    private ContentObserver observer = new ContentObserver(new Handler()) {
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            getLoaderManager().restartLoader(0, null, CityWeather.this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            onChange(selfChange);
+        }
+    };
 
     public static WeatherInfo[] findAppropriateTimes(long[] period, Cursor data) {
         WeatherInfo[] result = new WeatherInfo[4];
@@ -43,13 +62,29 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         return result;
     }
 
+    public static long[] getDayRange(long time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        long result[] = new long[2];
+        result[0] = calendar.getTimeInMillis() / 1000;
+        calendar.add(Calendar.DATE, 1);
+        result[1] = calendar.getTimeInMillis() / 1000;
+        return result;
+    }
+
+    public void setProgressBarShown(boolean shown) {
+        progress = shown;
+        ((WeatherActivity) getActivity()).setProgressShown(shown);
+    }
+
     public String getCity() {
         return getArguments().getString("cityName");
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        getActivity().setProgressBarIndeterminateVisibility(true);
+        setProgressBarShown(true);
         CalendarView calendar = (CalendarView) getView().findViewById(R.id.calendar);
         return new CursorLoader(getActivity(), Uri.parse("content://net.dimatomp.weather.provider/weather?" +
                 "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()), null, null, null, null);
@@ -57,28 +92,23 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        getActivity().setProgressBarIndeterminateVisibility(false);
+        setProgressBarShown(false);
         String[] tabNames = new String[]{"nightTab", "morningTab", "daytimeTab", "eveningTab"};
         WeatherInfo info[] = findAppropriateTimes(
-                WeatherStorage.getDayRange(((CalendarView) getView().findViewById(R.id.calendar)).getDate()), data);
+                getDayRange(((CalendarView) getView().findViewById(R.id.calendar)).getDate()), data);
         FragmentManager manager = getChildFragmentManager();
-        boolean somethingWrong = false;
         for (int i = 0; i < tabNames.length; i++)
             if (info[i] != null) {
                 WeatherSoon tab = (WeatherSoon) manager.findFragmentByTag(tabNames[i]);
                 tab.setWeatherInfo(info[i]);
                 if (activated == tab)
                     ((WeatherNow) manager.findFragmentByTag("detailedInfo")).inflateWeatherInfo(info[i]);
-            } else
-                somethingWrong = true;
-        if (somethingWrong)
-            Toast.makeText(getActivity(), getString(R.string.network_error), Toast.LENGTH_LONG).show();
+            }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        getActivity().setProgressBarIndeterminateVisibility(true);
-        Toast.makeText(getActivity(), "You have reset the loader.", Toast.LENGTH_LONG).show();
+        setProgressBarShown(false);
     }
 
     @Override
@@ -95,9 +125,18 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         ((CalendarView) getView().findViewById(R.id.calendar)).setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                getLoaderManager().restartLoader(0, null, CityWeather.this).forceLoad();
+                refreshWeather();
             }
         });
+    }
+
+    public void refreshWeather() {
+        Intent intent = new Intent(getActivity(), WeatherUpdater.class);
+        CalendarView calendar = (CalendarView) getView().findViewById(R.id.calendar);
+        intent.setData(Uri.parse("content://net.dimatomp.weather.provider/weather?" +
+                "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()));
+        getActivity().startService(intent);
+        setProgressBarShown(true);
     }
 
     @Override
@@ -127,12 +166,13 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         calendar.add(Calendar.DATE, 4);
         calendarView.setMaxDate(calendar.getTimeInMillis());
         calendar.add(Calendar.DATE, -3);
+        calendarView.setDate(calendar.getTimeInMillis(), false, false);
         calendar.add(Calendar.MONTH, -1);
         calendarView.setMinDate(calendar.getTimeInMillis());
         calendarView.setDate(System.currentTimeMillis(), false, false);
 
         long time = System.currentTimeMillis();
-        long[] period = WeatherStorage.getDayRange(time);
+        long[] period = getDayRange(time);
         time = (time / 1000 - period[0]) * 24 / (period[1] - period[0]);
         WeatherSoon toActivate;
         if (time < 7)
@@ -144,6 +184,15 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         else
             toActivate = (WeatherSoon) getChildFragmentManager().findFragmentByTag("eveningTab");
         onActivate(toActivate);
+
+        setProgressBarShown(progress);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getActivity().getContentResolver().registerContentObserver(
+                Uri.parse("content://net.dimatomp.weather.provider/weather?city=" + Uri.encode(getCity())), true, observer);
     }
 
     @Override
@@ -178,5 +227,11 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
 
         transaction.commit();
         return result;
+    }
+
+    @Override
+    public void onDestroy() {
+        getActivity().getContentResolver().unregisterContentObserver(observer);
+        super.onDestroy();
     }
 }
