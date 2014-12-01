@@ -33,16 +33,6 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_main);
 
-        Cursor cursor = getContentResolver().query(CITY_URI, null, null, null, null);
-        cursor.moveToFirst();
-        int n = cursor.getCount();
-        for (int i = 0; i < n; i++) {
-            Uri uri = ContentUris.withAppendedId(CITY_URI, cursor.getInt(0));
-            getContentResolver().delete(uri, null, null);
-            cursor = getContentResolver().query(CITY_URI, null, null, null, null);
-            cursor.moveToFirst();
-        }
-
         service = new Intent(this, WeatherService.class);
         service.putExtra("FLAG", "Moscow");
         startService(service);
