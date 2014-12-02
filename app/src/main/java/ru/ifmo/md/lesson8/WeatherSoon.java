@@ -35,11 +35,6 @@ public class WeatherSoon extends Fragment {
         return timeOfDay;
     }
 
-    public void setTimeOfDay(WeatherView.TimeOfDay timeOfDay) {
-        this.timeOfDay = timeOfDay;
-        updateBackground();
-    }
-
     public void setActive(boolean active) {
         this.active = active;
         if (getView() != null)
@@ -65,7 +60,7 @@ public class WeatherSoon extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.weather_soon, container);
+        View result = inflater.inflate(R.layout.weather_soon, container, false);
         updateBackground((WeatherView) result);
         result.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,8 +72,8 @@ public class WeatherSoon extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         this.timeOfDay = WeatherView.TimeOfDay.valueOf(getArguments().getString("timeOfDay"));
-        ((CityWeather) getParentFragment()).addBriefView(timeOfDay, view);
     }
 }

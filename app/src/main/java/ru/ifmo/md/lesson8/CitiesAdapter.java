@@ -27,6 +27,7 @@ public class CitiesAdapter extends FragmentStatePagerAdapter {
 
     public void addCity(String cityName) {
         fragments.add(cityName);
+        notifyDataSetChanged();
     }
 
     public void remove(int index) {

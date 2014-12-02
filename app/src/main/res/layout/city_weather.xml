@@ -5,12 +5,42 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ru.ifmo.md.lesson8.RelativeWeatherLayout
+        android:id="@+id/detailed_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-<LinearLayout
+    <LinearLayout
         android:id="@+id/brief_fragments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" />
+        android:orientation="horizontal">
+
+        <ru.ifmo.md.lesson8.LinearWeatherLayout
+            android:id="@+id/night_tab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ru.ifmo.md.lesson8.LinearWeatherLayout
+            android:id="@+id/morning_tab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ru.ifmo.md.lesson8.LinearWeatherLayout
+            android:id="@+id/daytime_tab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ru.ifmo.md.lesson8.LinearWeatherLayout
+            android:id="@+id/evening_tab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
     <ru.ifmo.md.lesson8.CalendarWithBackground
         android:id="@+id/calendar"

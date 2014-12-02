@@ -69,14 +69,10 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.weather_now, container);
+        View result = inflater.inflate(R.layout.weather_now, container, false);
         result.getViewTreeObserver().addOnPreDrawListener(this);
         updateBackground((WeatherView) result);
+        ((TextView) result.findViewById(R.id.city_name)).setText(getArguments().getString("cityName"));
         return result;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        ((CityWeather) getParentFragment()).addDetailedView(view);
     }
 }

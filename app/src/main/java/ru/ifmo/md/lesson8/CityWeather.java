@@ -17,8 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.Calendar;
 
@@ -117,16 +115,6 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-    public void addBriefView(WeatherView.TimeOfDay timeOfDay, View view) {
-        briefViews[timeOfDay.ordinal()] = view;
-        for (View otherView : briefViews)
-            if (otherView == null)
-                return;
-        LinearLayout briefLayout = (LinearLayout) getView().findViewById(R.id.brief_fragments);
-        for (View otherView : briefViews)
-            briefLayout.addView(otherView, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-    }
-
     @Override
     public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
         getLoaderManager().restartLoader(0, null, this).forceLoad();
@@ -139,11 +127,6 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
                 "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()));
         getActivity().startService(intent);
         setProgressBarShown(true);
-    }
-
-    public void addDetailedView(View view) {
-        ((ViewGroup) getView().findViewById(R.id.city_weather_view)).addView(view, 0);
-        ((TextView) getView().findViewById(R.id.city_name)).setText(getCity());
     }
 
     public void onActivate(WeatherSoon activated) {
@@ -218,23 +201,26 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
         WeatherNow weatherNow = new WeatherNow();
-        transaction.add(weatherNow, "detailedInfo");
+        Bundle args = new Bundle(1);
+        args.putString("cityName", getCity());
+        weatherNow.setArguments(args);
+        transaction.add(R.id.detailed_view, weatherNow, "detailedInfo");
 
         WeatherSoon night = new WeatherSoon();
         addTimeOfDay(night, "NIGHT");
-        transaction.add(night, "nightTab");
+        transaction.replace(R.id.night_tab, night, "nightTab");
 
         WeatherSoon morning = new WeatherSoon();
         addTimeOfDay(morning, "MORNING");
-        transaction.add(morning, "morningTab");
+        transaction.replace(R.id.morning_tab, morning, "morningTab");
 
         WeatherSoon daytime = new WeatherSoon();
         addTimeOfDay(daytime, "DAYTIME");
-        transaction.add(daytime, "daytimeTab");
+        transaction.replace(R.id.daytime_tab, daytime, "daytimeTab");
 
         WeatherSoon evening = new WeatherSoon();
         addTimeOfDay(evening, "EVENING");
-        transaction.add(evening, "eveningTab");
+        transaction.replace(R.id.evening_tab, evening, "eveningTab");
 
         transaction.commit();
         return result;
