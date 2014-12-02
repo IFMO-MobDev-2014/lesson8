@@ -1,22 +1,23 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
+import android.widget.TextView;
 
 import java.util.Calendar;
 
@@ -28,8 +29,7 @@ import static ru.ifmo.md.lesson8.WeatherColumns.TIME;
 public class CityWeather extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, CalendarView.OnDateChangeListener {
     static final int[][] apprTimes = new int[][]{new int[]{1, 6}, new int[]{7, 9}, new int[]{11, 16}, new int[]{19, 22}};
     WeatherSoon activated;
-    View[] briefViews = new View[4];
-    boolean progress;
+    String city;
     private ContentObserver observer = new ContentObserver(new Handler()) {
         @Override
         public boolean deliverSelfNotifications() {
@@ -44,7 +44,7 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            if (getCity().equals(uri.getQueryParameter("city")))
+            if (getCity() != null && getCity().equals(uri.getQueryParameter("city")))
                 onChange(selfChange);
         }
     };
@@ -75,12 +75,17 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
     }
 
     public void setProgressBarShown(boolean shown) {
-        progress = shown;
         ((WeatherActivity) getActivity()).setProgressShown(shown);
     }
 
     public String getCity() {
-        return getArguments().getString("cityName");
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+        ((TextView) getView().findViewById(R.id.city_name)).setText(city);
+        switchToPresent();
     }
 
     @Override
@@ -141,15 +146,7 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
         ((WeatherView) getView().findViewById(R.id.calendar)).setTimeOfDay(activated.getTimeOfDay());
     }
 
-    @Override
-    public void onPause() {
-        ((CalendarView) getView().findViewById(R.id.calendar)).setOnDateChangeListener(null);
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+    public void switchToPresent() {
         Calendar calendar = Calendar.getInstance();
         CalendarView calendarView = (CalendarView) getView().findViewById(R.id.calendar);
         calendar.add(Calendar.DATE, 4);
@@ -185,8 +182,8 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
 
     @Override
     public void onDetach() {
-        super.onDetach();
         getActivity().getContentResolver().unregisterContentObserver(observer);
+        super.onDetach();
     }
 
     void addTimeOfDay(WeatherSoon weatherSoon, String arg) {
@@ -201,33 +198,25 @@ public class CityWeather extends Fragment implements LoaderManager.LoaderCallbac
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
         WeatherNow weatherNow = new WeatherNow();
-        Bundle args = new Bundle(1);
-        args.putString("cityName", getCity());
-        weatherNow.setArguments(args);
         transaction.add(R.id.detailed_view, weatherNow, "detailedInfo");
 
         WeatherSoon night = new WeatherSoon();
         addTimeOfDay(night, "NIGHT");
-        transaction.replace(R.id.night_tab, night, "nightTab");
+        transaction.add(R.id.night_tab, night, "nightTab");
 
         WeatherSoon morning = new WeatherSoon();
         addTimeOfDay(morning, "MORNING");
-        transaction.replace(R.id.morning_tab, morning, "morningTab");
+        transaction.add(R.id.morning_tab, morning, "morningTab");
 
         WeatherSoon daytime = new WeatherSoon();
         addTimeOfDay(daytime, "DAYTIME");
-        transaction.replace(R.id.daytime_tab, daytime, "daytimeTab");
+        transaction.add(R.id.daytime_tab, daytime, "daytimeTab");
 
         WeatherSoon evening = new WeatherSoon();
         addTimeOfDay(evening, "EVENING");
-        transaction.replace(R.id.evening_tab, evening, "eveningTab");
+        transaction.add(R.id.evening_tab, evening, "eveningTab");
 
         transaction.commit();
         return result;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        getLoaderManager().initLoader(0, null, this);
     }
 }

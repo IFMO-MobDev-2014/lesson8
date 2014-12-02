@@ -1,8 +1,8 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.Fragment;
 import android.graphics.Matrix;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +72,6 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
         View result = inflater.inflate(R.layout.weather_now, container, false);
         result.getViewTreeObserver().addOnPreDrawListener(this);
         updateBackground((WeatherView) result);
-        ((TextView) result.findViewById(R.id.city_name)).setText(getArguments().getString("cityName"));
         return result;
     }
 }

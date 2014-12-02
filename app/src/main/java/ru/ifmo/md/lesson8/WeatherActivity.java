@@ -1,22 +1,21 @@
 package ru.ifmo.md.lesson8;
 
-import android.content.Intent;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
 import static ru.ifmo.md.lesson8.WeatherColumns.CITY_NAME;
 
-public class WeatherActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    CitiesAdapter adapter;
+public class WeatherActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
+    SpinnerAdapter adapter;
     MenuItem refreshButton;
     boolean progress;
 
@@ -36,18 +35,25 @@ public class WeatherActivity extends FragmentActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data.getCount() != 0)
-            for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext())
-                adapter.addCity(data.getString(data.getColumnIndex(CITY_NAME)));
-        else
-            adapter.addCity("Saint Petersburg");
-        ((ViewPager) findViewById(R.id.city_pager)).setAdapter(adapter);
-        setProgressShown(false);
+        adapter = new SpinnerAdapter(this);
+        for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext())
+            adapter.addCity(data.getString(data.getColumnIndex(CITY_NAME)));
+        ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setTitle("");
+        actionBar.setListNavigationCallbacks(adapter, new ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+                ((CityWeather) getFragmentManager().findFragmentById(R.id.city_weather)).setCity(adapter.getItem(itemPosition).toString());
+                return true;
+            }
+        });
+        actionBar.setSelectedNavigationItem(0);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.clear();
+
     }
 
     @Override
@@ -57,8 +63,7 @@ public class WeatherActivity extends FragmentActivity implements LoaderManager.L
         setContentView(R.layout.activity_weather);
 
         setProgressShown(true);
-        adapter = new CitiesAdapter(getSupportFragmentManager());
-        getSupportLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -73,18 +78,10 @@ public class WeatherActivity extends FragmentActivity implements LoaderManager.L
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                ((CityWeather) adapter.getItem(((ViewPager) findViewById(R.id.city_pager)).getCurrentItem())).refreshWeather();
+                ((CityWeather) getFragmentManager().findFragmentById(R.id.city_weather)).refreshWeather();
                 break;
             case R.id.action_add:
                 new AddCityDialog().show(getFragmentManager(), "addCityDialog");
-                break;
-            case R.id.action_remove:
-                int current = ((ViewPager) findViewById(R.id.city_pager)).getCurrentItem();
-                String cityName = ((CityWeather) adapter.getItem(current)).getCity();
-                adapter.remove(current);
-                Intent intent = new Intent(this, WeatherUpdater.class);
-                intent.setData(Uri.parse("content://net.dimatomp.weather.provider/city?name=" + Uri.encode(cityName)));
-                startService(intent);
                 break;
         }
 
