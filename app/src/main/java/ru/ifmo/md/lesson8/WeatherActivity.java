@@ -1,13 +1,13 @@
 package ru.ifmo.md.lesson8;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,7 +58,7 @@ public class WeatherActivity extends FragmentActivity implements LoaderManager.L
 
         setProgressShown(true);
         adapter = new CitiesAdapter(getSupportFragmentManager());
-        getLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(0, null, this);
     }
 
     @Override

@@ -12,14 +12,9 @@ import android.widget.TextView;
  * Created by dimatomp on 28.11.14.
  */
 public class WeatherSoon extends Fragment {
-    TimeOfDay timeOfDay;
-    Callbacks callbacks;
+    WeatherView.TimeOfDay timeOfDay;
     boolean active;
     WeatherInfo weatherInfo;
-
-    public void setCallbackInstance(Callbacks callbacks) {
-        this.callbacks = callbacks;
-    }
 
     public WeatherInfo getWeatherInfo() {
         return weatherInfo;
@@ -36,11 +31,11 @@ public class WeatherSoon extends Fragment {
         updateBackground();
     }
 
-    public TimeOfDay getTimeOfDay() {
+    public WeatherView.TimeOfDay getTimeOfDay() {
         return timeOfDay;
     }
 
-    public void setTimeOfDay(TimeOfDay timeOfDay) {
+    public void setTimeOfDay(WeatherView.TimeOfDay timeOfDay) {
         this.timeOfDay = timeOfDay;
         updateBackground();
     }
@@ -56,7 +51,7 @@ public class WeatherSoon extends Fragment {
             view.setTimeOfDay(timeOfDay);
             if (weatherInfo != null)
                 ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(getResources().getIdentifier(
-                        "weather_" + weatherInfo.description.icon.substring(0, 2) + (timeOfDay == TimeOfDay.NIGHT ? "n" : "d")
+                        "weather_" + weatherInfo.description.icon.substring(0, 2) + (timeOfDay == WeatherView.TimeOfDay.NIGHT ? "n" : "d")
                         , "drawable", getActivity().getPackageName()));
             ((TextView) ((View) view).findViewById(R.id.time_of_day)).setText(
                     getResources().getStringArray(R.array.times_of_day)[timeOfDay.ordinal()]);
@@ -75,7 +70,7 @@ public class WeatherSoon extends Fragment {
         result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callbacks.onActivate(WeatherSoon.this);
+                ((CityWeather) getParentFragment()).onActivate(WeatherSoon.this);
             }
         });
         return result;
@@ -83,14 +78,7 @@ public class WeatherSoon extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        callbacks.addBriefView(timeOfDay, view);
-        if (active)
-            callbacks.onActivate(this);
-    }
-
-    public interface Callbacks {
-        void onActivate(WeatherSoon activated);
-
-        void addBriefView(TimeOfDay timeOfDay, View view);
+        this.timeOfDay = WeatherView.TimeOfDay.valueOf(getArguments().getString("timeOfDay"));
+        ((CityWeather) getParentFragment()).addBriefView(timeOfDay, view);
     }
 }

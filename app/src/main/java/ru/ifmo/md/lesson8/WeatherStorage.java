@@ -106,13 +106,8 @@ public class WeatherStorage extends ContentProvider {
     public int update(Uri uri, ContentValues v, String selection,
                       String[] selectionArgs) {
         if (uri.getPathSegments().size() == 1 && uri.getLastPathSegment().equals("weather")) {
-            String cityName = null;
-            String city;
-            if (uri.getQueryParameterNames().contains("city")) {
-                cityName = uri.getQueryParameter("city");
-                city = "q=" + Uri.encode(cityName);
-            } else
-                city = "id=" + Uri.encode(uri.getQueryParameter("id"));
+            String cityName = uri.getQueryParameter("city");
+            String city = "q=" + Uri.encode(cityName);
             long[] period = CityWeather.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
             ContentValues past[];
             try {
@@ -138,14 +133,12 @@ public class WeatherStorage extends ContentProvider {
             Log.d("WeatherStorage", "Number of entries: " + past.length);
             SQLiteDatabase db = database.getWritableDatabase();
             int result = 0;
-            if (cityName != null) {
-                boolean cityExists = db.query(CITIES, null, CITY_NAME + " = ?", new String[]{cityName}, null, null, null).getCount() == 1;
-                if (!cityExists) {
-                    ContentValues cityData = new ContentValues(2);
-                    cityData.put(_ID, past[0].getAsLong(CITY_ID));
-                    cityData.put(CITY_NAME, cityName);
-                    result += db.insert(CITIES, null, cityData);
-                }
+            boolean cityExists = db.query(CITIES, null, CITY_NAME + " = ?", new String[]{cityName}, null, null, null).getCount() == 1;
+            if (!cityExists) {
+                ContentValues cityData = new ContentValues(2);
+                cityData.put(_ID, past[0].getAsLong(CITY_ID));
+                cityData.put(CITY_NAME, cityName);
+                result += db.insert(CITIES, null, cityData);
             }
             db.beginTransaction();
             try {

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.widget.EditText;
 
 /**
@@ -25,7 +26,9 @@ public class AddCityDialog extends DialogFragment {
                 .setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((WeatherActivity) getActivity()).adapter.addCity(editText.getText().toString());
+                        CitiesAdapter adapter = ((WeatherActivity) getActivity()).adapter;
+                        adapter.addCity(editText.getText().toString());
+                        ((ViewPager) getActivity().findViewById(R.id.city_pager)).setCurrentItem(adapter.getCount() - 1, true);
                         dismiss();
                     }
                 })

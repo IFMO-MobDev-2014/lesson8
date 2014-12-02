@@ -1,5 +1,6 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -26,7 +27,7 @@ import static ru.ifmo.md.lesson8.WeatherColumns.TIME;
 /**
  * Created by dimatomp on 30.11.14.
  */
-public class CityWeather extends Fragment implements WeatherNow.Callbacks, WeatherSoon.Callbacks, LoaderManager.LoaderCallbacks<Cursor> {
+public class CityWeather extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, CalendarView.OnDateChangeListener {
     static final int[][] apprTimes = new int[][]{new int[]{1, 6}, new int[]{7, 9}, new int[]{11, 16}, new int[]{19, 22}};
     WeatherSoon activated;
     View[] briefViews = new View[4];
@@ -39,12 +40,14 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
 
         @Override
         public void onChange(boolean selfChange) {
-            getLoaderManager().restartLoader(0, null, CityWeather.this);
+            getLoaderManager().initLoader(1, null, CityWeather.this).forceLoad();
+            setProgressBarShown(false);
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            onChange(selfChange);
+            if (getCity().equals(uri.getQueryParameter("city")))
+                onChange(selfChange);
         }
     };
 
@@ -97,22 +100,24 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         WeatherInfo info[] = findAppropriateTimes(
                 getDayRange(((CalendarView) getView().findViewById(R.id.calendar)).getDate()), data);
         FragmentManager manager = getChildFragmentManager();
+        boolean notFull = false;
         for (int i = 0; i < tabNames.length; i++)
             if (info[i] != null) {
                 WeatherSoon tab = (WeatherSoon) manager.findFragmentByTag(tabNames[i]);
                 tab.setWeatherInfo(info[i]);
                 if (activated == tab)
                     ((WeatherNow) manager.findFragmentByTag("detailedInfo")).inflateWeatherInfo(info[i]);
-            }
+            } else
+                notFull = true;
+        if (notFull && loader.getId() == 0)
+            refreshWeather();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        setProgressBarShown(false);
     }
 
-    @Override
-    public void addBriefView(TimeOfDay timeOfDay, View view) {
+    public void addBriefView(WeatherView.TimeOfDay timeOfDay, View view) {
         briefViews[timeOfDay.ordinal()] = view;
         for (View otherView : briefViews)
             if (otherView == null)
@@ -120,14 +125,11 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         LinearLayout briefLayout = (LinearLayout) getView().findViewById(R.id.brief_fragments);
         for (View otherView : briefViews)
             briefLayout.addView(otherView, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-        briefViews = null;
-        getLoaderManager().initLoader(0, null, this).forceLoad();
-        ((CalendarView) getView().findViewById(R.id.calendar)).setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                refreshWeather();
-            }
-        });
+    }
+
+    @Override
+    public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+        getLoaderManager().restartLoader(0, null, this).forceLoad();
     }
 
     public void refreshWeather() {
@@ -139,13 +141,11 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         setProgressBarShown(true);
     }
 
-    @Override
     public void addDetailedView(View view) {
         ((ViewGroup) getView().findViewById(R.id.city_weather_view)).addView(view, 0);
         ((TextView) getView().findViewById(R.id.city_name)).setText(getCity());
     }
 
-    @Override
     public void onActivate(WeatherSoon activated) {
         if (this.activated != null)
             this.activated.setActive(false);
@@ -159,6 +159,12 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
     }
 
     @Override
+    public void onPause() {
+        ((CalendarView) getView().findViewById(R.id.calendar)).setOnDateChangeListener(null);
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         Calendar calendar = Calendar.getInstance();
@@ -169,6 +175,7 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         calendarView.setDate(calendar.getTimeInMillis(), false, false);
         calendar.add(Calendar.MONTH, -1);
         calendarView.setMinDate(calendar.getTimeInMillis());
+        calendarView.setOnDateChangeListener(this);
         calendarView.setDate(System.currentTimeMillis(), false, false);
 
         long time = System.currentTimeMillis();
@@ -184,15 +191,25 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         else
             toActivate = (WeatherSoon) getChildFragmentManager().findFragmentByTag("eveningTab");
         onActivate(toActivate);
-
-        setProgressBarShown(progress);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
         getActivity().getContentResolver().registerContentObserver(
-                Uri.parse("content://net.dimatomp.weather.provider/weather?city=" + Uri.encode(getCity())), true, observer);
+                Uri.parse("content://net.dimatomp.weather.provider/weather"), false, observer);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().getContentResolver().unregisterContentObserver(observer);
+    }
+
+    void addTimeOfDay(WeatherSoon weatherSoon, String arg) {
+        Bundle args = new Bundle(1);
+        args.putString("timeOfDay", arg);
+        weatherSoon.setArguments(args);
     }
 
     @Override
@@ -201,37 +218,30 @@ public class CityWeather extends Fragment implements WeatherNow.Callbacks, Weath
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
         WeatherNow weatherNow = new WeatherNow();
-        weatherNow.setCallbackInstance(this);
         transaction.add(weatherNow, "detailedInfo");
 
+        WeatherSoon night = new WeatherSoon();
+        addTimeOfDay(night, "NIGHT");
+        transaction.add(night, "nightTab");
+
         WeatherSoon morning = new WeatherSoon();
-        morning.setTimeOfDay(TimeOfDay.MORNING);
-        morning.setCallbackInstance(this);
-        morning.setActive(true);
+        addTimeOfDay(morning, "MORNING");
         transaction.add(morning, "morningTab");
 
         WeatherSoon daytime = new WeatherSoon();
-        daytime.setTimeOfDay(TimeOfDay.DAYTIME);
-        daytime.setCallbackInstance(this);
+        addTimeOfDay(daytime, "DAYTIME");
         transaction.add(daytime, "daytimeTab");
 
         WeatherSoon evening = new WeatherSoon();
-        evening.setTimeOfDay(TimeOfDay.EVENING);
-        evening.setCallbackInstance(this);
+        addTimeOfDay(evening, "EVENING");
         transaction.add(evening, "eveningTab");
-
-        WeatherSoon night = new WeatherSoon();
-        night.setTimeOfDay(TimeOfDay.NIGHT);
-        night.setCallbackInstance(this);
-        transaction.add(night, "nightTab");
 
         transaction.commit();
         return result;
     }
 
     @Override
-    public void onDestroy() {
-        getActivity().getContentResolver().unregisterContentObserver(observer);
-        super.onDestroy();
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        getLoaderManager().initLoader(0, null, this);
     }
 }

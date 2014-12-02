@@ -11,16 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawListener {
-    Callbacks callbacks;
     float windAngle;
     String weatherImg;
-    private TimeOfDay timeOfDay;
+    private WeatherView.TimeOfDay timeOfDay;
 
-    public void setCallbackInstance(Callbacks callbacks) {
-        this.callbacks = callbacks;
-    }
-
-    public void setTimeOfDay(TimeOfDay timeOfDay) {
+    public void setTimeOfDay(WeatherView.TimeOfDay timeOfDay) {
         this.timeOfDay = timeOfDay;
         updateBackground();
     }
@@ -47,7 +42,7 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
             view.setTimeOfDay(timeOfDay);
             ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
                     weatherImg != null ? getResources().getIdentifier("weather_" + weatherImg.substring(0, 2)
-                            + (timeOfDay == TimeOfDay.NIGHT ? "n" : "d"), "drawable", getActivity().getPackageName()) : R.drawable.na);
+                            + (timeOfDay == WeatherView.TimeOfDay.NIGHT ? "n" : "d"), "drawable", getActivity().getPackageName()) : R.drawable.na);
         }
     }
 
@@ -82,10 +77,6 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        callbacks.addDetailedView(view);
-    }
-
-    public interface Callbacks {
-        void addDetailedView(View view);
+        ((CityWeather) getParentFragment()).addDetailedView(view);
     }
 }

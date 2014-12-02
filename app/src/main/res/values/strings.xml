@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
-    <string name="title_activity_weather">Super Weather App</string>
+    <string name="title_activity_weather">Yet Another Weather App</string>
     <string name="action_settings">Settings</string>
     <string-array name="times_of_day">
         <item>Night</item>
