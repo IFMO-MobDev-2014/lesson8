@@ -20,3 +20,5 @@ class Weather(val city: String,
               val date: Date) {
 }
 
+sealed trait WeathState
+case class Cloudness(i: Int) extends WeathState
