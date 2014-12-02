@@ -47,7 +47,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
 
 
     public void setFragments() {
-        getSupportActionBar().setTitle("Cities");
+        getSupportActionBar().setTitle("Weather forecast");
         if (getFragmentManager().findFragmentByTag("city") == null) {
             CityListFragment c = new CityListFragment();
             c.setList(items);
@@ -95,7 +95,6 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
 
     @Override
     public void solveSelection(int position) {
-        getSupportActionBar().setTitle(items.get(position).getName());
         WeatherDetails w = new WeatherDetails();
         w.setItem((items.get(position)));
         transaction = getFragmentManager().beginTransaction();
