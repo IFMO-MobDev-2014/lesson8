@@ -27,7 +27,6 @@ public class CityListFragment extends ListFragment {
     }
 
     public void notifyData() {
-        Log.d("notification", "lol");
         adapter.notifyDataSetChanged();
     }
 

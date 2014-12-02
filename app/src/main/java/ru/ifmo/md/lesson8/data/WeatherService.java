@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import org.xml.sax.SAXException;
 
@@ -189,7 +188,6 @@ public class WeatherService extends IntentService {
                 cv.put("next_c" + Integer.toString(i + 1), next.get(i).getCondition());
             }
             getContentResolver().insert(WEATHER_URI, cv);
-            Log.d("FINISH", "lol");
         }
         response(true);
     }
