@@ -2,7 +2,7 @@ package lesson8.android.weather
 
 import java.text.SimpleDateFormat
 import java.util
-import java.util.Date
+import java.util.{Random, Date}
 
 import android.app.Activity
 import android.content.{DialogInterface, Context}
@@ -15,26 +15,20 @@ import com.achep.header2actionbar.HeaderFragment
 import com.achep.header2actionbar.HeaderFragment.OnHeaderScrollChangedListener
 import lesson8.android.weather.weather._
 
-
 class WeatherDetailFragment extends HeaderFragment {
-  //  private var mWeatherToday: Weather = null
   private var mForecast: Array[(Weather, Boolean)] = List(
-    (new Weather("Saint-Petersburg", "Ruske", "+20", "celsium", "clear", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis())), true),
-    (new Weather("Saint-Petersburg", "Ruske", "+22", "celsium", "clear", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 86400000)), false),
-    (new Weather("Saint-Petersburg", "Ruske", "+23", "celsium", "rainy", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 2 * 86400000)), false),
-    (new Weather("Saint-Petersburg", "Ruske", "+18", "celsium", "clear", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 3 * 86400000)), false),
-    (new Weather("Saint-Petersburg", "Ruske", "+16", "celsium", "clear", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 4 * 86400000)), false),
-    (new Weather("Saint-Petersburg", "Ruske", "+15", "celsium", "rainy", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 5 * 86400000)), false),
-    (new Weather("Saint-Petersburg", "Ruske", "+13", "celsium", "clear", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 6 * 86400000)), false),
-    (new Weather("Saint-Petersburg", "Ruske", "+11", "celsium", "ranie", "humid", "756 mm/hg", "2 m/s SW",
-      new Date(System.currentTimeMillis() + 7 * 86400000)), false)).toArray
+    (new Weather("Saint-Petersburg", "Ruske", (20, 18), "celsium", new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())), true)).toArray
+  private val rand: Random = new Random()
+  for (i <- 0 to 10) mForecast = mForecast :+(new Weather(
+    "Saint-Petersburg",
+    "Russia",
+    (rand.nextInt(8) + 15, rand.nextInt(8) + 14),
+    "Celsium",
+    new WeatherState(rand.nextInt(8) * 100 + rand.nextInt(24), if (rand.nextBoolean()) "clear" else "lol"),
+    rand.nextInt(100).toDouble / 100,
+    rand.nextInt(20) + 730,
+    "SW 5 m/s",
+    new Date(System.currentTimeMillis() + i * 86400000)), false)
   private var mListView: ListView = null
   private var mLoaded: Boolean = false
   private var mInflater: LayoutInflater = null
@@ -54,7 +48,6 @@ class WeatherDetailFragment extends HeaderFragment {
           .setActionBarAlpha((255 * progress2).toInt)
       }
     })
-    mLoaded = true
   }
 
 
@@ -66,38 +59,65 @@ class WeatherDetailFragment extends HeaderFragment {
   override def onCreateContentView(inflater: LayoutInflater, container: ViewGroup): View = {
     mListView = cast[View, ListView](inflater.inflate(R.layout.fragment_listview, container, false))
     //    mListView = cast[View, ListView](view.findViewById(R.id.forecast_list))
+    if (mLoaded) setForecast()
     mListView
   }
 
+  override def onResume(): Unit = {
+    super.onResume()
+    if (!mLoaded) {
+      mListView.setVisibility(View.INVISIBLE)
+      mContentOverlay.setVisibility(View.VISIBLE)
+      new Thread {
+        override def run: Unit = getActivity.runOnUiThread(new Thread {
+          override def run(): Unit = {
+            Thread.sleep(3000)
+            setForecast()
+          }
+        })
+      }.start()
+    }
+  }
 
-  override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = setForecast()
+  override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = super.onViewCreated(view, savedInstanceState)
 
   def setForecast() = {
+    mContentOverlay.setVisibility(View.GONE)
+    mListView.setVisibility(View.VISIBLE)
+    mLoaded = true
+    //TODO: its not possible now (((99
+    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0)._1.weatherState.getBackground)
     cast[View, TextView](getActivity.findViewById(R.id.title)).setText(mForecast(0)._1.city)
-    cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0)._1.cloudness)
+    cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0)._1.weatherState.getDesc)
     setListViewAdapter(mListView, new BaseAdapter {
-      override def getItemId(id: Int): Long = if (id > mForecast.length) -1 else id
+      override def getItemId(id: Int): Long = if (id >= mForecast.length) -1 else id
       override def getCount: Int = mForecast.length
-      override def isEnabled(id: Int): Boolean = !mForecast(id)._2
+      //      override def isEnabled(id: Int): Boolean = !mForecast(id)._2
       override def getView(id: Int, p2: View, p3: ViewGroup): View = {
         var forecastView: View = null
         val forecast = mForecast(id)._1
-        if (mForecast(id)._2) {
+        if (id == 0) {
           forecastView = mInflater.inflate(R.layout.fragment_weather_main, p3, false)
-          cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText("Humidity: " + forecast.humidity)
-          cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText("Pressure: " + forecast.pressure)
+          cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText("Humidity: " + forecast.humidity + "%")
+          cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText("Pressure: " + forecast.pressure + " hPa")
           cast[View, TextView](forecastView.findViewById(R.id.wind)).setText("Wind: " + forecast.wind)
         } else {
           forecastView = mInflater.inflate(R.layout.forecast_item, p3, false)
-          cast[View, ImageView](forecastView.findViewById(R.id.image_status)).setImageResource(forecast.cloudness match {
-            case "clear" => R.drawable.sunny
-            case _ => R.drawable.sunny_night
-          })
-          cast[View, TextView](forecastView.findViewById(R.id.date)).setText(new SimpleDateFormat("d").format(forecast.date))
+          if (mForecast(id)._2) {
+            forecastView.findViewById(R.id.additional_table).setVisibility(View.VISIBLE)
+            cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText("Humidity: " + forecast.humidity + "%")
+            cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText("Pressure: " + forecast.pressure + " hPa")
+            cast[View, TextView](forecastView.findViewById(R.id.wind)).setText("Wind: " + forecast.wind)
+            cast[View, TextView](forecastView.findViewById(R.id.weatherState)).setText("State: " + forecast.weatherState.getDesc)
+          } else {
+            forecastView.findViewById(R.id.additional_table).setVisibility(View.GONE)
+          }
+          cast[View, ImageView](forecastView.findViewById(R.id.image_status)).setImageResource(forecast.weatherState.getIcon)
+          cast[View, TextView](forecastView.findViewById(R.id.date)).setText(new SimpleDateFormat("dd MMM").format(forecast.date))
         }
-        cast[View, TextView](forecastView.findViewById(R.id.lower_temp)).setText(forecast.temp + " °C")
+        cast[View, TextView](forecastView.findViewById(R.id.lower_temp)).setText(forecast.lowTemp() + " °C")
         // TODO: trash, lots of
-        cast[View, TextView](forecastView.findViewById(R.id.upper_temp)).setText(forecast.temp + " °C")
+        cast[View, TextView](forecastView.findViewById(R.id.upper_temp)).setText(forecast.highTemp() + " °C")
         forecastView.setOnClickListener(new View.OnClickListener {
           override def onClick(p1: View): Unit = {
             if (id != 0) {

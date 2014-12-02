@@ -35,7 +35,7 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="+14 °C"
                     android:padding="@dimen/android_spaces_small"
-                    android:background="#2000"
+                    android:background="@color/grey"
                     android:id="@+id/lower_temp"
                     android:layout_weight="1"
                     style="@style/Content.TitleText" android:gravity="center"/>
@@ -48,7 +48,7 @@
                 android:layout_marginLeft="@dimen/android_spaces_small"
                 android:paddingLeft="@dimen/android_spaces"
                 android:paddingRight="@dimen/android_spaces"
-                android:background="#2000"
+                android:background="@color/grey"
                 android:layout_marginRight="@dimen/android_spaces_small"
                 android:baselineAligned="false">
             <TextView

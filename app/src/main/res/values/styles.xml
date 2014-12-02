@@ -25,7 +25,7 @@
     <style name="Content.UsualText" parent="Content.TitleText">
         <item name="android:textSize">25dp</item>
     </style>
-    <style name="Content.SubTitleText" parent = "Content.SubTitleText">
+    <style name="Content.SubTitleText" parent = "Content.TitleText">
         <item name="android:textSize">18dp</item>
         <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-condensed</item>
         <item name="android:shadowColor">#0000</item>

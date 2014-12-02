@@ -13,9 +13,8 @@ class WeatherActivity extends Activity {
     setContentView(R.layout.activity_main)
     mFadingActionBarHelper = new FadingActionBarHelper(getActionBar, getResources.getDrawable(R.drawable.actionbar_bg))
     if (savedInstanceState == null)
-      getFragmentManager.beginTransaction().add(R.id.container, new WeatherDetailFragment()).commit
+      getFragmentManager.beginTransaction().add(R.id.container, new WeatherDetailFragment).commit
   }
-
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     getMenuInflater.inflate(R.menu.main, menu)
