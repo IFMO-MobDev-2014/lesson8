@@ -16,10 +16,9 @@ import com.achep.header2actionbar.HeaderFragment.OnHeaderScrollChangedListener
 import lesson8.android.weather.weather._
 
 class WeatherDetailFragment extends HeaderFragment {
-  private var mForecast: Array[(Weather, Boolean)] = List(
-    (new Weather("Saint-Petersburg", "Ruske", (20, 18), "celsium", new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())), true)).toArray
   private val rand: Random = new Random()
-  for (i <- 0 to 10) mForecast = mForecast :+(new Weather(
+  private var mForecast: List[Weather] = new Weather("Saint-Petersburg", "Ruske", (20, 18), "celsium", new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
+  for (i <- 0 to 10) mForecast = new Weather(
     "Saint-Petersburg",
     "Russia",
     (rand.nextInt(8) + 15, rand.nextInt(8) + 14),
@@ -28,7 +27,11 @@ class WeatherDetailFragment extends HeaderFragment {
     rand.nextInt(100).toDouble / 100,
     rand.nextInt(20) + 730,
     "SW 5 m/s",
-    new Date(System.currentTimeMillis() + i * 86400000)), false)
+    new Date(System.currentTimeMillis() + i * 86400000)) :: mForecast
+  mForecast =
+  mForecast.reverse
+  private var mForecastUsed: Array[Boolean] = new Array[Boolean](mForecast.length)
+  mForecastUsed.update(0, true)
   private var mListView: ListView = null
   private var mLoaded: Boolean = false
   private var mInflater: LayoutInflater = null
@@ -59,8 +62,21 @@ class WeatherDetailFragment extends HeaderFragment {
   override def onCreateContentView(inflater: LayoutInflater, container: ViewGroup): View = {
     mListView = cast[View, ListView](inflater.inflate(R.layout.fragment_listview, container, false))
     //    mListView = cast[View, ListView](view.findViewById(R.id.forecast_list))
-    if (mLoaded) setForecast()
+    mListView.setVisibility(View.INVISIBLE)
+    if (mLoaded) setForecast(mForecast)
     mListView
+  }
+
+  override def onCreateContentOverlayView(inflater: LayoutInflater, p2: ViewGroup): View = {
+    val progressBar: ProgressBar = new ProgressBar(getActivity)
+    mContentOverlay = new FrameLayout(getActivity)
+    mContentOverlay.addView(progressBar, new LayoutParams(
+      ViewGroup.LayoutParams.WRAP_CONTENT,
+      ViewGroup.LayoutParams.WRAP_CONTENT,
+      Gravity.CENTER))
+    mContentOverlay.setVisibility(View.VISIBLE)
+    if (mLoaded) mContentOverlay.setVisibility(View.GONE)
+    mContentOverlay
   }
 
   override def onResume(): Unit = {
@@ -72,30 +88,31 @@ class WeatherDetailFragment extends HeaderFragment {
         override def run: Unit = getActivity.runOnUiThread(new Thread {
           override def run(): Unit = {
             Thread.sleep(3000)
-            setForecast()
+            setForecast(mForecast)
           }
         })
       }.start()
     }
   }
 
-  override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = super.onViewCreated(view, savedInstanceState)
-
-  def setForecast() = {
+  def setForecast(forecast: List[Weather]) = {
+    mForecast = forecast
+    mForecastUsed = new Array(mForecast.length)
+    mForecastUsed.update(0, true)
     mContentOverlay.setVisibility(View.GONE)
     mListView.setVisibility(View.VISIBLE)
     mLoaded = true
     //TODO: its not possible now (((99
-    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0)._1.weatherState.getBackground)
-    cast[View, TextView](getActivity.findViewById(R.id.title)).setText(mForecast(0)._1.city)
-    cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0)._1.weatherState.getDesc)
+    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0).weatherState.getBackground)
+    cast[View, TextView](getActivity.findViewById(R.id.title)).setText(mForecast(0).city)
+    cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0).weatherState.getDesc)
     setListViewAdapter(mListView, new BaseAdapter {
       override def getItemId(id: Int): Long = if (id >= mForecast.length) -1 else id
       override def getCount: Int = mForecast.length
       //      override def isEnabled(id: Int): Boolean = !mForecast(id)._2
       override def getView(id: Int, p2: View, p3: ViewGroup): View = {
         var forecastView: View = null
-        val forecast = mForecast(id)._1
+        val forecast = mForecast(id)
         if (id == 0) {
           forecastView = mInflater.inflate(R.layout.fragment_weather_main, p3, false)
           cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText("Humidity: " + forecast.humidity + "%")
@@ -103,7 +120,7 @@ class WeatherDetailFragment extends HeaderFragment {
           cast[View, TextView](forecastView.findViewById(R.id.wind)).setText("Wind: " + forecast.wind)
         } else {
           forecastView = mInflater.inflate(R.layout.forecast_item, p3, false)
-          if (mForecast(id)._2) {
+          if (mForecastUsed(id)) {
             forecastView.findViewById(R.id.additional_table).setVisibility(View.VISIBLE)
             cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText("Humidity: " + forecast.humidity + "%")
             cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText("Pressure: " + forecast.pressure + " hPa")
@@ -121,25 +138,15 @@ class WeatherDetailFragment extends HeaderFragment {
         forecastView.setOnClickListener(new View.OnClickListener {
           override def onClick(p1: View): Unit = {
             if (id != 0) {
-              mForecast.update(id, (mForecast(id)._1, !mForecast(id)._2))
+              mForecastUsed.update(id, !mForecastUsed(id))
               notifyDataSetChanged()
             }
           }
         })
         forecastView
       }
-      override def getItem(p1: Int): AnyRef = mForecast(p1)._1
+      override def getItem(p1: Int): AnyRef = mForecast(p1)
     })
   }
 
-  override def onCreateContentOverlayView(inflater: LayoutInflater, p2: ViewGroup): View = {
-    val progressBar: ProgressBar = new ProgressBar(getActivity)
-    mContentOverlay = new FrameLayout(getActivity)
-    mContentOverlay.addView(progressBar, new LayoutParams(
-      ViewGroup.LayoutParams.WRAP_CONTENT,
-      ViewGroup.LayoutParams.WRAP_CONTENT,
-      Gravity.CENTER))
-    if (mLoaded) mContentOverlay.setVisibility(View.GONE)
-    mContentOverlay
-  }
 }
