@@ -1,0 +1,58 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "jp.leafytree.gradle:gradle-android-scala-plugin:1.0"
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'android-scala'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+
+    defaultConfig {
+        applicationId "lesson8.android.weather"
+        minSdkVersion 16
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+
+    sourceSets {
+        main {
+            scala {
+                srcDir "src/main/scala"
+            }
+            java {
+                srcDir "src/main/java"
+            }
+        }
+
+        androidTest {
+            scala {
+                srcDir "src/androidTest/scala"
+            }
+            java {
+                srcDir "src/androidTest/java"
+            }
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'org.scala-lang:scala-library:2.11.2'
+//    compile 'com.android.support:appcompat-v7:21.0.1'
+}

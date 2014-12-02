@@ -1,0 +1,60 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="?android:attr/textAppearanceLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/android_spaces"
+        android:padding="@dimen/android_spaces_small"
+        android:textIsSelectable="true"
+        tools:context=".ItemDetailFragment"
+        android:orientation="horizontal" android:weightSum="0"
+        android:gravity="center">
+    <TextView
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+            android:padding="@dimen/android_spaces"
+            android:text="27"
+            android:background="@drawable/circle_date"
+            android:gravity="center"
+            style="@style/Content.UsualText"
+            android:textColor="@android:color/white"
+            android:textSize="25dp"
+            android:id="@+id/date"/>
+    <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/android_spaces_small"
+                android:layout_marginRight="@dimen/android_spaces_small"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="+28 °C"
+                    android:padding="@dimen/android_spaces_small"
+                    android:id="@+id/upper_temp"
+                    android:layout_weight="1"
+                    style="@style/Content.UsualText"
+                    android:gravity="center"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="+14 °C"
+                    android:padding="@dimen/android_spaces_small"
+                    android:background="#2000"
+                    android:id="@+id/lower_temp"
+                    android:layout_weight="1"
+                    style="@style/Content.UsualText"
+                    android:gravity="center"/>
+        </LinearLayout>
+    <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/sunny"
+            android:id="@+id/image_status"/>
+</LinearLayout>
