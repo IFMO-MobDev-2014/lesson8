@@ -13,12 +13,16 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import java.util.List;
 
 import ru.ifmo.md.lesson8.data.WeatherBroadcast;
 import ru.ifmo.md.lesson8.data.WeatherContentProvider;
 import ru.ifmo.md.lesson8.data.WeatherItem;
+import ru.ifmo.md.lesson8.data.WeatherListAdapter;
 import ru.ifmo.md.lesson8.data.WeatherService;
 
 import static ru.ifmo.md.lesson8.data.WeatherContentProvider.*;
@@ -30,6 +34,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
     WeatherBroadcast broadcast = new WeatherBroadcast();
     private List<WeatherItem> items;
     private FragmentTransaction transaction;
+    private WeatherListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +53,16 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
 
     public void setFragments() {
         getSupportActionBar().setTitle("Weather forecast");
-        if (getFragmentManager().findFragmentByTag("city") == null) {
-            CityListFragment c = new CityListFragment();
-            c.setList(items);
-            transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.root_layout, c, "city");
-            transaction.addToBackStack(null);
-            transaction.commit();
-        } else {
-            CityListFragment c = (CityListFragment) getFragmentManager().findFragmentByTag("city");
-            c.setList(items);
-            c.notifyData();
-        }
+
+        ListView l = (ListView) findViewById(R.id.left_drawer);
+        adapter = new WeatherListAdapter(items);
+        l.setAdapter(adapter);
+        l.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                solveSelection(position);
+            }
+        });
     }
 
     public List<WeatherItem> getItems() {
@@ -98,7 +101,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         WeatherDetails w = new WeatherDetails();
         w.setItem((items.get(position)));
         transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.root_layout, w, "detail");
+        transaction.add(R.id.root_layout, w, "detail");
         transaction.addToBackStack(null);
         transaction.commit();
     }
