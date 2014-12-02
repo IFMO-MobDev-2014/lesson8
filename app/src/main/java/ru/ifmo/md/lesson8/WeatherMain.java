@@ -1,5 +1,7 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -27,6 +29,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
     public Intent service;
     WeatherBroadcast broadcast = new WeatherBroadcast();
     private List<WeatherItem> items;
+    private FragmentTransaction transaction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         setContentView(R.layout.activity_weather_main);
 
         service = new Intent(this, WeatherService.class);
-        service.putExtra("FLAG", "Moscow");
+        service.putExtra("FLAG", "all");
         startService(service);
 
 		IntentFilter intentFilter = new IntentFilter(WeatherService.ACTION);
@@ -48,7 +51,10 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         if (getFragmentManager().findFragmentByTag("city") == null) {
             CityListFragment c = new CityListFragment();
             c.setList(items);
-            getFragmentManager().beginTransaction().add(R.id.root_layout, c, "city").addToBackStack(null).commit();
+            transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.root_layout, c, "city");
+            transaction.addToBackStack(null);
+            transaction.commit();
         } else {
             CityListFragment c = (CityListFragment) getFragmentManager().findFragmentByTag("city");
             c.setList(items);
@@ -92,10 +98,22 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         getSupportActionBar().setTitle(items.get(position).getName());
         WeatherDetails w = new WeatherDetails();
         w.setItem((items.get(position)));
-        getFragmentManager().beginTransaction().replace(R.id.root_layout, w, "detail").addToBackStack(null).commit();
+        transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.root_layout, w, "detail");
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     public void setItems(List<WeatherItem> items) {
         this.items = items;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0 ){
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

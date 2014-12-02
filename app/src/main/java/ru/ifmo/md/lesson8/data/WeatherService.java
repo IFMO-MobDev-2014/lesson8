@@ -40,6 +40,7 @@ public class WeatherService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
         String flag = intent.getStringExtra("FLAG");
 
         if (flag.equals("all"))
@@ -106,13 +107,27 @@ public class WeatherService extends IntentService {
         Cursor subs = getContentResolver().query(CITY_URI, null, null, null, null);
         if (subs != null) {
             subs.moveToFirst();
+            if (subs.isAfterLast()) {
+                ContentValues cv = new ContentValues();
+                cv.put("name", "Saint-Petersburg");
+                getContentResolver().insert(CITY_URI, cv);
+                cv = new ContentValues();
+                cv.put("name", "Moscow");
+                getContentResolver().insert(CITY_URI, cv);
+                cv = new ContentValues();
+                cv.put("name", "London");
+                getContentResolver().insert(CITY_URI, cv);
+                cv = new ContentValues();
+
+                subs = getContentResolver().query(CITY_URI, null, null, null, null);
+                subs.moveToFirst();
+            }
             try {
                 do {
                     SAXParserFactory factory = SAXParserFactory.newInstance();
                     SAXParser saxParser = factory.newSAXParser();
                     WeatherHandler handler = new WeatherHandler();
-                    if (subs.isAfterLast())
-                        break;
+
                     String city = subs.getString(1);
                     URL url = new URL(a1 + city + a2);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
