@@ -71,22 +71,6 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[Cursor] 
     cast[View, TextView](getActivity.findViewById(R.id.title)).setText(cast[Activity, WeatherActivity](getActivity).cityName)
 
 
-  override def onResume(): Unit = {
-    super.onResume()
-    //    if (!mLoaded) {
-    //      mListView.setVisibility(View.INVISIBLE)
-    //      mContentOverlay.setVisibility(View.VISIBLE)
-    //      new Thread {
-    //        override def run: Unit = getActivity.runOnUiThread(new Thread {
-    //          override def run(): Unit = {
-    //            Thread.sleep(3000)
-    //            setForecast(mForecast)
-    //          }
-    //        })
-    //      }.start()
-    //    }
-  }
-
   def setForecast(forecast: List[Weather]) = {
     mForecast = forecast
     mForecastUsed = new Array(mForecast.length)
@@ -156,7 +140,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[Cursor] 
         fadeIn.setAnimationListener(new AnimationListener {
       override def onAnimationEnd(p1: Animation): Unit = {
         imageView.setImageResource(srcRecID)
-        overlay.setVisibility(View.VISIBLE)
+        overlay.setVisibility(View.INVISIBLE)
       }
       override def onAnimationStart(p1: Animation): Unit = overlay.setVisibility(View.VISIBLE)
       override def onAnimationRepeat(p1: Animation): Unit = {}
