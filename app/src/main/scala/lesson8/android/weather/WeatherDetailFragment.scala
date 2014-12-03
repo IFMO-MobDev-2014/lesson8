@@ -1,37 +1,25 @@
 package lesson8.android.weather
 
 import java.text.SimpleDateFormat
-import java.util
-import java.util.{Random, Date}
-
+import java.util.{Date, Random}
 import android.app.Activity
-import android.content.{DialogInterface, Context}
-import android.content.DialogInterface.OnClickListener
+import android.app.LoaderManager.LoaderCallbacks
+import android.content.{AsyncTaskLoader, Context, CursorLoader, Loader}
+import android.database.Cursor
 import android.os.Bundle
 import android.view._
+import android.view.animation.Animation.AnimationListener
+import android.view.animation._
 import android.widget.FrameLayout.LayoutParams
 import android.widget._
 import com.achep.header2actionbar.HeaderFragment
 import com.achep.header2actionbar.HeaderFragment.OnHeaderScrollChangedListener
 import lesson8.android.weather.weather._
 
-class WeatherDetailFragment extends HeaderFragment {
+class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[Cursor] {
   private val rand: Random = new Random()
-  private var mForecast: List[Weather] = new Weather("Saint-Petersburg", "Ruske", (20, 18), "celsium", new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
-  for (i <- 0 to 10) mForecast = new Weather(
-    "Saint-Petersburg",
-    "Russia",
-    (rand.nextInt(8) + 15, rand.nextInt(8) + 14),
-    "Celsium",
-    new WeatherState(rand.nextInt(8) * 100 + rand.nextInt(24), if (rand.nextBoolean()) "clear" else "lol"),
-    rand.nextInt(100).toDouble / 100,
-    rand.nextInt(20) + 730,
-    "SW 5 m/s",
-    new Date(System.currentTimeMillis() + i * 86400000)) :: mForecast
-  mForecast =
-  mForecast.reverse
-  private var mForecastUsed: Array[Boolean] = new Array[Boolean](mForecast.length)
-  mForecastUsed.update(0, true)
+  private var mForecast: List[Weather] = null
+  private var mForecastUsed: Array[Boolean] = null
   private var mListView: ListView = null
   private var mLoaded: Boolean = false
   private var mInflater: LayoutInflater = null
@@ -51,8 +39,8 @@ class WeatherDetailFragment extends HeaderFragment {
           .setActionBarAlpha((255 * progress2).toInt)
       }
     })
+    getLoaderManager.initLoader(0, null, this).forceLoad()
   }
-
 
   override def onDetach(): Unit = super.onDetach()
 
@@ -62,8 +50,8 @@ class WeatherDetailFragment extends HeaderFragment {
   override def onCreateContentView(inflater: LayoutInflater, container: ViewGroup): View = {
     mListView = cast[View, ListView](inflater.inflate(R.layout.fragment_listview, container, false))
     //    mListView = cast[View, ListView](view.findViewById(R.id.forecast_list))
-    mListView.setVisibility(View.INVISIBLE)
     if (mLoaded) setForecast(mForecast)
+    else mListView.setVisibility(View.INVISIBLE)
     mListView
   }
 
@@ -79,20 +67,24 @@ class WeatherDetailFragment extends HeaderFragment {
     mContentOverlay
   }
 
+  override def onViewCreated(view: View, state: Bundle): Unit =
+    cast[View, TextView](getActivity.findViewById(R.id.title)).setText(cast[Activity, WeatherActivity](getActivity).cityName)
+
+
   override def onResume(): Unit = {
     super.onResume()
-    if (!mLoaded) {
-      mListView.setVisibility(View.INVISIBLE)
-      mContentOverlay.setVisibility(View.VISIBLE)
-      new Thread {
-        override def run: Unit = getActivity.runOnUiThread(new Thread {
-          override def run(): Unit = {
-            Thread.sleep(3000)
-            setForecast(mForecast)
-          }
-        })
-      }.start()
-    }
+    //    if (!mLoaded) {
+    //      mListView.setVisibility(View.INVISIBLE)
+    //      mContentOverlay.setVisibility(View.VISIBLE)
+    //      new Thread {
+    //        override def run: Unit = getActivity.runOnUiThread(new Thread {
+    //          override def run(): Unit = {
+    //            Thread.sleep(3000)
+    //            setForecast(mForecast)
+    //          }
+    //        })
+    //      }.start()
+    //    }
   }
 
   def setForecast(forecast: List[Weather]) = {
@@ -102,14 +94,16 @@ class WeatherDetailFragment extends HeaderFragment {
     mContentOverlay.setVisibility(View.GONE)
     mListView.setVisibility(View.VISIBLE)
     mLoaded = true
-    //TODO: its not possible now (((99
-    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0).weatherState.getBackground)
-    cast[View, TextView](getActivity.findViewById(R.id.title)).setText(mForecast(0).city)
-    cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0).weatherState.getDesc)
+    animate(
+      cast[View, ImageView](getActivity.findViewById(android.R.id.background)),
+      cast[View, ImageView](getActivity.findViewById(R.id.background_overlay)),
+      mForecast(0).weatherState.getBackground)
+//    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0).weatherState.getBackground))
+    cast[View, TextView](getActivity.findViewById(R.id.title)).setText(mForecast(0).city.capitalize)
+    cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0).weatherState.getDesc.capitalize)
     setListViewAdapter(mListView, new BaseAdapter {
       override def getItemId(id: Int): Long = if (id >= mForecast.length) -1 else id
       override def getCount: Int = mForecast.length
-      //      override def isEnabled(id: Int): Boolean = !mForecast(id)._2
       override def getView(id: Int, p2: View, p3: ViewGroup): View = {
         var forecastView: View = null
         val forecast = mForecast(id)
@@ -149,4 +143,57 @@ class WeatherDetailFragment extends HeaderFragment {
     })
   }
 
+  private def animate(imageView: ImageView, overlay: ImageView, srcRecID: Int): Unit = {
+    val fadeInDuration: Int = 400
+
+    val fadeOut: Animation = new AlphaAnimation(10, 0.1f)
+
+
+    val fadeIn: Animation = new AlphaAnimation(0.1f, 10)
+    overlay.setImageResource(srcRecID)
+    fadeIn.setInterpolator(new AccelerateInterpolator())
+    fadeIn.setDuration(fadeInDuration)
+        fadeIn.setAnimationListener(new AnimationListener {
+      override def onAnimationEnd(p1: Animation): Unit = {
+        imageView.setImageResource(srcRecID)
+        overlay.setVisibility(View.VISIBLE)
+      }
+      override def onAnimationStart(p1: Animation): Unit = overlay.setVisibility(View.VISIBLE)
+      override def onAnimationRepeat(p1: Animation): Unit = {}
+    })
+
+
+    val animation: AnimationSet = new AnimationSet(false)
+    animation.addAnimation(fadeIn)
+    animation.addAnimation(fadeOut)
+    animation.setRepeatCount(1)
+    overlay.setVisibility(View.VISIBLE)
+    overlay.setAnimation(animation)
+    animation.start()
+  }
+
+  def onCreateLoader(id: Int, bundle: Bundle): Loader[Cursor] = new AsyncTaskLoader[Cursor](getActivity) {
+    override def loadInBackground(): Cursor = {
+      Thread.sleep(2000)
+      null
+    }
+  }
+
+  def onLoadFinished(loader: Loader[Cursor], cursor: Cursor): Unit = {
+    var forecast = new Weather("Saint-Petersburg", "Ruske", (20, 18), "celsium", new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
+    for (i <- 0 to 10) forecast = new Weather(
+      "Saint-Petersburg",
+      "Russia",
+      (rand.nextInt(8) + 15, rand.nextInt(8) + 14),
+      "Celsium",
+      new WeatherState(rand.nextInt(8) * 100 + rand.nextInt(24), if (rand.nextBoolean()) "clear" else "lol"),
+      rand.nextInt(100).toDouble / 100,
+      rand.nextInt(20) + 730,
+      "SW 5 m/s",
+      new Date(System.currentTimeMillis() + i * 86400000)) :: forecast
+    forecast = forecast.reverse
+    setForecast(forecast)
+  }
+
+  def onLoaderReset(loader: Loader[Cursor]): Unit = null
 }

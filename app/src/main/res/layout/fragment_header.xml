@@ -11,6 +11,16 @@
         android:scaleType="centerCrop"
         android:src="@drawable/background_unrecognized" />
 
+
+    <ImageView
+        android:id="@+id/background_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:scaleType="centerCrop"
+        android:visibility="invisible"
+        android:src="@drawable/background_clouds_0" />
+
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,21 +30,22 @@
         android:layout_marginEnd="@dimen/android_spaces_large"
         android:layout_marginLeft="@dimen/android_spaces_large"
         android:layout_marginRight="@dimen/android_spaces_large"
-        android:layout_marginBottom="@dimen/android_spaces">
+        android:layout_marginBottom="@dimen/android_spaces"
+        android:gravity="right">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TITLE"
+            android:text="Cityname"
             style="@style/Header.TitleText" />
 
         <TextView
             android:id="@+id/subtitle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="subtitle"
-            style="@style/Header.SubTitleText" android:gravity="right"/>
+            android:text="Loading.."
+            style="@style/Header.SubTitleText" />
 
     </LinearLayout>
 

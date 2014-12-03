@@ -8,6 +8,7 @@ import com.achep.header2actionbar.FadingActionBarHelper
 
 class WeatherActivity extends Activity {
   private var mFadingActionBarHelper: FadingActionBarHelper = null
+  var cityName: String = "Saint-Petersburg"
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
