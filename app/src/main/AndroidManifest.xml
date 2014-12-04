@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.ifmo.md.lesson8" >
+    package="com.alex700.lesson9" >
 
     <application
         android:allowBackup="true"
@@ -8,7 +8,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="ru.ifmo.md.lesson8.ItemListActivity"
+            android:name="com.alex700.lesson9.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,14 +16,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="ru.ifmo.md.lesson8.ItemDetailActivity"
-            android:label="@string/title_item_detail"
-            android:parentActivityName="ru.ifmo.md.lesson8.ItemListActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ItemListActivity" />
-        </activity>
+
+        <provider
+            android:authorities="com.alex700.lesson9.WeatherContentProvider"
+            android:name="WeatherContentProvider"
+            android:enabled="true"
+            android:exported="true">
+        </provider>
+
+        <service android:name="WeatherLoaderService"></service>
     </application>
 
 </manifest>
