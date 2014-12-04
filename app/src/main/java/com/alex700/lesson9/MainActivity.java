@@ -5,14 +5,9 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,37 +18,38 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class MainActivity extends Activity
-        implements LoaderManager.LoaderCallbacks<Cursor>, NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    /**
+     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+     */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private CharSequence mTitle;
 
-    private int cityId = -1;
-    private List<City> cities = new ArrayList<>();
-    private List<String> citiesName = new ArrayList<>();
+    /**
+     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
+     */
+    private CharSequence mTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getLoaderManager().restartLoader(345738, null, this);
-
-        mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
-        mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
-
     }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
+        // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
@@ -61,7 +57,18 @@ public class MainActivity extends Activity
     }
 
     public void onSectionAttached(int number) {
-        mTitle = citiesName.size() == 0 ? "NULL" : citiesName.get(number);
+        mTitle = mNavigationDrawerFragment.getElements().get(number - 1);
+        /*switch (number) {
+            case 1:
+                mTitle = getString(R.string.title_section1);
+                break;
+            case 2:
+                mTitle = getString(R.string.title_section2);
+                break;
+            case 3:
+                mTitle = getString(R.string.title_section3);
+                break;
+        }*/
     }
 
     public void restoreActionBar() {
@@ -87,7 +94,12 @@ public class MainActivity extends Activity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -95,48 +107,20 @@ public class MainActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this, WeatherContentProvider.CITY_CONTENT_URI,
-                /*new String[] {WeatherDatabaseHelper.CITY_ID, WeatherDatabaseHelper.CITY_NAME, WeatherDatabaseHelper.CITY_UPDATE_TIME}*/null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        int id = -1;
-
-        Log.d("finish", ""+(cursor == null));
-
-        cities.clear();
-        citiesName.clear();
-        cursor.moveToNext();
-        while (!cursor.isAfterLast()) {
-            City c = WeatherDatabaseHelper.CityCursor.getCity(cursor);
-            cities.add(c);
-            citiesName.add(c.getName());
-            cursor.moveToNext();
-        }
-        Log.d("finish", ""+cities.size());
-        citiesName.add("aaa");
-        for (int i = 0; i < cities.size(); ++i) {
-            if (cities.get(i).getId() == cityId) {
-                id = i;
-            }
-        }
-
-        if (id == -1) {
-            id = 0;
-        }
-        mNavigationDrawerFragment.setElements(citiesName);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
+    /**
+     * A placeholder fragment containing a simple view.
+     */
     public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
         private static final String ARG_SECTION_NUMBER = "section_number";
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -158,8 +142,8 @@ public class MainActivity extends Activity
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
-            Log.d("choose", ""+getArguments().getInt(ARG_SECTION_NUMBER));
-            ((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+            ((MainActivity) activity).onSectionAttached(
+                    getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
 
