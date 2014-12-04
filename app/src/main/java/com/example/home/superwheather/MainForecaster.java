@@ -1,5 +1,6 @@
 package com.example.home.superwheather;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 
 import android.app.ActionBar;
@@ -13,8 +14,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +55,25 @@ public class MainForecaster extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_forecaster);
+
+        final FloatingActionButton fabButton = new FloatingActionButton.Builder(this)
+                .withDrawable(getResources().getDrawable(R.drawable.action_refresh))
+                .withButtonColor(Color.RED)
+                .withGravity(Gravity.BOTTOM | Gravity.END)
+                .withMargins(0, 0, 16, 16)
+                .create();
+
+        fabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!loading) {
+                    ObjectAnimator.ofFloat(fabButton, "rotation", 0f, 360f).start();
+                    onNavigationDrawerItemSelected(-1);
+                    //fabButton.hideFloatingActionButton();
+                    //fabButton.showFloatingActionButton();
+                }
+            }
+        });
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -655,10 +677,6 @@ public class MainForecaster extends Activity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.refresh_button && !loading) {
-            onNavigationDrawerItemSelected(-1);
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
