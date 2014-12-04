@@ -21,34 +21,43 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
     }
 
     public void inflateWeatherInfo(WeatherInfo weatherInfo) {
-        ((TextView) getView().findViewById(R.id.temperature)).setText(
-                String.format(getString(R.string.single_temperature), (int) weatherInfo.mainInfo.temp));
-        ((TextView) getView().findViewById(R.id.wind_speed)).setText(
-                String.format(getString(R.string.wind_speed), weatherInfo.wind.speed));
-        ((TextView) getView().findViewById(R.id.humidity)).setText(
-                String.format(getString(R.string.humidity), (int) weatherInfo.mainInfo.humidity));
-        ((TextView) getView().findViewById(R.id.pressure)).setText(
-                String.format(getString(R.string.pressure), (int) (weatherInfo.mainInfo.pressure * 0.75)));
-        ((TextView) getView().findViewById(R.id.weather_description)).setText(weatherInfo.description.description);
-        // TODO Verify correctness with WindGURU
-        windAngle = -45 - weatherInfo.wind.deg;
-        weatherImg = weatherInfo.description.icon;
+        if (weatherInfo != null) {
+            ((TextView) getView().findViewById(R.id.temperature)).setText(
+                    String.format(getString(R.string.single_temperature), (int) weatherInfo.mainInfo.temp));
+            ((TextView) getView().findViewById(R.id.wind_speed)).setText(
+                    String.format(getString(R.string.wind_speed), weatherInfo.wind.speed));
+            ((TextView) getView().findViewById(R.id.humidity)).setText(
+                    String.format(getString(R.string.humidity), (int) weatherInfo.mainInfo.humidity));
+            ((TextView) getView().findViewById(R.id.pressure)).setText(
+                    String.format(getString(R.string.pressure), (int) (weatherInfo.mainInfo.pressure * 0.75)));
+            ((TextView) getView().findViewById(R.id.weather_description)).setText(weatherInfo.description.description);
+            weatherImg = weatherInfo.description.icon;
+            // TODO Verify correctness with another forecast service
+            windAngle = -45 - weatherInfo.wind.deg;
+        } else {
+            ((TextView) getView().findViewById(R.id.temperature)).setText("");
+            ((TextView) getView().findViewById(R.id.wind_speed)).setText("");
+            ((TextView) getView().findViewById(R.id.humidity)).setText("");
+            ((TextView) getView().findViewById(R.id.pressure)).setText("");
+            ((TextView) getView().findViewById(R.id.weather_description)).setText("");
+            weatherImg = null;
+            windAngle = -45;
+        }
         onPreDraw();
         updateBackground();
     }
 
-    void updateBackground(WeatherView view) {
-        if (timeOfDay != null) {
-            view.setTimeOfDay(timeOfDay);
-            ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(
-                    weatherImg != null ? getResources().getIdentifier("weather_" + weatherImg.substring(0, 2)
-                            + (timeOfDay == WeatherView.TimeOfDay.NIGHT ? "n" : "d"), "drawable", getActivity().getPackageName()) : R.drawable.na);
-        }
-    }
-
     void updateBackground() {
-        if (getView() != null)
-            updateBackground((WeatherView) getView().findViewById(R.id.weather_view));
+        if (getView() != null && timeOfDay != null) {
+            WeatherView view = (WeatherView) getView();
+            view.setTimeOfDay(timeOfDay);
+            ((ImageView) getView().findViewById(R.id.weather_image)).setImageResource(
+                    weatherImg != null
+                            ? getResources().getIdentifier("weather_" + weatherImg.substring(0, 2)
+                                    + (timeOfDay == WeatherView.TimeOfDay.NIGHT ? "n" : "d"), "drawable",
+                            getActivity().getPackageName())
+                            : R.drawable.na);
+        }
     }
 
     @Override
@@ -69,9 +78,13 @@ public class WeatherNow extends Fragment implements ViewTreeObserver.OnPreDrawLi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.weather_now, container, false);
+        View result = inflater.inflate(R.layout.weather_now, container);
         result.getViewTreeObserver().addOnPreDrawListener(this);
-        updateBackground((WeatherView) result);
         return result;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        updateBackground();
     }
 }

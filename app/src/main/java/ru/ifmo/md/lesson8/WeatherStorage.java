@@ -38,9 +38,9 @@ import static ru.ifmo.md.lesson8.WeatherColumns.WIND_SPEED;
 import static ru.ifmo.md.lesson8.WeatherColumns._ID;
 
 public class WeatherStorage extends ContentProvider {
+    static final String CITY_CONDITION = "(SELECT " + CITY_NAME + " FROM " + CITIES + " WHERE " + _ID + " = " + CITY_ID + ") = ?";
     private static ObjectMapper mapper;
     private WeatherDatabase database;
-
     static {
         WeatherStorage.mapper = new ObjectMapper();
         WeatherStorage.mapper.setPropertyNamingStrategy(
@@ -85,16 +85,10 @@ public class WeatherStorage extends ContentProvider {
         if (uri.getPathSegments().size() == 1)
             switch (uri.getLastPathSegment()) {
                 case "weather":
-                    String city, cityCondition;
-                    if (uri.getQueryParameterNames().contains("city")) {
-                        city = uri.getQueryParameter("city");
-                        cityCondition = "(SELECT " + CITY_NAME + " FROM " + CITIES + " WHERE " + _ID + " = " + CITY_ID + ") = ?";
-                    } else {
-                        city = uri.getQueryParameter("id");
-                        cityCondition = CITY_ID + " = ?";
-                    }
-                    long[] period = CityWeather.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
-                    return database.getReadableDatabase().query(WEATHER_DATA, null, cityCondition +
+                    String city = uri.getQueryParameter("city");
+                    long[] period = WeatherActivity.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
+                    Log.v("WeatherStorage", "Loading from period [" + period[0] + ", " + period[1] + "]");
+                    return database.getReadableDatabase().query(WEATHER_DATA, null, CITY_CONDITION +
                             " AND " + TIME + " >= " + period[0] + " AND " + TIME + " <= " + period[1], new String[]{city}, null, null, TIME + " ASC");
                 case "cities":
                     return database.getReadableDatabase().query(CITIES, new String[]{CITY_NAME}, null, null, null, null, null);
@@ -108,7 +102,7 @@ public class WeatherStorage extends ContentProvider {
         if (uri.getPathSegments().size() == 1 && uri.getLastPathSegment().equals("weather")) {
             String cityName = uri.getQueryParameter("city");
             String city = "q=" + Uri.encode(cityName);
-            long[] period = CityWeather.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
+            long[] period = WeatherActivity.getDayRange(Long.parseLong(uri.getQueryParameter("time")));
             ContentValues past[];
             try {
                 past = downloadFromUrl("http://api.openweathermap.org/data/2.5/history/city?" +
@@ -129,8 +123,11 @@ public class WeatherStorage extends ContentProvider {
                 }
             });
             Log.d("WeatherStorage", "Queried period [" + period[0] + ", " + period[1] + "]");
-            Log.d("WeatherStorage", "Loaded period  [" + past[0].getAsLong(TIME) + ", " + past[past.length - 1].getAsLong(TIME) + "]");
-            Log.d("WeatherStorage", "Number of entries: " + past.length);
+            if (past.length > 0) {
+                Log.d("WeatherStorage", "Loaded period [" + past[0].getAsLong(TIME) + ", " + past[past.length - 1].getAsLong(TIME) + "]");
+                Log.v("WeatherStorage", "(" + past.length + " entries)");
+            } else
+                Log.d("WeatherStorage", "Loaded no data");
             SQLiteDatabase db = database.getWritableDatabase();
             int result = 0;
             boolean cityExists = db.query(CITIES, null, CITY_NAME + " = ?", new String[]{cityName}, null, null, null).getCount() == 1;
@@ -148,6 +145,7 @@ public class WeatherStorage extends ContentProvider {
                 for (ContentValues values : past)
                     result += db.insert(WEATHER_DATA, null, values);
                 db.setTransactionSuccessful();
+                Log.v("WeatherStorage", "Transation successful");
             } catch (RuntimeException ignore) {
             } finally {
                 db.endTransaction();

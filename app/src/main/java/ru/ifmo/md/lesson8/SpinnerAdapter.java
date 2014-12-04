@@ -53,4 +53,9 @@ public class SpinnerAdapter extends BaseAdapter {
         notifyDataSetChanged();
         return result;
     }
+
+    public void removeCity(int number) {
+        cities.remove(number);
+        notifyDataSetChanged();
+    }
 }

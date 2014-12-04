@@ -24,15 +24,24 @@ public class WeatherSoon extends Fragment {
         this.weatherInfo = weatherInfo;
 
         TextView view = (TextView) getView().findViewById(R.id.temperature_range);
-        if (Math.round(weatherInfo.mainInfo.tempMin) == Math.round(weatherInfo.mainInfo.tempMax))
-            view.setText(Integer.toString(Math.round(weatherInfo.mainInfo.temp)) + "°C");
-        else
-            view.setText(String.format(getString(R.string.temperature_range), Math.round(weatherInfo.mainInfo.tempMin), Math.round(weatherInfo.mainInfo.tempMax)));
+        if (weatherInfo != null) {
+            if (Math.round(weatherInfo.mainInfo.tempMin) == Math.round(weatherInfo.mainInfo.tempMax))
+                view.setText(Integer.toString(Math.round(weatherInfo.mainInfo.temp)) + "°C");
+            else
+                view.setText(String.format(getString(R.string.temperature_range), Math.round(weatherInfo.mainInfo.tempMin), Math.round(weatherInfo.mainInfo.tempMax)));
+        } else {
+            view.setText("");
+        }
         updateBackground();
     }
 
     public WeatherView.TimeOfDay getTimeOfDay() {
         return timeOfDay;
+    }
+
+    public void setTimeOfDay(WeatherView.TimeOfDay timeOfDay) {
+        this.timeOfDay = timeOfDay;
+        updateBackground();
     }
 
     public void setActive(boolean active) {
@@ -41,39 +50,38 @@ public class WeatherSoon extends Fragment {
             getView().setSelected(active);
     }
 
-    void updateBackground(WeatherView view) {
-        if (timeOfDay != null) {
+    void updateBackground() {
+        if (getView() != null && timeOfDay != null) {
+            WeatherView view = (WeatherView) getView();
             view.setTimeOfDay(timeOfDay);
+
+            ImageView imageView = (ImageView) getView().findViewById(R.id.weather_image);
             if (weatherInfo != null)
-                ((ImageView) ((View) view).findViewById(R.id.weather_image)).setImageResource(getResources().getIdentifier(
-                        "weather_" + weatherInfo.description.icon.substring(0, 2) + (timeOfDay == WeatherView.TimeOfDay.NIGHT ? "n" : "d")
+                imageView.setImageResource(getResources().getIdentifier(
+                        "weather_" + weatherInfo.description.icon.substring(0, 2)
+                                + (timeOfDay == WeatherView.TimeOfDay.NIGHT ? "n" : "d")
                         , "drawable", getActivity().getPackageName()));
-            ((TextView) ((View) view).findViewById(R.id.time_of_day)).setText(
+            else
+                imageView.setImageResource(R.drawable.na);
+            ((TextView) getView().findViewById(R.id.time_of_day)).setText(
                     getResources().getStringArray(R.array.times_of_day)[timeOfDay.ordinal()]);
         }
     }
 
-    void updateBackground() {
-        if (getView() != null)
-            updateBackground((WeatherView) getView().findViewById(R.id.weather_view));
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.weather_soon, container, false);
-        updateBackground((WeatherView) result);
+        View result = inflater.inflate(R.layout.weather_soon, container);
         result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((CityWeather) getParentFragment()).onActivate(WeatherSoon.this);
+                ((WeatherActivity) getActivity()).onActivate(WeatherSoon.this);
             }
         });
         return result;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.timeOfDay = WeatherView.TimeOfDay.valueOf(getArguments().getString("timeOfDay"));
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        updateBackground();
     }
 }
