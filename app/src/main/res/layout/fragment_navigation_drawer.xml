@@ -9,12 +9,20 @@
     tools:context=".NavigationDrawerFragment">
 
     <Button
-        style="@style/AppTheme"
+        style="@android:style/ButtonBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_button"
         android:id="@+id/add_city_button"
         android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_location"
+        android:id="@+id/local_weather"
+        android:layout_gravity="center_horizontal"
+        style="@android:style/ButtonBar" />
 
     <ListView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"

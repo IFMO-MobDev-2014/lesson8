@@ -4,9 +4,11 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 
 import android.app.ActionBar;
+import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +16,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.Gravity;
@@ -33,7 +36,9 @@ import android.content.Loader;
 import android.content.CursorLoader;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainForecaster extends Activity
@@ -43,22 +48,34 @@ public class MainForecaster extends Activity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    protected static FloatingActionButton fabButton;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
-    private CharSequence mTitle;
+    protected static CharSequence mTitle;
     private int sectionNumber;
     private boolean loading = false;
+    protected static String globalCity = "";
+    protected boolean currentLocation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_forecaster);
 
-        final FloatingActionButton fabButton = new FloatingActionButton.Builder(this)
-                .withDrawable(getResources().getDrawable(R.drawable.action_refresh))
-                .withButtonColor(Color.RED)
+        MyLocationListener.SetUpLocationListener(this);
+
+        Intent intent = new Intent(MainForecaster.this, Alarm.class);
+        PendingIntent sender = PendingIntent.getBroadcast(this, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.cancel(sender);
+
+        startService(new Intent(MainForecaster.this, AlarmService.class));
+
+        fabButton = new FloatingActionButton.Builder(this)
+                .withDrawable(getResources().getDrawable(R.drawable.refresh_arrow))
+                .withButtonColor(0xff00a6ff)
                 .withGravity(Gravity.BOTTOM | Gravity.END)
                 .withMargins(0, 0, 16, 16)
                 .create();
@@ -66,11 +83,23 @@ public class MainForecaster extends Activity
         fabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!loading) {
+                if (!loading && !fabButton.isHidden()) {
                     ObjectAnimator.ofFloat(fabButton, "rotation", 0f, 360f).start();
-                    onNavigationDrawerItemSelected(-1);
-                    //fabButton.hideFloatingActionButton();
-                    //fabButton.showFloatingActionButton();
+                    if (!currentLocation) {
+                        onNavigationDrawerItemSelected(-1);
+                    } else {
+                        if (MyLocationListener.imHere != null) {
+                            Geocoder geocoder = new Geocoder(MainForecaster.this);
+                            try {
+                                List<Address> addressList = geocoder.getFromLocation(MyLocationListener.imHere.getLatitude(), MyLocationListener.imHere.getLongitude(), 1);
+                                globalCity = Transliterator.transliterate(addressList.get(0).getLocality());
+                                mTitle = globalCity;
+                                onNavigationDrawerItemSelected(-1);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -113,12 +142,20 @@ public class MainForecaster extends Activity
             loading = true;
             View rootView = ((PlaceholderFragment) getFragmentManager().findFragmentById(R.id.container)).getRootView();
 
-            String city = (String) mNavigationDrawerFragment.getAdapter().getItem(sectionNumber - 1);
+            String city;
+            if (globalCity.isEmpty()) {
+                city = (String) mNavigationDrawerFragment.getAdapter().getItem(sectionNumber - 1);
+                currentLocation = false;
+            } else {
+                city = globalCity;
+                globalCity = "";
+                currentLocation = true;
+            }
 
             getLoaderManager().restartLoader(0, null, new LoaderCallbacksHolder(city, rootView));
 
             Intent serviceIntent = new Intent(MainForecaster.this, MyService.class);
-            startService(serviceIntent.putExtra("city", (String) mNavigationDrawerFragment.getAdapter().getItem(sectionNumber - 1)));
+            startService(serviceIntent.putExtra("city", city));
 
             IntentFilter intentFilter = new IntentFilter(MyService.ACTION_MYSERVICE);
             intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -166,13 +203,14 @@ public class MainForecaster extends Activity
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
+        fabButton.showFloatingActionButton();
     }
 
     private static final String[] months = new String[] {"января", "февраля", "марта", "апреля",
                                                       "мая", "июня", "июля", "августа",
                                                       "сентября", "октября", "ноября", "декабря"};
 
-    private String normalizeDate(String s) {
+    protected static String normalizeDate(String s) {
         String[] parts = s.split("-");
         return parts[2] + " " + months[Integer.valueOf(parts[1]) - 1] + ", " + parts[0];
     }
@@ -192,6 +230,7 @@ public class MainForecaster extends Activity
                     values.put(MyTable.COLUMN_TITLE, intent.getStringExtra("cityName"));
 
                     getActionBar().setTitle(intent.getStringExtra("cityName"));
+                    mTitle = intent.getStringExtra("cityName");
 
                     getContentResolver().update(MyContentProvider.CONTENT_URI, values, MyTable.COLUMN_T_ID + " = ? AND " + MyTable.COLUMN_TITLE + " = ?",
                             new String[] {"1", intent.getStringExtra("city")});
@@ -645,7 +684,7 @@ public class MainForecaster extends Activity
                     if (prevToast != null)
                         prevToast.cancel();
                     if (intent.getStringExtra("cause").equals("city fail")) {
-                        prevToast = Toast.makeText(MainForecaster.this, "Город не найден", Toast.LENGTH_SHORT);
+                        prevToast = Toast.makeText(MainForecaster.this, "Город не найден: " + intent.getStringExtra("city"), Toast.LENGTH_SHORT);
                     } else {
                         prevToast = Toast.makeText(MainForecaster.this, "Проблемы с интернет-соединением", Toast.LENGTH_SHORT);
                     }
@@ -676,7 +715,6 @@ public class MainForecaster extends Activity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
 

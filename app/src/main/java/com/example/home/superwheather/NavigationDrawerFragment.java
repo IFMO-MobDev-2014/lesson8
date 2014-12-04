@@ -8,6 +8,8 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,9 +18,11 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -27,8 +31,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -175,6 +182,26 @@ public class NavigationDrawerFragment extends Fragment {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+            }
+        });
+
+        mDrawerListView.findViewById(R.id.local_weather).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MyLocationListener.imHere != null) {
+                    Geocoder geocoder = new Geocoder(getActivity());
+                    try {
+                        List<Address> addressList = geocoder.getFromLocation(MyLocationListener.imHere.getLatitude(), MyLocationListener.imHere.getLongitude(), 1);
+                        MainForecaster.globalCity = Transliterator.transliterate(addressList.get(0).getLocality());
+                        if (mDrawerLayout != null) {
+                            mDrawerLayout.closeDrawer(mFragmentContainerView);
+                        }
+                        MainForecaster.mTitle = MainForecaster.globalCity;
+                        mCallbacks.onNavigationDrawerItemSelected(-1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -340,6 +367,11 @@ public class NavigationDrawerFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
     /**
      * Per the navigation drawer design guidelines, updates the action bar to show the global app
      * 'context', rather than just what's in the current screen.
@@ -349,6 +381,7 @@ public class NavigationDrawerFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setTitle(R.string.app_name);
+        MainForecaster.fabButton.hideFloatingActionButton();
     }
 
     private ActionBar getActionBar() {

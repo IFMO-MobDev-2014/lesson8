@@ -14,5 +14,6 @@
     <string name="sample_temperature"></string>
     <string name="desc">weahter visual state</string>
     <string name="forecast_desc">Прогноз погоды (в 00:00, 12:00 и 21:00)</string>
+    <string name="current_location">Моё местоположение</string>
 
 </resources>

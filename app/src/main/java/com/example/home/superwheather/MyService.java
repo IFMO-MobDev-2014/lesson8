@@ -151,6 +151,7 @@ public class MyService extends IntentService {
             intentResponse.addCategory(Intent.CATEGORY_DEFAULT);
 
             intentResponse.putExtra("succeed", false);
+            intentResponse.putExtra("city", city);
             if (cityTroubles) {
                 intentResponse.putExtra("cause", "city fail");
             } else {
