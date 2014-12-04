@@ -232,6 +232,8 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
             case R.id.action_remove:
                 String city = getCity();
                 int index = getActionBar().getSelectedNavigationIndex();
+                if (adapter.getCount() == 1)
+                    adapter.addCity("Saint Petersburg");
                 adapter.removeCity(index);
                 onNavigationItemSelected(Math.min(index, adapter.getCount() - 1), 0);
 
