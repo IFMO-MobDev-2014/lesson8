@@ -54,11 +54,15 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:paddingRight="80dp">
+                    android:layout_weight="1">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -66,7 +70,7 @@
                         android:id="@+id/temp_max"
                         android:layout_weight="1"
                         android:layout_gravity="right"
-                        android:gravity="end|center_vertical"
+                        android:gravity="center"
                         android:textSize="20dp"/>
 
                     <TextView
@@ -75,8 +79,14 @@
                         android:id="@+id/temp_min"
                         android:layout_weight="1"
                         android:layout_gravity="right"
-                        android:gravity="end|center_vertical"
+                        android:gravity="center"
                         android:textSize="20dp"/>
+                </LinearLayout>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
                 </LinearLayout>
             </LinearLayout>
 
