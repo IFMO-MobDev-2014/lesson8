@@ -8,20 +8,20 @@ import android.view.MenuItem;
 
 
 /**
- * An activity representing a single Item detail screen. This
+ * An activity representing a single City detail screen. This
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
- * in a {@link ItemListActivity}.
+ * in a {@link CityListActivity}.
  * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
- * more than a {@link ItemDetailFragment}.
+ * more than a {@link CityDetailFragment}.
  */
-public class ItemDetailActivity extends ActionBarActivity {
+public class CityDetailActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_item_detail);
+        setContentView(R.layout.activity_city_detail);
 
         // Show the Up button in the action bar.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -39,12 +39,12 @@ public class ItemDetailActivity extends ActionBarActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(ItemDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(ItemDetailFragment.ARG_ITEM_ID));
-            ItemDetailFragment fragment = new ItemDetailFragment();
+            arguments.putString(CityDetailFragment.ARG_CITY_ID,
+                    getIntent().getStringExtra(CityDetailFragment.ARG_CITY_ID));
+            CityDetailFragment fragment = new CityDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.item_detail_container, fragment)
+                    .add(R.id.city_detail_container, fragment)
                     .commit();
         }
     }
@@ -60,7 +60,7 @@ public class ItemDetailActivity extends ActionBarActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            NavUtils.navigateUpTo(this, new Intent(this, ItemListActivity.class));
+            NavUtils.navigateUpTo(this, new Intent(this, CityListActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,25 +1,38 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
-import ru.ifmo.md.lesson8.dummy.DummyContent;
+import ru.ifmo.md.lesson8.provider.WeatherContract;
 
 /**
- * A list fragment representing a list of Items. This fragment
+ * A list fragment representing a list of Cities. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link ItemDetailFragment}.
+ * currently being viewed in a {@link CityDetailFragment}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class CityListFragment extends ListFragment implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final int LOADER_CITIES = 0;
+
+    public static final String EXTRA_CITY_ID = "ru.ifmo.md.lesson8.weather.extra.CITY_ID";
+
+    private CursorAdapter mAdapter;
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -37,6 +50,31 @@ public class ItemListFragment extends ListFragment {
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+        switch (id) {
+            case LOADER_CITIES:
+                return new CursorLoader(
+                        getActivity(),
+                        WeatherContract.City.CONTENT_URI,
+                        WeatherContract.City.BASE_COLUMNS,
+                        null, null, null);
+            default:
+                throw new UnsupportedOperationException("Unknown loader");
+        }
+    }
+
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+
+    }
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -64,19 +102,35 @@ public class ItemListFragment extends ListFragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemListFragment() {
+    public CityListFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mAdapter = new CursorAdapter(getActivity(), null, true) {
+            @Override
+            public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                return LayoutInflater.from(context).inflate(
+                        android.R.layout.simple_list_item_activated_1, parent, false);
+            }
+
+            @Override
+            public void bindView(View view, Context context, Cursor cursor) {
+                final String city = cursor.getString(cursor.getColumnIndex(WeatherContract.City.CITY_NAME));
+                ((TextView) view.findViewById(android.R.id.text1)).setText(city);
+            }
+        };
+        setListAdapter(mAdapter);
+
+        getLoaderManager().initLoader(LOADER_CITIES, Bundle.EMPTY, this);
     }
 
     @Override
@@ -116,7 +170,7 @@ public class ItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(Long.toString(id));
     }
 
     @Override
