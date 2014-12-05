@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/city_weather_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/detailed_fragment"
+        android:name="ru.ifmo.md.lesson8.WeatherNow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="ru.ifmo.md.lesson8.WeatherActivity"
+        tools:layout="@layout/weather_now" />
+
+    <LinearLayout
+        android:id="@+id/brief_fragments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <fragment
+            android:id="@+id/night_tab"
+            android:name="ru.ifmo.md.lesson8.WeatherSoon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:layout="@layout/weather_soon" />
+
+        <fragment
+            android:id="@+id/morning_tab"
+            android:name="ru.ifmo.md.lesson8.WeatherSoon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:layout="@layout/weather_soon" />
+
+        <fragment
+            android:id="@+id/daytime_tab"
+            android:name="ru.ifmo.md.lesson8.WeatherSoon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:layout="@layout/weather_soon" />
+
+        <fragment
+            android:id="@+id/evening_tab"
+            android:name="ru.ifmo.md.lesson8.WeatherSoon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:layout="@layout/weather_soon" />
+
+    </LinearLayout>
+
+    <ru.ifmo.md.lesson8.CalendarWithBackground
+        android:id="@+id/calendar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/calendar"
+        android:dateTextAppearance="?android:textAppearanceMedium"
+        android:showWeekNumber="false"
+        android:shownWeekCount="3"
+        android:weekDayTextAppearance="?android:textAppearanceMedium" />
+
+</LinearLayout>

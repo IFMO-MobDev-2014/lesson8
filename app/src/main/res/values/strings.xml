@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
-
+    <string name="title_activity_weather">Yet Another Weather App</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="times_of_day">
+        <item>Night</item>
+        <item>Morning</item>
+        <item>Day</item>
+        <item>Evening</item>
+    </string-array>
+    <string name="single_temperature">%d°C</string>
+    <string name="temperature_range">%1$d°C - %2$d°C</string>
+    <string name="wind_speed">%.1f m/s</string>
+    <string name="humidity">%d%%</string>
+    <string name="pressure">%d mmHg</string>
+    <string name="network_error">Failed to load weather data. Check your network connection.</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_add">Add city</string>
+    <string name="action_remove">Remove city</string>
 </resources>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.ifmo.md.lesson8.LinearWeatherLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weather_view"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:background="@drawable/brief"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/time_of_day"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/weather_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/na" />
+
+    <TextView
+        android:id="@+id/temperature_range"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@android:color/white" />
+
+</ru.ifmo.md.lesson8.LinearWeatherLayout>

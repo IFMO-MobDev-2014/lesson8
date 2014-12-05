@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:state_selected="true" app:state_morning="true">
+        <shape>
+            <gradient android:angle="90" android:endColor="#ffbf00" android:startColor="#CC5500" />
+        </shape>
+    </item>
+    <item android:state_selected="true" app:state_daytime="true">
+        <shape>
+            <gradient android:angle="90" android:endColor="#7FC7FF" android:startColor="#2A52BE" />
+        </shape>
+    </item>
+    <item android:state_selected="true" app:state_evening="true">
+        <shape>
+            <gradient android:angle="90" android:endColor="#E75480" android:startColor="#2A52BE" />
+        </shape>
+    </item>
+    <item android:state_selected="true" app:state_night="true">
+        <shape>
+            <gradient android:angle="90" android:endColor="#ff292e7b" android:startColor="@android:color/transparent" />
+        </shape>
+    </item>
+    <item android:state_selected="false">
+        <layer-list>
+            <item android:left="-1dp" android:right="-1dp">
+                <shape>
+                    <stroke android:width="1dip" android:color="@android:color/darker_gray" />
+                    <!--gradient
+                        android:angle="-90"
+                        android:endColor="#"
+                        android:startColor="@android:color/black" /-->
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>
