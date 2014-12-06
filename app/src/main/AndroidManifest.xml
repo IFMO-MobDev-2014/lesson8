@@ -21,13 +21,18 @@
         </activity>
 
         <provider
-            android:name       ="ru.ifmo.md.lesson8.provider.WeatherProvider"
+            android:name="ru.ifmo.md.lesson8.provider.WeatherProvider"
             android:authorities="ru.ifmo.md.lesson8.provider.WeatherProvider"
             android:enabled="true"
             android:exported="true" >
         </provider>
 
-        <service android:name="ru.ifmo.md.lesson8.NetworkLoaderService"/>
+        <service android:name="ru.ifmo.md.lesson8.NetworkLoaderService" />
+
+        <activity
+            android:name="ru.ifmo.md.lesson8.CitiesActivity"
+            android:label="@string/title_activity_cities" >
+        </activity>
     </application>
 
 </manifest>

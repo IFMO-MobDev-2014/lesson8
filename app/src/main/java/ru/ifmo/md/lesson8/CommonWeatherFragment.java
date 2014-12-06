@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -22,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.support.v7.widget.RecyclerView;
@@ -173,7 +175,7 @@ public class CommonWeatherFragment extends Fragment
                     getActivity().getLoaderManager().restartLoader(0, null, CommonWeatherFragment.this);
                     stopLoading();
                 } else if (msg.what == NetworkLoaderService.UPDATING_STARTED)
-                    getActivity().getActionBar().setSubtitle(R.string.updating);
+                    getActivity().getActionBar().setSubtitle(R.string.refresning);
                 else if (msg.what == NetworkLoaderService.ALREADY_UPDATED) {
                     stopLoading();
                     if (userRequestUpdate)
@@ -206,7 +208,8 @@ public class CommonWeatherFragment extends Fragment
                 Toast.makeText(getActivity(), "Check your internet connection", Toast.LENGTH_SHORT).show();
             else
                 startLoading(true);
-        }
+        } else if (item.getItemId() == R.id.menu_item_cities)
+            startActivity(new Intent(getActivity(), CitiesActivity.class));
         return true;
     }
 
@@ -238,7 +241,7 @@ public class CommonWeatherFragment extends Fragment
         super.onResume();
         NetworkLoaderService.setHandler(handler);
         if (NetworkLoaderService.isLoading(cityName))
-            getActivity().getActionBar().setSubtitle(R.string.updating);
+            getActivity().getActionBar().setSubtitle(R.string.refresning);
     }
 
     @Override

@@ -33,7 +33,6 @@ public class CommonWeatherActivity extends Activity
             cityId = savedInstanceState.getInt(CITY_ID_EXTRA);
         getLoaderManager().restartLoader(42, null, this);
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        //getActionBar().setDisplayShowTitleEnabled(false);
     }
 
     @Override
