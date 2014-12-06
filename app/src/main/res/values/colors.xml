@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transperent_gray">#88444444</color>
+    <array name="gplus_colors">
+        <item>#ff3e802f</item>
+        <item>#fff4b400</item>
+        <item>#ff427fed</item>
+        <item>#ffb23424</item>
+    </array>
+</resources>
