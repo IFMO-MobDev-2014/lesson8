@@ -1,11 +1,15 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import net.aksingh.java.api.owm.CurrentWeatherData;
@@ -32,6 +36,7 @@ public class NetworkLoaderService extends IntentService {
     public static final int DATABASE_UPDATED = 1;
     public static final int ALREADY_UPDATED = 2;
     public static final int UPDATING_STARTED = 3;
+    public static final int GET_CITY_NAME = 4;
 
     public static final String TAG = "NetworkLoaderService";
 
@@ -40,38 +45,75 @@ public class NetworkLoaderService extends IntentService {
     }
     public static final String CITY_NAME = "city_name";
     public static final String ALL_CITIES = "ALL_CITIES";
+    public static final String GET_CITY = "GET_CITY";
+    public static final String LAT = "lat";
+    public static final String LON = "lon";
+    public static final String LOAD_INTERVAL = "load_interval";
+
     public static OpenWeatherMap owmClient;
     public static final String APP_ID = "1ae017d145aacb33811eef8f8911e804";
-    public static Handler handler;
+    public static ArrayList <Handler> handlers = new ArrayList<Handler>();
     private static ArrayList <String> queue = new ArrayList<String>();
+
+    public static void setServiceAlarm(Context context, boolean isOn, Bundle bundle) {
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        if (isOn) {
+            int pollInterval = bundle.getInt(LOAD_INTERVAL);
+            Intent intent = new Intent(context, NetworkLoaderService.class);
+            PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
+            alarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + pollInterval, pollInterval, pi);
+        } else if (isServiceAlarmOn(context)) {
+            Intent intent = new Intent(context, NetworkLoaderService.class);
+            PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
+            alarmManager.cancel(pi);
+            pi.cancel();
+        }
+    }
+
+    public static boolean isServiceAlarmOn(Context context) {
+        Intent intent = new Intent(context, NetworkLoaderService.class);
+        PendingIntent pi = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_NO_CREATE);
+        return pi != null;
+    }
 
     public static void loadCity(Context context, String name) {
         context.startService(new Intent(context, NetworkLoaderService.class).putExtra(CITY_NAME, name));
     }
 
+    public static void getCityNameByCoord(Context context, double lat, double lon) {
+        context.startService(new Intent(context, NetworkLoaderService.class).
+                putExtra(CITY_NAME, GET_CITY).
+                putExtra(LAT, lat).
+                putExtra(LON, lon));
+    }
+
     @Override
     public void onStart(Intent intent, int startId) {
         String cityName = intent.getStringExtra(CITY_NAME);
-        for (String e:queue)
-            if (e.equals(cityName))
+        for (String e : queue)
+            if (e.equals(cityName) || e.equals(ALL_CITIES))
                 return;
         queue.add(cityName);
         super.onStart(intent, startId);
     }
 
     public static boolean isLoading(String cityName) {
-        for (String e:queue)
-            if (e.equals(cityName))
+        for (String e : queue)
+            if (e.equals(cityName) || e.equals(ALL_CITIES))
                 return true;
         return false;
     }
 
-    public static void loadAllCities(Context context) {
-        //TODO write
+    public static void addHandler(Handler h) {
+        handlers.add(h);
     }
 
-    public static void setHandler(Handler h) {
-        handler = h;
+    public static void removeHandler(Handler h) {
+        for (int i = 0; i < handlers.size(); ++i)
+            if (handlers.get(i).equals(h)) {
+                handlers.remove(i);
+                break;
+            }
     }
 
     @Override
@@ -79,9 +121,27 @@ public class NetworkLoaderService extends IntentService {
         String city = intent.getStringExtra(CITY_NAME);
         if (owmClient == null)
             owmClient = new OpenWeatherMap(OpenWeatherMap.OWM_URL.PARAMETER_UNITS_VALUE_METRIC, APP_ID);
+        if (city.equals(GET_CITY)) {
+            double lat = intent.getDoubleExtra(LAT, 0);
+            double lon = intent.getDoubleExtra(LON, 0);
+            try {
+                CurrentWeatherData current = owmClient.currentWeatherByCoordinates((float) lat, (float)lon);
+                cityNameSend(current.getCityName());
+            } catch (Exception e) {}
 
-        if (city.equals(ALL_CITIES)) {
-
+        } else if (city.equals(ALL_CITIES)) {
+            Cursor allCities = getApplication().getContentResolver().
+                    query(WeatherProvider.CITY_CONTENT_URI, null, null, null, null);
+            while (allCities.moveToNext()) {
+                City c = WeatherDatabaseHelper.CityCursor.getCity(allCities);
+                try {
+                    updatingStartedSend(c.getId());
+                    ArrayList<ShortWeatherData> daily = loadOneCity(c);
+                    boolean updated = updateDatabase(c, daily);
+                    updatingFinishedSend(c.getId(), updated);
+                } catch (Exception e) {}
+            }
+            queue.remove(0);
         } else {
             try {
                 Cursor cursor = getApplicationContext().getContentResolver().
@@ -94,18 +154,15 @@ public class NetworkLoaderService extends IntentService {
                 }
                 City c = WeatherDatabaseHelper.CityCursor.getCity(cursor);
                 if (isAlreadyUpdated(c)) {
-                    if (handler != null)
-                        handler.obtainMessage(ALREADY_UPDATED).sendToTarget();
+                    alreadyUpdatedSend(c.getId());
                     queue.remove(0);
                     return;
                 }
-                if (handler != null)
-                    handler.obtainMessage(UPDATING_STARTED).sendToTarget();
+                updatingStartedSend(c.getId());
                 ArrayList <ShortWeatherData> daily = loadOneCity(c);
                 boolean updated = updateDatabase(c, daily);
-                if (handler != null)
-                    handler.obtainMessage((updated ? DATABASE_UPDATED : DATABASE_NOT_UPDATED)).sendToTarget();
-            } catch (IOException e) {
+                updatingFinishedSend(c.getId(), updated);
+                } catch (IOException e) {
                 Log.i("NetworkLoader", "IOException");
             } catch (JSONException e) {
                 Log.i("NetworkLoader", "JSONException");
@@ -114,6 +171,37 @@ public class NetworkLoaderService extends IntentService {
         queue.remove(0);
     }
 
+    private void cityNameSend(String name) {
+        for (Handler handler : handlers) {
+            Message message = handler.obtainMessage(GET_CITY_NAME);
+            message.obj = name;
+            message.sendToTarget();
+        }
+    }
+
+    private void updatingStartedSend(int id) {
+        for (Handler handler : handlers) {
+            Message message = handler.obtainMessage(UPDATING_STARTED);
+            message.arg1 = id;
+            message.sendToTarget();
+        }
+    }
+
+    private void updatingFinishedSend(int id, boolean upd) {
+        for (Handler handler : handlers) {
+            Message message = handler.obtainMessage((upd ? DATABASE_UPDATED : DATABASE_NOT_UPDATED));
+            message.arg1 = id;
+            message.sendToTarget();
+        }
+    }
+
+    private void alreadyUpdatedSend(int id) {
+        for (Handler handler : handlers) {
+            Message message = handler.obtainMessage(ALREADY_UPDATED);
+            message.arg1 = id;
+            message.sendToTarget();
+        }
+    }
 
     private boolean isAlreadyUpdated(City c) {
         Date curDate = new Date();

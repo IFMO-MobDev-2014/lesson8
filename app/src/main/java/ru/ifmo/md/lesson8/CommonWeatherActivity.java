@@ -4,10 +4,16 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
@@ -18,12 +24,14 @@ import ru.ifmo.md.lesson8.provider.WeatherProvider;
 
 public class CommonWeatherActivity extends Activity
         implements LoaderManager.LoaderCallbacks<Cursor>, ActionBar.OnNavigationListener {
+
     private static String CITY_ID_EXTRA = "city_id";
     private int cityId = -1;
 
     private ArrayList <City> cities = new ArrayList<City>();
     private ArrayAdapter<String> adapter;
     private ArrayList <String> citiesName = new ArrayList<String>();
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +41,27 @@ public class CommonWeatherActivity extends Activity
             cityId = savedInstanceState.getInt(CITY_ID_EXTRA);
         getLoaderManager().restartLoader(42, null, this);
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        //Location lastKnown = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        //Log.i("ComWeAct", "loc = " + lastKnown.getLongitude() + " lon = " + lastKnown.getLatitude() + " time = " + lastKnown.getTime());
+        /*handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == NetworkLoaderService.GET_CITY_NAME) {
+                    String name = (String)msg.obj;
+                    Log.i("CommWAct", "name = " + name);
+                }
+            }
+        };
+        NetworkLoaderService.addHandler(handler);
+        NetworkLoaderService.getCityNameByCoord(this, lastKnown.getLatitude(), lastKnown.getLongitude());*/
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //NetworkLoaderService.removeHandler(handler);
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -43,11 +71,13 @@ public class CommonWeatherActivity extends Activity
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.i("CommW", "i = " + i);
         return new CursorLoader(this, WeatherProvider.CITY_CONTENT_URI, null, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.i("ComWA", "onLoadFinished");
         int id = -1;
         cities.clear();
         citiesName.clear();

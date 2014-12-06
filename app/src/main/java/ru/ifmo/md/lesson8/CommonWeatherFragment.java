@@ -1,9 +1,11 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -17,13 +19,13 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.support.v7.widget.RecyclerView;
@@ -60,6 +62,7 @@ public class CommonWeatherFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.i("ComWFr", "onLoadFinished");
         if (adapter == null) {
             adapter = new ForecastListAdapter(getActivity());
             adapter.setOnItemClickListener(new ForecastListAdapter.OnItemClickListener() {
@@ -71,8 +74,10 @@ public class CommonWeatherFragment extends Fragment
             });
             forecastList.setAdapter(adapter);
         }
+        Log.i("CommWeFr", "before cursor");
         if (cursor.isAfterLast())
             return;
+        Log.i("CommWeFr", "after cursor");
         adapter.clear();
         WeatherDatabaseHelper.WeatherCursor wc = new WeatherDatabaseHelper.WeatherCursor(cursor);
         while (cursor.moveToNext())
@@ -80,6 +85,7 @@ public class CommonWeatherFragment extends Fragment
         adapter.notifyDataSetChanged();
         setDescriptionWeather(0);
         adapter.setCurrentItem(0);
+        //cursor.close();
     }
 
     @Override
@@ -163,6 +169,7 @@ public class CommonWeatherFragment extends Fragment
         cityId = getArguments().getInt(CITY_ID_EXTRA);
         cityName = getArguments().getString(CITY_NAME_EXTRA);
         setRetainInstance(true);
+        Log.i("CommWFr", "in onCreate");
         if (isOnline())
             startLoading(false);
         else
@@ -171,12 +178,13 @@ public class CommonWeatherFragment extends Fragment
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.what == NetworkLoaderService.DATABASE_UPDATED) {
+                Log.i("CommWFr", "what = " + msg.what + " arg1 = " + msg.arg1);
+                if (msg.what == NetworkLoaderService.DATABASE_UPDATED && msg.arg1 == cityId) {
                     getActivity().getLoaderManager().restartLoader(0, null, CommonWeatherFragment.this);
                     stopLoading();
-                } else if (msg.what == NetworkLoaderService.UPDATING_STARTED)
+                } else if (msg.what == NetworkLoaderService.UPDATING_STARTED && msg.arg1 == cityId)
                     getActivity().getActionBar().setSubtitle(R.string.refresning);
-                else if (msg.what == NetworkLoaderService.ALREADY_UPDATED) {
+                else if (msg.what == NetworkLoaderService.ALREADY_UPDATED && msg.arg1 == cityId) {
                     stopLoading();
                     if (userRequestUpdate)
                         Toast.makeText(getActivity(), "Weather has already been updated", Toast.LENGTH_SHORT).show();
@@ -201,6 +209,7 @@ public class CommonWeatherFragment extends Fragment
         getActivity().getActionBar().setSubtitle(null);
     }
 
+    private AlertDialog intervalDialog;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_item_refresh) {
@@ -210,6 +219,39 @@ public class CommonWeatherFragment extends Fragment
                 startLoading(true);
         } else if (item.getItemId() == R.id.menu_item_cities)
             startActivity(new Intent(getActivity(), CitiesActivity.class));
+        else if (item.getItemId() == R.id.menu_item_auto_refresh) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Interval");
+            final CharSequence[] intervals = {"Never", "1 hour", "2 hour", "6 hour", "1 day"};
+            builder.setSingleChoiceItems(intervals, -1, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (i == 0)
+                        NetworkLoaderService.setServiceAlarm(getActivity(), false, null);
+                    else {
+                        int j = 0, num = 0;
+                        String s = intervals[i].toString();
+                        while (Character.isDigit(s.charAt(j))) {
+                            num = num * 10 + s.charAt(j) - '0';
+                            ++j;
+                        }
+                        ++j;
+                        int mills = 0;
+                        if (s.charAt(j) == 'h') mills = num * 3600;
+                        else if (s.charAt(j) == 'd') mills = num * 3600 * 24;
+                        NetworkLoaderService .setServiceAlarm(getActivity(), false, null);
+                        mills *= 1000;
+                        Bundle bundle = new Bundle();
+                        bundle.putString(NetworkLoaderService.CITY_NAME, NetworkLoaderService.ALL_CITIES);
+                        bundle.putInt(NetworkLoaderService.LOAD_INTERVAL, mills);
+                        NetworkLoaderService.setServiceAlarm(getActivity(), true, bundle);
+                    }
+                    intervalDialog.dismiss();
+                }
+            });
+            intervalDialog = builder.create();
+            intervalDialog.show();
+        }
         return true;
     }
 
@@ -229,25 +271,27 @@ public class CommonWeatherFragment extends Fragment
         if (selectedDay != -1) {
             setDescriptionWeather(selectedDay);
             adapter.setCurrentItem(selectedDay);
-        } if (adapter != null)
+        }
+        Log.i("ComWFr", "adapter = " + adapter);
+        if (adapter != null)
             forecastList.setAdapter(adapter);
         else
-            getLoaderManager().restartLoader(0, null, this);
+            getActivity().getLoaderManager().restartLoader(0, null, this);
         return view;
     }
 
     @Override
-    public void onResume() {
+    public void onStart() {
         super.onResume();
-        NetworkLoaderService.setHandler(handler);
+        NetworkLoaderService.addHandler(handler);
         if (NetworkLoaderService.isLoading(cityName))
             getActivity().getActionBar().setSubtitle(R.string.refresning);
     }
 
     @Override
-    public void onPause() {
+    public void onStop() {
         super.onPause();
-        NetworkLoaderService.setHandler(null);
+        NetworkLoaderService.removeHandler(handler);
         getActivity().getActionBar().setSubtitle(null);
     }
 }

@@ -1,7 +1,9 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -47,6 +49,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
             adapter.add(c);
             if (c.isSelected()) selectedCity = c;
         }
+        cursor.close();
         setListAdapter(adapter);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -82,8 +85,10 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_item_add_city) {
-            //TODO write
+
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
