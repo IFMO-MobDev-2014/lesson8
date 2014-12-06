@@ -24,7 +24,7 @@
                 android:gravity="center"
                 style="@style/Content.UsualText"
                 android:textColor="@android:color/white"
-                android:textSize="12dp"
+                android:textSize="13dp"
                 android:id="@+id/date"/>
         <LinearLayout
                 android:orientation="horizontal"
@@ -37,30 +37,27 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="+28 °C"
                     android:padding="@dimen/android_spaces_small"
                     android:id="@+id/upper_temp"
                     android:layout_weight="1"
-                    style="@style/Content.UsualText"
+                    style="@style/Content.TitleText"
                     android:gravity="center"/>
 
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="+14 °C"
                     android:padding="@dimen/android_spaces_small"
                     android:background="@color/grey"
                     android:id="@+id/lower_temp"
                     android:layout_weight="1"
-                    style="@style/Content.UsualText"
+                    style="@style/Content.TitleText"
                     android:gravity="center"/>
         </LinearLayout>
-        <!--test-->
         <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_marginLeft="@dimen/android_spaces_small"
                 android:src="@drawable/icon_sun"
                 android:id="@+id/image_status"/>
@@ -69,7 +66,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            android:padding="@dimen/android_spaces_small"
             android:id="@+id/additional_table"
             android:layout_marginBottom="@dimen/android_spaces"
             android:gravity="center"
@@ -83,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/android_spaces"
-                    android:text="Cloudy aueaueoauaoeuoeu"
+                    android:text="Cloudy"
                     style="@style/Content.SubTitleText"
                     android:id="@+id/weatherState"/>
             <TextView

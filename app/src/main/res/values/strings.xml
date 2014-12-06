@@ -3,5 +3,8 @@
 
     <string name="app_name">MWeather</string>
     <string name="title_item_detail">Item Detail</string>
-
+    <string name="humidity">humidity</string>
+    <string name="pressure">pressure</string>
+    <string name="state">state</string>
+    <string name="wind">wind</string>
 </resources>

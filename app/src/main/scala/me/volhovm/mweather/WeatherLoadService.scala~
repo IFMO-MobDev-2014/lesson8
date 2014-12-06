@@ -1,0 +1,75 @@
+package me.volhovm.mweather
+
+import java.io.{InputStreamReader, BufferedReader}
+import java.net.{HttpURLConnection, URL}
+import java.util.{Random, Date}
+
+import android.app.IntentService
+import android.content.{Context, ContentResolver, Intent}
+import android.os.{Handler, Bundle, ResultReceiver}
+import android.util.Log
+import org.apache.http.HttpConnection
+
+object WeatherLoadService {
+  val CITY = "city"
+  val SERVICE_NAME = "WeatherLoadService"
+  val STATUS_RUNNING = 0
+  val STATUS_FINISHED = 1
+  val STATUS_ERROR = 2
+  def fakeInit = {
+    val rand: Random = new Random()
+    var forecast = new Weather("Saint-Petersburg", "Ruske", (20, 18), new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
+    for (i <- 0 to 10) forecast = new Weather(
+      "Saint-Petersburg",
+      "Russia",
+      (rand.nextInt(8) + 15, rand.nextInt(8) + 14),
+      new WeatherState(rand.nextInt(8) * 100 + rand.nextInt(24), if (rand.nextBoolean()) "clear" else "lol"),
+      rand.nextInt(100).toDouble / 100,
+      rand.nextInt(20) + 730,
+      "SW 5 m/s",
+      new Date(System.currentTimeMillis() + i * 86400000)) :: forecast
+    forecast
+  }
+}
+
+class WeatherLoadService extends IntentService("WeatherLoadService") {
+  override def onHandleIntent(intent: Intent): Unit = {
+    Log.d(WeatherLoadService.SERVICE_NAME, "started service")
+    val receiver: ResultReceiver = intent.getParcelableExtra("receiver")
+    receiver.send(WeatherLoadService.STATUS_RUNNING, Bundle.EMPTY)
+    val city: String = intent.getStringExtra(WeatherLoadService.CITY)
+    if (city == null | city.length < 1) throw new IllegalArgumentException("Wrong city name in intent or null")
+    try {
+      loadWeather(city).foreach((a: Weather) => getContentResolver.insert(WeatherProvider.CONTENT_URI, a.getValues()))
+      receiver.send(WeatherLoadService.STATUS_FINISHED, Bundle.EMPTY)
+    } catch {
+      case a: Throwable =>
+        val bundle: Bundle = new Bundle()
+        bundle.putString(Intent.EXTRA_TEXT, a.toString)
+        receiver.send(WeatherLoadService.STATUS_ERROR, bundle)
+    }
+  }
+
+  //  private def loadWeather(cityname: String): List[Weather] = WeatherLoadService.fakeInit
+  private def loadWeather(cityname: String): List[Weather] = {
+    val url: URL = "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + cityname.replaceAll(" ", "_") + "&mode=json&units=metric&cnt=15"
+    val connection: HttpURLConnection = cast(url.openConnection())
+    connection.setRequestMethod("GET")
+    connection.connect()
+    val reader: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
+    var jsonString = ""
+    while(i <- reader.readLine() != null) jsonString += i
+  }
+}
+
+}
+
+trait Receiver {
+  def onReceiveResult(resCode: Int, resData: Bundle): Unit
+}
+
+class WeatherLoadReceiver(handler: Handler) extends ResultReceiver(handler) {
+  private var mReceiver: Receiver = null
+  def setReceiver(r: Receiver) = mReceiver = r
+  override def onReceiveResult(resCode: Int, resData: Bundle) = if (mReceiver != null) mReceiver.onReceiveResult(resCode, resData)
+}

@@ -18,7 +18,7 @@
         <item name="android:textSize">16dp</item>
     </style>
     <style name="Content.TitleText" parent="android:TextAppearance.Holo">
-        <item name="android:textSize">34dp</item>
+        <item name="android:textSize">31dp</item>
         <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-light</item>
         <item name="android:textColor">@android:color/black</item>
     </style>

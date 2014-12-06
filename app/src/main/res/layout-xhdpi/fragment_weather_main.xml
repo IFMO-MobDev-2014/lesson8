@@ -21,30 +21,31 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="+28 °C"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="+28°C"
+                    android:textSize="45dp"
                     android:padding="@dimen/android_spaces_small"
                     android:id="@+id/upper_temp"
                     android:layout_weight="1"
                     style="@style/Content.TitleText"
-                    android:textSize="42dp"
                     android:gravity="center"/>
 
             <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="+14 °C"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="+14°C"
                     android:padding="@dimen/android_spaces_small"
                     android:background="@color/grey"
                     android:id="@+id/lower_temp"
                     android:layout_weight="1"
                     style="@style/Content.TitleText"
-                    android:textSize="25dp"
                     android:gravity="center"/>
         </LinearLayout>
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/android_spaces_small"
                 android:paddingLeft="@dimen/android_spaces"

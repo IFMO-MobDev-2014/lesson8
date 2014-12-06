@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MWeather</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="humidity">Вологiсть</string>
+    <string name="pressure">Тиск</string>
+    <string name="state">Стан</string>
+    <string name="wind">Вiтер</string>
+</resources>
