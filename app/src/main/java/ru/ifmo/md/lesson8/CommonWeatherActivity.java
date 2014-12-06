@@ -29,7 +29,8 @@ import ru.ifmo.md.lesson8.provider.WeatherProvider;
 
 
 public class CommonWeatherActivity extends Activity
-        implements LoaderManager.LoaderCallbacks<Cursor>, ActionBar.OnNavigationListener {
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+        ActionBar.OnNavigationListener {
 
     private static String CITY_ID_EXTRA = "city_id";
     private int cityId = -1;
@@ -62,6 +63,7 @@ public class CommonWeatherActivity extends Activity
             cityId = savedInstanceState.getInt(CITY_ID_EXTRA);
         getLoaderManager().restartLoader(42, null, this);
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getLoaderManager().initLoader(41, null, this);
 
         Location lastKnown = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
         handler = new Handler() {
@@ -74,10 +76,11 @@ public class CommonWeatherActivity extends Activity
                     if (!name.equals(wasCity)) {
                         Cursor cur = getContentResolver().query(WeatherProvider.CITY_CONTENT_URI, null,
                                 WeatherDatabaseHelper.CITY_NAME + " = ?", new String[] {name}, null);
+                        cur.moveToNext();
                         if (cur.isAfterLast()) {
                             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CommonWeatherActivity.this);
                             alertDialogBuilder.setTitle("Location setting");
-                            alertDialogBuilder.setMessage("Probably, your current location is <html><bold>" + name + "</bold></html>. " +
+                            alertDialogBuilder.setMessage("Probably, your current location is " + name + ". " +
                                     "Add " + name +
                                     " in list and set city as default?");
                             alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
