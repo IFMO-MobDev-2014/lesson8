@@ -19,7 +19,6 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,7 +61,6 @@ public class CommonWeatherFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Log.i("ComWFr", "onLoadFinished");
         if (adapter == null) {
             adapter = new ForecastListAdapter(getActivity());
             adapter.setOnItemClickListener(new ForecastListAdapter.OnItemClickListener() {
@@ -74,10 +72,8 @@ public class CommonWeatherFragment extends Fragment
             });
             forecastList.setAdapter(adapter);
         }
-        Log.i("CommWeFr", "before cursor");
         if (cursor.isAfterLast())
             return;
-        Log.i("CommWeFr", "after cursor");
         adapter.clear();
         WeatherDatabaseHelper.WeatherCursor wc = new WeatherDatabaseHelper.WeatherCursor(cursor);
         while (cursor.moveToNext())
@@ -85,7 +81,7 @@ public class CommonWeatherFragment extends Fragment
         adapter.notifyDataSetChanged();
         setDescriptionWeather(0);
         adapter.setCurrentItem(0);
-        //cursor.close();
+        cursor.close();
     }
 
     @Override
@@ -169,7 +165,6 @@ public class CommonWeatherFragment extends Fragment
         cityId = getArguments().getInt(CITY_ID_EXTRA);
         cityName = getArguments().getString(CITY_NAME_EXTRA);
         setRetainInstance(true);
-        Log.i("CommWFr", "in onCreate");
         if (isOnline())
             startLoading(false);
         else
@@ -178,12 +173,11 @@ public class CommonWeatherFragment extends Fragment
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                Log.i("CommWFr", "what = " + msg.what + " arg1 = " + msg.arg1);
                 if (msg.what == NetworkLoaderService.DATABASE_UPDATED && msg.arg1 == cityId) {
                     getActivity().getLoaderManager().restartLoader(0, null, CommonWeatherFragment.this);
                     stopLoading();
                 } else if (msg.what == NetworkLoaderService.UPDATING_STARTED && msg.arg1 == cityId)
-                    getActivity().getActionBar().setSubtitle(R.string.refresning);
+                    getActivity().getActionBar().setSubtitle(R.string.updating);
                 else if (msg.what == NetworkLoaderService.ALREADY_UPDATED && msg.arg1 == cityId) {
                     stopLoading();
                     if (userRequestUpdate)
@@ -210,6 +204,8 @@ public class CommonWeatherFragment extends Fragment
     }
 
     private AlertDialog intervalDialog;
+    private static String LAST_SELECTED_ID = CommonWeatherActivity.APP + ".last_selected_item";
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_item_refresh) {
@@ -223,7 +219,8 @@ public class CommonWeatherFragment extends Fragment
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Interval");
             final CharSequence[] intervals = {"Never", "1 hour", "2 hour", "6 hour", "1 day"};
-            builder.setSingleChoiceItems(intervals, -1, new DialogInterface.OnClickListener() {
+            int last = getActivity().getSharedPreferences(CommonWeatherActivity.APP, Context.MODE_PRIVATE).getInt(LAST_SELECTED_ID, 0);
+            builder.setSingleChoiceItems(intervals, last, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if (i == 0)
@@ -246,6 +243,7 @@ public class CommonWeatherFragment extends Fragment
                         bundle.putInt(NetworkLoaderService.LOAD_INTERVAL, mills);
                         NetworkLoaderService.setServiceAlarm(getActivity(), true, bundle);
                     }
+                    getActivity().getSharedPreferences(CommonWeatherActivity.APP, Context.MODE_PRIVATE).edit().putInt(LAST_SELECTED_ID, i).apply();
                     intervalDialog.dismiss();
                 }
             });
@@ -272,7 +270,6 @@ public class CommonWeatherFragment extends Fragment
             setDescriptionWeather(selectedDay);
             adapter.setCurrentItem(selectedDay);
         }
-        Log.i("ComWFr", "adapter = " + adapter);
         if (adapter != null)
             forecastList.setAdapter(adapter);
         else
@@ -285,7 +282,7 @@ public class CommonWeatherFragment extends Fragment
         super.onResume();
         NetworkLoaderService.addHandler(handler);
         if (NetworkLoaderService.isLoading(cityName))
-            getActivity().getActionBar().setSubtitle(R.string.refresning);
+            getActivity().getActionBar().setSubtitle(R.string.updating);
     }
 
     @Override

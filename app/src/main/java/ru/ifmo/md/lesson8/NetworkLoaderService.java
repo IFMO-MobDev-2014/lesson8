@@ -80,7 +80,7 @@ public class NetworkLoaderService extends IntentService {
         context.startService(new Intent(context, NetworkLoaderService.class).putExtra(CITY_NAME, name));
     }
 
-    public static void getCityNameByCoord(Context context, double lat, double lon) {
+    public static void getCityNameByCoord(Context context, double lon, double lat) {
         context.startService(new Intent(context, NetworkLoaderService.class).
                 putExtra(CITY_NAME, GET_CITY).
                 putExtra(LAT, lat).
@@ -124,10 +124,13 @@ public class NetworkLoaderService extends IntentService {
         if (city.equals(GET_CITY)) {
             double lat = intent.getDoubleExtra(LAT, 0);
             double lon = intent.getDoubleExtra(LON, 0);
+            //Log.i("netwLoadServ", "get city : lon = " + lon + " lat = ")
             try {
                 CurrentWeatherData current = owmClient.currentWeatherByCoordinates((float) lat, (float)lon);
                 cityNameSend(current.getCityName());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                Log.i("Network", "Exception get city");
+            }
 
         } else if (city.equals(ALL_CITIES)) {
             Cursor allCities = getApplication().getContentResolver().

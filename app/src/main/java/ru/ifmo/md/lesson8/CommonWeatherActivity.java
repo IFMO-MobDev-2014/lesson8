@@ -7,9 +7,12 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,6 +36,19 @@ public class CommonWeatherActivity extends Activity
     private ArrayList <String> citiesName = new ArrayList<String>();
     private Handler handler;
 
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static final String APP = "ru.ifmo.md.lesson8";
+    public static String CURRENT_CITY = APP + ".current_city";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,25 +57,33 @@ public class CommonWeatherActivity extends Activity
             cityId = savedInstanceState.getInt(CITY_ID_EXTRA);
         getLoaderManager().restartLoader(42, null, this);
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        //Location lastKnown = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        //Log.i("ComWeAct", "loc = " + lastKnown.getLongitude() + " lon = " + lastKnown.getLatitude() + " time = " + lastKnown.getTime());
-        /*handler = new Handler() {
+
+        Location lastKnown = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == NetworkLoaderService.GET_CITY_NAME) {
+                    SharedPreferences prefs = getSharedPreferences(APP, Context.MODE_PRIVATE);
                     String name = (String)msg.obj;
-                    Log.i("CommWAct", "name = " + name);
+                    String wasCity = prefs.getString(CURRENT_CITY, "");
+                    if (!name.equals(wasCity)) {
+                        //TODO write
+                    }
+                    prefs.edit().putString(CURRENT_CITY, name).apply();
                 }
             }
         };
+
         NetworkLoaderService.addHandler(handler);
-        NetworkLoaderService.getCityNameByCoord(this, lastKnown.getLatitude(), lastKnown.getLongitude());*/
+        if (isOnline())
+            NetworkLoaderService.getCityNameByCoord(this, lastKnown.getLongitude(), lastKnown.getLatitude());
+        //Log.i("ComWeAct", "lon = " +  lastKnown.getLongitude() + " lat = " + lastKnown.getLatitude() + " time = " + lastKnown.getTime());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //NetworkLoaderService.removeHandler(handler);
+        NetworkLoaderService.removeHandler(handler);
     }
 
 
@@ -71,13 +95,11 @@ public class CommonWeatherActivity extends Activity
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.i("CommW", "i = " + i);
         return new CursorLoader(this, WeatherProvider.CITY_CONTENT_URI, null, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Log.i("ComWA", "onLoadFinished");
         int id = -1;
         cities.clear();
         citiesName.clear();

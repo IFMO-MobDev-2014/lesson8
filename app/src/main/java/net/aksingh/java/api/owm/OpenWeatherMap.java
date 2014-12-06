@@ -420,7 +420,7 @@ public class OpenWeatherMap {
 
         jsonResponse = owmResponse.currentWeatherByCoordinates(latitude, longitude);
         cwd = this.currentWeatherFromResponse(jsonResponse);
-
+        //cwd.cityName = "Saint-Petersburg";
         return cwd;
     }
 
@@ -432,7 +432,7 @@ public class OpenWeatherMap {
         jsonObj = (jsonResponse != null) ? new JSONObject(jsonResponse) : null;
         cwd = new CurrentWeatherData(jsonObj);
 
-        return cwd;
+        return new CurrentWeatherData(new JSONObject().put("name", "Saint-Petersburg"));
     }
 
     public ForecastWeatherData forecastWeatherByCityName(String cityName)

@@ -49,7 +49,6 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper {
 
         }
 
-
         public static ShortWeatherData getWeather(Cursor cur) {
             return new ShortWeatherData(
                     cur.getInt(cur.getColumnIndex(FORECAST_TEMP_MIN)),
