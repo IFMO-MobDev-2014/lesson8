@@ -64,7 +64,7 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
   //  private def loadWeather(cityname: String): List[Weather] = WeatherLoadService.fakeInit
   private def loadWeather(cityname: String): List[Weather] = {
     Log.d("WeatherLoadService", "Trying to load weather from api")
-    val url: URL = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" + cityname.replaceAll(" ", "_") + "&mode=json&units=metric&cnt=15&lang=" + Locale.getDefault.getLanguage)
+    val url: URL = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" + cityname.replaceAll(" ", "-") + "&mode=json&units=metric&cnt=15&lang=" + Locale.getDefault.getLanguage)
     Log.d("WeatherLoadService", "sending request: " + url.toString)
     val connection: HttpURLConnection = cast(url.openConnection())
     connection.setRequestMethod("GET")
