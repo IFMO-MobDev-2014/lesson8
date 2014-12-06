@@ -8,6 +8,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:textColor="@color/primary_dark_material_dark"
-        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/textView2" />
 </LinearLayout>
