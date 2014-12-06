@@ -69,7 +69,7 @@ public class CommonWeatherActivity extends Activity
             public void handleMessage(Message msg) {
                 if (msg.what == NetworkLoaderService.GET_CITY_NAME) {
                     SharedPreferences prefs = getSharedPreferences(APP, Context.MODE_PRIVATE);
-                    String name = (String)msg.obj;
+                    final String name = (String)msg.obj;
                     String wasCity = prefs.getString(CURRENT_CITY, "");
                     if (!name.equals(wasCity)) {
                         Cursor cur = getContentResolver().query(WeatherProvider.CITY_CONTENT_URI, null,
@@ -83,7 +83,9 @@ public class CommonWeatherActivity extends Activity
                             alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-
+                                    City c = new City(0, name, 0, 0);
+                                    CitiesFragment.insCity(CommonWeatherActivity.this, c);
+                                    CitiesFragment.setSelect(CommonWeatherActivity.this, c);
                                 }
                             });
 
