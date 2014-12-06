@@ -2,10 +2,12 @@ package ru.ifmo.md.lesson8;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -16,6 +18,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Html;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
@@ -49,6 +52,8 @@ public class CommonWeatherActivity extends Activity
     public static final String APP = "ru.ifmo.md.lesson8";
     public static String CURRENT_CITY = APP + ".current_city";
 
+    private AlertDialog alertDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +72,50 @@ public class CommonWeatherActivity extends Activity
                     String name = (String)msg.obj;
                     String wasCity = prefs.getString(CURRENT_CITY, "");
                     if (!name.equals(wasCity)) {
-                        //TODO write
+                        Cursor cur = getContentResolver().query(WeatherProvider.CITY_CONTENT_URI, null,
+                                WeatherDatabaseHelper.CITY_NAME + " = ?", new String[] {name}, null);
+                        if (cur.isAfterLast()) {
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CommonWeatherActivity.this);
+                            alertDialogBuilder.setTitle("Location setting");
+                            alertDialogBuilder.setMessage("Probably, your current location is <html><bold>" + name + "</bold></html>. " +
+                                    "Add " + name +
+                                    " in list and set city as default?");
+                            alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+
+                            alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+                            alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        } else if (!WeatherDatabaseHelper.CityCursor.getCity(cur).isSelected()) {
+                            final City city = WeatherDatabaseHelper.CityCursor.getCity(cur);
+                            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CommonWeatherActivity.this);
+                            alertDialogBuilder.setTitle("Location setting");
+                            alertDialogBuilder.setMessage("Probably, your current location is " + name + ". Set " + name + " city as default?");
+                            alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    CitiesFragment.setSelect(CommonWeatherActivity.this, city);
+                                }
+                            });
+
+                            alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+                            alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        }
                     }
                     prefs.edit().putString(CURRENT_CITY, name).apply();
                 }

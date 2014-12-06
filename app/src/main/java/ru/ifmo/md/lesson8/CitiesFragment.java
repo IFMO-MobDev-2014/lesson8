@@ -54,10 +54,8 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (selectedCity != null)
-                    setSelect(selectedCity, 0);
                 City newSelCity = (City)adapterView.getItemAtPosition(i);
-                setSelect(newSelCity, 1);
+                setSelect(getActivity(), newSelCity);
                 getLoaderManager().restartLoader(0, null, CitiesFragment.this);
                 selectedCity = newSelCity;
             }
@@ -103,14 +101,19 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         getActivity().getMenuInflater().inflate(R.menu.fragment_city_list_context, menu);
     }
 
-    private void setSelect(City c, int val) {
+    public static void setSelect(Context con, City c) {
+        ContentValues cv2 = new ContentValues();
+        cv2.put(WeatherDatabaseHelper.CITY_IS_SELECTED, 0);
+        con.getContentResolver().update(WeatherProvider.CITY_CONTENT_URI, cv2,
+                WeatherDatabaseHelper.CITY_IS_SELECTED + " = " + 1, null);
+
         ContentValues cv = new ContentValues();
-        cv.put(WeatherDatabaseHelper.CITY_IS_SELECTED, val);
-        getActivity().getContentResolver().update(WeatherProvider.CITY_CONTENT_URI, cv,
+        cv.put(WeatherDatabaseHelper.CITY_IS_SELECTED, 1);
+        con.getContentResolver().update(WeatherProvider.CITY_CONTENT_URI, cv,
                 WeatherDatabaseHelper.CITY_ID + " = " + c.getId(), null);
     }
 
-    private boolean delCity(City c) {
+    public boolean delCity(City c) {
         if (adapter.getCount() == 1)
             return false;
         getActivity().getContentResolver().delete(WeatherProvider.CITY_CONTENT_URI,
@@ -118,12 +121,12 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         return true;
     }
 
-    private void insCity(City c) {
+    public static void insCity(Context con, City c) {
         ContentValues cv = new ContentValues();
         cv.put(WeatherDatabaseHelper.CITY_IS_SELECTED, 0);
         cv.put(WeatherDatabaseHelper.CITY_NAME, c.getName());
         cv.put(WeatherDatabaseHelper.CITY_LAST_UPDATE, 0);
-        getActivity().getContentResolver().insert(WeatherProvider.CITY_CONTENT_URI, cv);
+        con.getContentResolver().insert(WeatherProvider.CITY_CONTENT_URI, cv);
     }
 
     private void selFirst() {
@@ -134,7 +137,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
                 return;
             cur.moveToNext();
             City d = WeatherDatabaseHelper.CityCursor.getCity(cur);
-            setSelect(d, 1);
+            setSelect(getActivity(), d);
         }
     }
 
