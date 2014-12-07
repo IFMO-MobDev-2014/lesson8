@@ -116,13 +116,13 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues cv1 = new ContentValues();
         cv1.put(CITY_NAME, "Stavropol");
-        cv1.put(CITY_IS_SELECTED, 1);
+        cv1.put(CITY_IS_SELECTED, 0);
         cv1.put(CITY_LAST_UPDATE, 0);
         db.insert(TABLE_CITY, null, cv1);
 
         ContentValues cv2 = new ContentValues();
         cv2.put(CITY_NAME, "Moscow");
-        cv2.put(CITY_IS_SELECTED, 0);
+        cv2.put(CITY_IS_SELECTED, 1);
         cv2.put(CITY_LAST_UPDATE, 0);
         db.insert(TABLE_CITY, null, cv2);
     }
