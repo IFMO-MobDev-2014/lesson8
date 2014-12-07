@@ -1,12 +1,14 @@
 package odeen.weatherpredictor.view;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.content.Loader;
@@ -27,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import odeen.weatherpredictor.AlarmReceiver;
 import odeen.weatherpredictor.Location;
 import odeen.weatherpredictor.PictureManager;
 import odeen.weatherpredictor.R;
@@ -70,9 +73,9 @@ public class LocationListFragment extends ListFragment implements LoaderManager.
         return v;
     }
 
-    private void showEditDialog() {
+    private void showEditDialog(int id) {
         FragmentManager fm = getActivity().getSupportFragmentManager();
-        LocationPickerDialog dialog = LocationPickerDialog.newInstance();
+        LocationPickerDialog dialog = LocationPickerDialog.newInstance(id);
         dialog.setTargetFragment(LocationListFragment.this, REQUEST_LOCATION);
         dialog.show(fm, DIALOG_LOCATION);
     }
@@ -104,6 +107,9 @@ public class LocationListFragment extends ListFragment implements LoaderManager.
             case R.id.menu_item_delete_channel:
                 WeatherManager.getInstance(getActivity()).removeLocation(loc);
                 return true;
+            case R.id.menu_item_edit_channel:
+                showEditDialog(loc.getId());
+                return true;
         }
         return super.onContextItemSelected(item);
     }
@@ -112,7 +118,7 @@ public class LocationListFragment extends ListFragment implements LoaderManager.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_city:
-                showEditDialog();
+                showEditDialog(-1);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -125,7 +131,8 @@ public class LocationListFragment extends ListFragment implements LoaderManager.
         if (resultCode != Activity.RESULT_OK) return;
         if (requestCode == REQUEST_LOCATION) {
             String name = data.getStringExtra(LocationPickerDialog.EXTRA_CITY_NAME);
-            WeatherManager.getInstance(getActivity()).insertOrUpdateLocation(-1, name);
+            int id = data.getIntExtra(LocationPickerDialog.EXTRA_CITY_ID, -1);
+            WeatherManager.getInstance(getActivity()).insertOrUpdateLocation(id, name);
         }
     }
 

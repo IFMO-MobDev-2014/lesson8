@@ -141,6 +141,12 @@ public class WeatherManager {
     }
 
     public void insertOrUpdateLocation(int id, String name) {
-        addLocation(name);
+        if (id == -1)
+            addLocation(name);
+        else {
+            ContentValues cv = new ContentValues();
+            cv.put(WeatherProvider.COLUMN_LOCATION_NAME, name);
+            mContext.getContentResolver().update(Uri.withAppendedPath(mLocationUri, id+""), cv, null, null);
+        }
     }
 }

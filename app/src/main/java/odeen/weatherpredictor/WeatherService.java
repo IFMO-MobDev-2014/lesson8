@@ -1,7 +1,11 @@
 package odeen.weatherpredictor;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.apache.http.HttpEntity;
@@ -25,6 +29,12 @@ public class WeatherService extends IntentService {
     private static final String TAG = "WeatherService";
 
     public static final String EXTRA_CITY = "city";
+    public static final String EXTRA_FROM_CURRENT = "current";
+    public static final String EXTRA_LAT = "lat";
+    public static final String EXTRA_LON = "lon";
+
+
+    private static final int INTERVAL = 5 * 1000;
 
     public WeatherService() {
         super("WeatherService");
@@ -38,11 +48,17 @@ public class WeatherService extends IntentService {
         return "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&cnt=10";
     }
 
+    private void handleAllLocations() {
+        Log.d(TAG, "Started");
+        WeatherProvider.LocationCursor c = WeatherManager.getInstance(getApplicationContext()).getLocations();
+        c.moveToFirst();
+        while (!c.isAfterLast() && !c.isBeforeFirst()) {
+            handleCity(c.getLocation().getId(), c.getLocation().getCity());
+            c.moveToNext();
+        }
+    }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        int cityId = intent.getIntExtra(EXTRA_CITY, -1);
-        String cityName = WeatherManager.getInstance(getApplicationContext()).getLocationById(cityId).getCity();
+    private void handleCity(int cityId, String cityName) {
         InputStream inputStream;
         JSONObject curObject;
         Weather current;
@@ -78,6 +94,45 @@ public class WeatherService extends IntentService {
         Log.d(TAG, forecasts.size()+"");
         WeatherManager.getInstance(getApplicationContext()).onFetch(current, cityId);
         WeatherManager.getInstance(getApplicationContext()).onFetch(forecasts, cityId);
+    }
+
+    private void handleFromCurrent(double lat, double lon) {
+        Log.d(TAG, "lat = " + lat + " lon = " + lon);
+        InputStream inputStream;
+        JSONObject curObject;
+        try {
+            inputStream = downloadUrl("http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon);
+            BufferedReader streamReader = null;
+            streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            StringBuilder responseStrBuilder = new StringBuilder();
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null)
+                responseStrBuilder.append(inputStr);
+            curObject = new JSONObject(responseStrBuilder.toString());
+            String city = curObject.getString("name");
+            if (!city.equals("Saint Petersburg"))
+                city = "Saint Petersburg";
+            WeatherManager.getInstance(getApplicationContext()).addLocation(city);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (intent.hasExtra(EXTRA_FROM_CURRENT)) {
+            handleFromCurrent(intent.getDoubleExtra(EXTRA_LAT, 0), intent.getDoubleExtra(EXTRA_LON, 0));
+            return;
+        }
+
+        int cityId = intent.getIntExtra(EXTRA_CITY, -1);
+        String cityName = WeatherManager.getInstance(getApplicationContext()).getLocationById(cityId).getCity();
+        if (cityId == -1) {
+            handleAllLocations();
+            return;
+        }
+        handleCity(cityId, cityName);
     }
 
     private InputStream downloadUrl(String urlString) throws IOException {

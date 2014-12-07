@@ -81,9 +81,6 @@ public class CurrentWeatherFragment extends Fragment implements LoaderManager.Lo
         int color = getArguments().getInt(CurrentWeatherActivity.EXTRA_CITY_COLOR, -1);
         mLoc = new Location(id, name, color);
         getLoaderManager().initLoader(0, null, this);
-        Intent i = new Intent(getActivity(), WeatherService.class);
-        i.putExtra(WeatherService.EXTRA_CITY, mLoc.getId());
-        getActivity().startService(i);
         setRetainInstance(true);
     }
 
@@ -103,8 +100,8 @@ public class CurrentWeatherFragment extends Fragment implements LoaderManager.Lo
         TextView twd = (TextView) mView.findViewById(R.id.descr_textView);
         String description = Character.toUpperCase(weather.getDescription().charAt(0)) + weather.getDescription().substring(1);
         twd.setText(description);
-        TextView twlu = (TextView) mView.findViewById(R.id.last_updated_textView);
-        twlu.setText(format.format(new Date(weather.getTime() * 1000)));
+        //TextView twlu = (TextView) mView.findViewById(R.id.last_updated_textView);
+        //twlu.setText(format.format(new Date(weather.getTime() * 1000)));
     }
 
 

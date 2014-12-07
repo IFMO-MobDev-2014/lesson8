@@ -1,4 +1,5 @@
 package odeen.weatherpredictor.view;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.support.v7.app.ActionBarActivity;
 
 import odeen.weatherpredictor.Location;
 import odeen.weatherpredictor.R;
+import odeen.weatherpredictor.WeatherService;
 
 /**
  * Created by Женя on 30.11.2014.
@@ -68,6 +70,9 @@ public class WeatherPagerActivity extends ActionBarActivity {
                 actionBar.newTab()
                         .setText("Forecast")
                         .setTabListener(tabListener));
+        Intent i = new Intent(this, WeatherService.class);
+        i.putExtra(WeatherService.EXTRA_CITY, id);
+        startService(i);
     }
 
     public static class MyAdapter extends FragmentPagerAdapter {
