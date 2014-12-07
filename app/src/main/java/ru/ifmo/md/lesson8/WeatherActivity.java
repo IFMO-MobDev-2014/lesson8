@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
-import android.widget.CalendarView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +24,7 @@ import java.util.Calendar;
 import static ru.ifmo.md.lesson8.WeatherColumns.CITY_NAME;
 import static ru.ifmo.md.lesson8.WeatherColumns.TIME;
 
-public class WeatherActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, CalendarView.OnDateChangeListener, ActionBar.OnNavigationListener {
+public class WeatherActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, DateSelector.OnTimeChangedListener, ActionBar.OnNavigationListener {
     static final int[] apprTimes = new int[]{0, 6, 9, 16, 24};
     SpinnerAdapter adapter;
     WeatherSoon activated;
@@ -41,13 +40,13 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
         @Override
         public void onChange(boolean selfChange) {
             Bundle args = new Bundle(1);
-            args.putLong("date", ((CalendarView) findViewById(R.id.calendar)).getDate());
+            args.putLong("date", ((DateSelector) findViewById(R.id.calendar)).getDate());
             getLoaderManager().restartLoader(2, args, WeatherActivity.this).forceLoad();
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            long cPeriod[] = getDayRange(((CalendarView) findViewById(R.id.calendar)).getDate());
+            long cPeriod[] = getDayRange(((DateSelector) findViewById(R.id.calendar)).getDate());
             long reqPeriod = Long.parseLong(uri.getQueryParameter("time"));
             if (getCity() != null && getCity().equals(uri.getQueryParameter("city"))
                     && reqPeriod / 1000 >= cPeriod[0] && reqPeriod / 1000 <= cPeriod[1]) {
@@ -85,11 +84,9 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, dayOfMonth);
+    public void onTimeChanged(DateSelector selector, long newTime) {
         Bundle args = new Bundle(1);
-        args.putLong("date", calendar.getTimeInMillis());
+        args.putLong("date", newTime);
         getLoaderManager().restartLoader(1, args, this).forceLoad();
     }
 
@@ -155,7 +152,7 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
             setProgressShown(false);
             int[] tabNames = new int[]{R.id.night_tab, R.id.morning_tab, R.id.daytime_tab, R.id.evening_tab};
             WeatherInfo info[] = findAppropriateTimes(
-                    getDayRange(((CalendarView) findViewById(R.id.calendar)).getDate()), data);
+                    getDayRange(((DateSelector) findViewById(R.id.calendar)).getDate()), data);
             FragmentManager manager = getFragmentManager();
             boolean notFull = false;
             for (int i = 0; i < tabNames.length; i++) {
@@ -176,7 +173,7 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
 
     void refreshWeather() {
         Intent intent = new Intent(this, WeatherUpdater.class);
-        CalendarView calendar = (CalendarView) findViewById(R.id.calendar);
+        DateSelector calendar = (DateSelector) findViewById(R.id.calendar);
         intent.setData(Uri.parse("content://net.dimatomp.weather.provider/weather?" +
                 "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()));
         startService(intent);
@@ -248,15 +245,15 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
 
     public void switchToPresent() {
         Calendar calendar = Calendar.getInstance();
-        CalendarView calendarView = (CalendarView) findViewById(R.id.calendar);
+        DateSelector selector = (DateSelector) findViewById(R.id.calendar);
         calendar.add(Calendar.DATE, 4);
-        calendarView.setMaxDate(calendar.getTimeInMillis());
+        selector.setMaxDate(calendar.getTimeInMillis());
         calendar.add(Calendar.DATE, -3);
-        calendarView.setDate(calendar.getTimeInMillis(), false, false);
+        selector.setDate(calendar.getTimeInMillis(), false, false);
         calendar.add(Calendar.MONTH, -1);
-        calendarView.setMinDate(calendar.getTimeInMillis());
-        calendarView.setOnDateChangeListener(this);
-        calendarView.setDate(System.currentTimeMillis(), false, false);
+        selector.setMinDate(calendar.getTimeInMillis());
+        selector.setOnTimeChangedListener(this);
+        selector.setDate(System.currentTimeMillis(), false, false);
 
         long time = System.currentTimeMillis();
         long[] period = WeatherActivity.getDayRange(time);

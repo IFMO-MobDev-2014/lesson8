@@ -2,6 +2,7 @@
 
     <style name="Theme.Holo.OverlayActionBar" parent="android:Theme.Holo">
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
 
     <style name="WeatherDetails" parent="android:TextAppearance.Medium">

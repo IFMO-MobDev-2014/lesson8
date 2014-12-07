@@ -4,10 +4,12 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.CalendarView;
 
+import java.util.Calendar;
+
 /**
  * Created by dimatomp on 29.11.14.
  */
-public class CalendarWithBackground extends CalendarView implements WeatherView {
+public class CalendarWithBackground extends CalendarView implements DateSelector {
     TimeOfDay timeOfDay;
 
     public CalendarWithBackground(Context context) {
@@ -21,6 +23,18 @@ public class CalendarWithBackground extends CalendarView implements WeatherView 
     public void setTimeOfDay(TimeOfDay timeOfDay) {
         this.timeOfDay = timeOfDay;
         refreshDrawableState();
+    }
+
+    @Override
+    public void setOnTimeChangedListener(final OnTimeChangedListener listener) {
+        setOnDateChangeListener(new OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(year, month, dayOfMonth);
+                listener.onTimeChanged((DateSelector) view, calendar.getTimeInMillis());
+            }
+        });
     }
 
     @Override
