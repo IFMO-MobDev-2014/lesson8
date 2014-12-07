@@ -1,16 +1,19 @@
 package ru.ifmo.md.lesson8.ui;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.support.v4.app.ListFragment;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
+import ru.ifmo.md.lesson8.content.CityListLoaderCallbacks;
 import ru.ifmo.md.lesson8.content.ContentHelper;
 import ru.ifmo.md.lesson8.dummy.DummyContent;
+import ru.ifmo.md.lesson8.net.WeatherDownloadService;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -78,7 +81,13 @@ public class ItemListFragment extends ListFragment {
         Cursor cursor = contentHelper.getPlacesCursor();
 
         // TODO: replace with a real list adapter.
-        setListAdapter(new CityListAdapter(getActivity(), cursor));
+        CityListAdapter adapter = new CityListAdapter(getActivity(), cursor);
+        setListAdapter(adapter);
+
+        getLoaderManager().initLoader(0, null, new CityListLoaderCallbacks(getActivity(), adapter));
+
+        Intent intent = new Intent(getActivity(), WeatherDownloadService.class);
+        getActivity().startService(intent);
     }
 
     @Override

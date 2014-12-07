@@ -3,13 +3,8 @@ package ru.ifmo.md.lesson8.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import ru.ifmo.md.lesson8.R;
-import ru.ifmo.md.lesson8.content.ContentHelper;
-import ru.ifmo.md.lesson8.net.YahooQuery;
-import ru.ifmo.md.lesson8.places.Place;
-import ru.ifmo.md.lesson8.weather.Temperature;
 
 
 /**
@@ -41,8 +36,6 @@ public class ItemListActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
-
-        final ContentHelper helper = new ContentHelper(this);
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
