@@ -8,6 +8,8 @@ import java.util.List;
 
 import ru.ifmo.md.lesson8.places.Place;
 import ru.ifmo.md.lesson8.places.PlacesListHandler;
+import ru.ifmo.md.lesson8.weather.Weather;
+import ru.ifmo.md.lesson8.weather.WeatherHandler;
 
 /**
  * @author Zakhar Voit (zakharvoit@gmail.com)
@@ -26,5 +28,9 @@ public class YahooQuery {
     public static List<Place> findPlace(String name) {
         return PlacesListHandler.parse(query("select name,country,woeid from geo.places where text=\"*"
                 + name + "*\""));
+    }
+
+    public static Weather getWeatherInPlace(Place place) {
+        return WeatherHandler.parse(query("select * from weather.forecast where woeid=" + place.getWoeid()));
     }
 }
