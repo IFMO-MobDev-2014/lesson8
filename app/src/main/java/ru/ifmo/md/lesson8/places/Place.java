@@ -8,7 +8,7 @@ public class Place {
     private final String country;
     private long woeid;
 
-    private Place(String country, String name, long woeid) {
+    public Place(String country, String name, long woeid) {
         this.country = country;
         this.name = name;
         this.woeid = woeid;

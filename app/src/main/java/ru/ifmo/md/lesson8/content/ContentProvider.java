@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import static ru.ifmo.md.lesson8.content.WeatherContract.*;
 
@@ -17,11 +18,17 @@ public class ContentProvider extends android.content.ContentProvider {
 
     static {
         URI_MATCHER.addURI(AUTHORITY,
-                Cities.PATH,
-                Cities.LIST_ID);
+                Places.PATH,
+                Places.LIST_ID);
         URI_MATCHER.addURI(AUTHORITY,
-                Cities.PATH + "/#",
-                Cities.ITEM_ID);
+                Places.PATH + "/#",
+                Places.ITEM_ID);
+        URI_MATCHER.addURI(AUTHORITY,
+                WeatherInfo.PATH,
+                WeatherInfo.LIST_ID);
+        URI_MATCHER.addURI(AUTHORITY,
+                WeatherInfo.PATH + "/#",
+                WeatherInfo.ITEM_ID);
     }
 
     private DatabaseHelper dbHelper;
@@ -38,19 +45,33 @@ public class ContentProvider extends android.content.ContentProvider {
         Cursor cursor;
 
         switch (URI_MATCHER.match(uri)) {
-            case Cities.LIST_ID:
-                cursor = db.query(Cities.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
-                cursor.setNotificationUri(getContext().getContentResolver(), Cities.URI);
+            case Places.LIST_ID:
+                cursor = db.query(Places.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor.setNotificationUri(getContext().getContentResolver(), Places.URI);
                 break;
-            case Cities.ITEM_ID:
+            case Places.ITEM_ID:
                 if (TextUtils.isEmpty(selection)) {
                     selection = "";
                 } else {
                     selection += " and ";
                 }
-                selection += "_id = " + uri.getLastPathSegment();
-                cursor = db.query(Cities.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
-                cursor.setNotificationUri(getContext().getContentResolver(), Cities.URI);
+                selection += Places._ID + " = " + uri.getLastPathSegment();
+                cursor = db.query(Places.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor.setNotificationUri(getContext().getContentResolver(), Places.URI);
+                break;
+            case WeatherInfo.LIST_ID:
+                cursor = db.query(WeatherInfo.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor.setNotificationUri(getContext().getContentResolver(), WeatherInfo.URI);
+                break;
+            case WeatherInfo.ITEM_ID:
+                if (TextUtils.isEmpty(selection)) {
+                    selection = "";
+                } else {
+                    selection += " and ";
+                }
+                selection += WeatherInfo._ID + " = " + uri.getLastPathSegment();
+                cursor = db.query(WeatherInfo.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor.setNotificationUri(getContext().getContentResolver(), WeatherInfo.URI);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown uri: " + uri);
@@ -62,10 +83,14 @@ public class ContentProvider extends android.content.ContentProvider {
     @Override
     public String getType(Uri uri) {
         switch (URI_MATCHER.match(uri)) {
-            case Cities.LIST_ID:
-                return Cities.DIR_CONTENT_TYPE;
-            case Cities.ITEM_ID:
-                return Cities.ITEM_CONTENT_TYPE;
+            case Places.LIST_ID:
+                return Places.DIR_CONTENT_TYPE;
+            case Places.ITEM_ID:
+                return Places.ITEM_CONTENT_TYPE;
+            case WeatherInfo.LIST_ID:
+                return WeatherInfo.DIR_CONTENT_TYPE;
+            case WeatherInfo.ITEM_ID:
+                return WeatherInfo.ITEM_CONTENT_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown uri: " + uri);
         }
@@ -76,10 +101,14 @@ public class ContentProvider extends android.content.ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long id;
         switch (URI_MATCHER.match(uri)) {
-            case Cities.LIST_ID:
-                id = db.insert(Cities.TABLE_NAME, null, values);
+            case Places.LIST_ID:
+                id = db.insert(Places.TABLE_NAME, null, values);
                 getContext().getContentResolver().notifyChange(uri, null);
-                return Uri.parse(Cities.PATH + "/" + id);
+                return Uri.parse(Places.PATH + "/" + id);
+            case WeatherInfo.LIST_ID:
+                id = db.insert(WeatherInfo.TABLE_NAME, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(WeatherInfo.PATH + "/" + id);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -90,18 +119,31 @@ public class ContentProvider extends android.content.ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int rowsDeleted;
         switch (URI_MATCHER.match(uri)) {
-            case Cities.LIST_ID:
-                rowsDeleted = db.delete(Cities.TABLE_NAME, selection,
+            case Places.LIST_ID:
+                rowsDeleted = db.delete(Places.TABLE_NAME, selection,
                         selectionArgs);
                 break;
-            case Cities.ITEM_ID:
+            case Places.ITEM_ID:
                 if (TextUtils.isEmpty(selection)) {
                     selection = "";
                 } else {
                     selection += " and ";
                 }
-                selection += "_id =" + uri.getLastPathSegment();
-                rowsDeleted = db.delete(Cities.TABLE_NAME, selection, null);
+                selection += "_id = " + uri.getLastPathSegment();
+                rowsDeleted = db.delete(Places.TABLE_NAME, selection, null);
+                break;
+            case WeatherInfo.LIST_ID:
+                rowsDeleted = db.delete(WeatherInfo.TABLE_NAME, selection,
+                        selectionArgs);
+                break;
+            case WeatherInfo.ITEM_ID:
+                if (TextUtils.isEmpty(selection)) {
+                    selection = "";
+                } else {
+                    selection += " and ";
+                }
+                selection += "_id = " + uri.getLastPathSegment();
+                rowsDeleted = db.delete(WeatherInfo.TABLE_NAME, selection, null);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -115,20 +157,38 @@ public class ContentProvider extends android.content.ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int rowsUpdated;
         switch (URI_MATCHER.match(uri)) {
-            case Cities.LIST_ID:
-                rowsUpdated = db.update(Cities.TABLE_NAME,
+            case Places.LIST_ID:
+                rowsUpdated = db.update(Places.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs);
                 break;
-            case Cities.ITEM_ID:
+            case Places.ITEM_ID:
                 if (TextUtils.isEmpty(selection)) {
                     selection = "";
                 } else {
                     selection += " and ";
                 }
-                selection += "_id =" + uri.getLastPathSegment();
-                rowsUpdated = db.update(Cities.TABLE_NAME,
+                selection += Places._ID + " = " + uri.getLastPathSegment();
+                rowsUpdated = db.update(Places.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            case WeatherInfo.LIST_ID:
+                rowsUpdated = db.update(WeatherInfo.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            case WeatherInfo.ITEM_ID:
+                if (TextUtils.isEmpty(selection)) {
+                    selection = "";
+                } else {
+                    selection += " and ";
+                }
+                selection += WeatherInfo._ID + " = " + uri.getLastPathSegment();
+                rowsUpdated = db.update(WeatherInfo.TABLE_NAME,
                         values,
                         selection,
                         selectionArgs);

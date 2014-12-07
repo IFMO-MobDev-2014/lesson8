@@ -3,12 +3,13 @@ package ru.ifmo.md.lesson8.content;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import ru.ifmo.md.lesson8.places.Place;
+import ru.ifmo.md.lesson8.weather.Temperature;
+import ru.ifmo.md.lesson8.weather.Weather;
 
 import static ru.ifmo.md.lesson8.content.WeatherContract.*;
 
@@ -23,9 +24,7 @@ public class ContentHelper {
     }
 
     public Iterable<Place> getPlaces() {
-        final String[] projection = {Cities.COUNTRY_COLUMN, Cities.NAME_COLUMN, Cities.WOEID_COLUMN};
-        final Cursor cursor = context.getContentResolver().query(Cities.URI, projection, null, null, null);
-        cursor.moveToFirst();
+        final Cursor cursor = getPlacesCursor();
 
         return new Iterable<Place>() {
             @Override
@@ -41,11 +40,7 @@ public class ContentHelper {
                         if (!hasNext()) {
                             throw new NoSuchElementException();
                         }
-                        Place place = new Place.Builder()
-                                .setCountry(cursor.getString(0))
-                                .setName(cursor.getString(1))
-                                .setWoeid(Long.parseLong(cursor.getString(2)))
-                                .createPlace();
+                        Place place = getPlace(cursor);
                         cursor.moveToNext();
                         return place;
                     }
@@ -59,11 +54,37 @@ public class ContentHelper {
         };
     }
 
+    public Cursor getPlacesCursor() {
+        String[] projection = {Places._ID, Places.COUNTRY_COLUMN, Places.NAME_COLUMN, Places.WOEID_COLUMN};
+        Cursor cursor = context.getContentResolver().query(Places.URI, projection, null, null, null);
+        cursor.moveToFirst();
+        return cursor;
+    }
+
+    public Place getPlace(Cursor cursor) {
+        return new Place(
+                cursor.getString(cursor.getColumnIndex(Places.COUNTRY_COLUMN)),
+                cursor.getString(cursor.getColumnIndex(Places.NAME_COLUMN)),
+                Long.parseLong(cursor.getString(cursor.getColumnIndex(Places.WOEID_COLUMN))));
+    }
+
     public void addPlace(Place place) {
         ContentValues values = new ContentValues();
-        values.put(Cities.COUNTRY_COLUMN, place.getCountry());
-        values.put(Cities.NAME_COLUMN, place.getName());
-        values.put(Cities.WOEID_COLUMN, place.getWoeid());
-        context.getContentResolver().insert(Cities.URI, values);
+        values.put(Places.COUNTRY_COLUMN, place.getCountry());
+        values.put(Places.NAME_COLUMN, place.getName());
+        values.put(Places.WOEID_COLUMN, place.getWoeid());
+        context.getContentResolver().insert(Places.URI, values);
+    }
+
+    public Weather getWeatherInPlace(Place place) {
+        String[] projection = {WeatherInfo.TEMPERATURE_COLUMN};
+        String selection = WeatherInfo.WOEID_COLUMN + "=?";
+        String[] selectionArgs = {"" + place.getWoeid()};
+        Cursor cursor = context.getContentResolver().query(
+                WeatherInfo.URI, projection, selection, selectionArgs, null);
+        cursor.moveToFirst();
+        return new Weather(
+                new Temperature(Integer.parseInt(cursor.getString(0)),
+                        Temperature.fahrenheit()));
     }
 }

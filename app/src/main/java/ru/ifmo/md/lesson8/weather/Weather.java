@@ -6,7 +6,7 @@ package ru.ifmo.md.lesson8.weather;
 public class Weather {
     private final Temperature temperature;
 
-    Weather(Temperature temperature) {
+    public Weather(Temperature temperature) {
         this.temperature = temperature;
     }
 
