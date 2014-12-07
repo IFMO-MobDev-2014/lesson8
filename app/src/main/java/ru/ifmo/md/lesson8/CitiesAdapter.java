@@ -19,12 +19,10 @@ public class CitiesAdapter extends BaseAdapter {
     ArrayList<String> citiesZMW = new ArrayList<>();
     Context mainContext;
     NavigationDrawerFragment drawer;
-    private int activePosition;
 
-    public CitiesAdapter(Context c, NavigationDrawerFragment ndf, int activePosition) {
+    public CitiesAdapter(Context c, NavigationDrawerFragment ndf) {
         mainContext = c;
         drawer = ndf;
-        this.activePosition = activePosition;
 
         Cursor cursor = mainContext.getContentResolver().
                 query(WeatherProvider.CITIES_URI, null, null, null, WeatherProvider._ID);
@@ -40,7 +38,7 @@ public class CitiesAdapter extends BaseAdapter {
     public void addCity(String c, String zwm) {
         citiesNames.add(c);
         citiesZMW.add(zwm);
-        activePosition = citiesNames.size() - 1;
+        drawer.mCurrentSelectedPosition = citiesNames.size() - 1;
 
         ContentValues cv = new ContentValues();
         cv.put(WeatherProvider.NAME, c);
@@ -63,11 +61,7 @@ public class CitiesAdapter extends BaseAdapter {
             citiesNames.remove(pos);
             citiesZMW.remove(pos);
 
-            if (pos <= activePosition) {
-                if (pos == activePosition)
-                    drawer.displayFragment(Math.max(0, citiesNames.size() - 1));
-                activePosition = Math.max(0, citiesNames.size() - 1);
-            }
+            drawer.displayFragment(Math.min(drawer.mCurrentSelectedPosition, citiesNames.size() - 1));
         }
 
         notifyDataSetChanged();
@@ -76,8 +70,8 @@ public class CitiesAdapter extends BaseAdapter {
     public void goTo(String s) {
         int pos = citiesNames.indexOf(s);
         if (pos != -1) {
-            drawer.selectItem(pos - 1);
-            activePosition = pos;
+            drawer.selectItem(pos);
+            drawer.mCurrentSelectedPosition = pos;
             notifyDataSetChanged();
         }
     }
@@ -119,7 +113,7 @@ public class CitiesAdapter extends BaseAdapter {
         TextView text = (TextView) entry.findViewById(R.id.cityName);
         text.setText(cityName);
         text.setOnClickListener(new OnCityChoose(this, cityName));
-        if (position == activePosition) {
+        if (position == drawer.mCurrentSelectedPosition) {
             entry.setBackgroundColor(mainContext.getResources().getColor(R.color.transperent_gray));
         }
         return entry;

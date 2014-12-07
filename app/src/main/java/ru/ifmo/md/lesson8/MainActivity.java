@@ -1,9 +1,9 @@
 package ru.ifmo.md.lesson8;
 
-import android.app.Activity;
-import android.content.ContentValues;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -21,14 +22,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderManager.LoaderCallbacks {
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -38,6 +41,8 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,16 +59,25 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         if (mNavigationDrawerFragment.adapter != null && mNavigationDrawerFragment.adapter.getCount() > 0)
-            onNavigationDrawerItemSelected(-1);
+            onNavigationDrawerItemSelected(mNavigationDrawerFragment.mCurrentSelectedPosition);
+
+        if (getSharedPreferences("FirstRun", MODE_PRIVATE).getBoolean("FirstRun", true)) {
+            Toast toast = Toast.makeText(this, "Getting current city...", Toast.LENGTH_SHORT);
+            toast.show();
+
+            getSupportLoaderManager().initLoader(1, null, this);
+            getSharedPreferences("FirstRun", MODE_PRIVATE).edit().putBoolean("FirstRun", false).commit();
+        }
+
     }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         String name = null, zmw = null;
         if (mNavigationDrawerFragment == null || mNavigationDrawerFragment.adapter == null) {
-        } else {
-            name = (String) mNavigationDrawerFragment.adapter.getItem(position + 1);
-            zmw = (String) mNavigationDrawerFragment.adapter.getItemZMW(position + 1);
+        } else if (position >= 0) {
+            name = (String) mNavigationDrawerFragment.adapter.getItem(position);
+            zmw = (String) mNavigationDrawerFragment.adapter.getItemZMW(position);
         }
 
         // update the main content by replacing fragments
@@ -71,7 +85,7 @@ public class MainActivity extends ActionBarActivity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(name, zmw))
                 .commit();
-        onSectionAttached(position + 1);
+        onSectionAttached(Math.max(0, position));
         restoreActionBar();
     }
 
@@ -107,19 +121,24 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new GeolookupLoader(this, mNavigationDrawerFragment.adapter);
     }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if ((Boolean)data) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mNavigationDrawerFragment.selectItem(mNavigationDrawerFragment.adapter.getCount() - 1);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {}
 
     /**
      * A placeholder fragment containing a simple view.
@@ -127,6 +146,7 @@ public class MainActivity extends ActionBarActivity
     public static class PlaceholderFragment extends Fragment
             implements LoaderManager.LoaderCallbacks<Cursor> {
         private ForecastAdapter adapter;
+        private SmoothProgressBar progressBar;
 
         static class WeatherObserver extends ContentObserver {
             PlaceholderFragment fragment;
@@ -177,11 +197,17 @@ public class MainActivity extends ActionBarActivity
             mRecyclerView.setHasFixedSize(true);
             LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
             mRecyclerView.setLayoutManager(mLayoutManager);
+
             if (getArguments() != null) {
                 String city = getArguments().getString(WeatherProvider.NAME);
-                String zwm = getArguments().getString(WeatherProvider.ZMW);
+                String zmw = getArguments().getString(WeatherProvider.ZMW);
 
-                adapter = new ForecastAdapter(getActivity(), this, city, zwm);
+                progressBar = (SmoothProgressBar) rootView.findViewById(R.id.materialProgress);
+                if (zmw != null)
+                    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(loadFinishedReceiver,
+                            new IntentFilter(zmw));
+
+                adapter = new ForecastAdapter(getActivity(), this, city, zmw);
                 mRecyclerView.setAdapter(adapter);
 
                 Intent loadForecast = new Intent(getActivity(), WeatherService.class);
@@ -194,6 +220,24 @@ public class MainActivity extends ActionBarActivity
             return rootView;
         }
 
+        private BroadcastReceiver loadFinishedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                try {
+                    if (intent.getExtras().getBoolean("isLoadActive"))
+                        progressBar.setVisibility(View.VISIBLE);
+                    else
+                        progressBar.setVisibility(View.GONE);
+
+                    if (intent.getExtras().getBoolean("error")) {
+                        Toast toast = Toast.makeText(getActivity(),
+                                getString(R.string.load_error), Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                } catch (Exception ignored) {}
+            }
+        };
+
         @Override
         public void onActivityCreated(Bundle bundle) {
             super.onActivityCreated(bundle);
@@ -201,6 +245,12 @@ public class MainActivity extends ActionBarActivity
             reloadData();
             getActivity().getContentResolver().registerContentObserver(WeatherProvider.WEATHER_URI,
                     true, new WeatherObserver(new Handler(), this));
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(loadFinishedReceiver);
         }
 
         @Override
@@ -233,11 +283,6 @@ public class MainActivity extends ActionBarActivity
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             loader.stopLoading();
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
         }
     }
 

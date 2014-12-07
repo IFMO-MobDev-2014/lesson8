@@ -12,7 +12,11 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.WeatherViewHolder> {
 
@@ -28,6 +32,23 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Weathe
             this.wday = wday;
             this.year = year;
             this.yday = yday;
+        }
+
+        public String getDayMonth() {
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.YEAR, year);
+            c.set(Calendar.DAY_OF_YEAR, yday);
+            SimpleDateFormat format = new SimpleDateFormat("d");
+            String date = format.format(new Date());
+
+            if(date.endsWith("1") && !date.endsWith("11"))
+                return (new SimpleDateFormat("MMMM d'st'", Locale.US)).format(c.getTime());
+            else if(date.endsWith("2") && !date.endsWith("12"))
+                return (new SimpleDateFormat("MMMM d'nd'", Locale.US)).format(c.getTime());
+            else if(date.endsWith("3") && !date.endsWith("13"))
+                return (new SimpleDateFormat("MMMM d'rd'", Locale.US)).format(c.getTime());
+            else
+                return (new SimpleDateFormat("MMMM d'th'", Locale.US)).format(c.getTime());
         }
     }
 
@@ -81,10 +102,29 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Weathe
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(WeatherViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
+        Calendar c = Calendar.getInstance();
+        Calendar cTomorrow = Calendar.getInstance();
+        cTomorrow.add(Calendar.DATE, 1);
+
+        if (c.get(Calendar.DAY_OF_YEAR) == mDataset.get(position).yday &&
+                c.get(Calendar.YEAR) == mDataset.get(position).year) {
+            if (mDataset.get(position).wday.endsWith("Night"))
+                holder.day.setText(mainContext.getString(R.string.today_night));
+            else
+                holder.day.setText(mainContext.getString(R.string.today));
+        }
+        else if (cTomorrow.get(Calendar.DAY_OF_YEAR) == mDataset.get(position).yday &&
+                cTomorrow.get(Calendar.YEAR) == mDataset.get(position).year) {
+            if (mDataset.get(position).wday.endsWith("Night"))
+                holder.day.setText(mainContext.getString(R.string.tomorrow_night));
+            else
+                holder.day.setText(mainContext.getString(R.string.tomorrow));
+        } else {
+            holder.day.setText(mDataset.get(position).wday + ", " +
+                                  mDataset.get(position).getDayMonth());
+        }
+
         holder.desc.setText(mDataset.get(position).text);
-        holder.day.setText(mDataset.get(position).wday);
         holder.icon.setImageBitmap(BitmapFactory.decodeByteArray(mDataset.get(position).icon,
                 0, mDataset.get(position).icon.length));
     }

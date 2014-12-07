@@ -65,7 +65,7 @@ public class NavigationDrawerFragment extends Fragment
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 0;
+    public int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -77,6 +77,8 @@ public class NavigationDrawerFragment extends Fragment
 
     ArrayList<Pair<String>> cities;
     String zmw = null;
+
+    private MainActivity parent;
 
     public NavigationDrawerFragment() {
     }
@@ -96,7 +98,8 @@ public class NavigationDrawerFragment extends Fragment
         }
 
         // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition);
+//
+//        selectItem(mCurrentSelectedPosition);
     }
 
     @Override
@@ -118,9 +121,9 @@ public class NavigationDrawerFragment extends Fragment
             }
         });*/
 
-        adapter = new CitiesAdapter(getActionBar().getThemedContext(), this, mCurrentSelectedPosition);
+        adapter = new CitiesAdapter(getActionBar().getThemedContext(), this);
         mDrawerListView.setAdapter(adapter);
-        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+//        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }
 
@@ -263,6 +266,7 @@ public class NavigationDrawerFragment extends Fragment
         suggestions.clear();
         zmw = null;
         input = new AutoCompleteTextView(getActivity());
+        input.setThreshold(1);
         // TODO
         input.setDropDownHeight(300);
         input.addTextChangedListener(new TextWatcher() {
@@ -270,13 +274,13 @@ public class NavigationDrawerFragment extends Fragment
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 chooseDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
                 seekForCity(s.toString());
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
         });
 
         alert.setView(input);
@@ -300,14 +304,8 @@ public class NavigationDrawerFragment extends Fragment
     }
 
     public void displayFragment(int position) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, MainActivity.PlaceholderFragment.newInstance(
-                        (String) adapter.getItem(position), (String) adapter.getItemZMW(position)))
-                .commit();
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle((String)adapter.getItem(position));
+        mCurrentSelectedPosition = position;
+        mCallbacks.onNavigationDrawerItemSelected(position);
     }
 
     @Override
@@ -323,8 +321,8 @@ public class NavigationDrawerFragment extends Fragment
             case R.id.action_refresh:
                 if (mCurrentSelectedPosition < adapter.getCount()) {
                     Intent loadForecast = new Intent(getActivity(), WeatherService.class);
-                    loadForecast.putExtra(WeatherProvider.NAME, adapter.citiesNames.get(mCurrentSelectedPosition + 1));
-                    loadForecast.putExtra(WeatherProvider.ZMW, adapter.citiesZMW.get(mCurrentSelectedPosition + 1));
+                    loadForecast.putExtra(WeatherProvider.NAME, adapter.citiesNames.get(mCurrentSelectedPosition));
+                    loadForecast.putExtra(WeatherProvider.ZMW, adapter.citiesZMW.get(mCurrentSelectedPosition));
                     loadForecast.putExtra("force", true);
                     getActivity().startService(loadForecast);
                 }
@@ -362,9 +360,9 @@ public class NavigationDrawerFragment extends Fragment
 
     private void seekForCity(String query) {
         if ((cities != null && isSuggested(query)) || query.length() == 0) {
-            suggestions.clear();
-            input.setAdapter(new ArrayAdapter<>(getActivity(),
-                    android.R.layout.simple_dropdown_item_1line, suggestions));
+//            suggestions.clear();
+//            input.setAdapter(new MyStringAdapter(getActivity(),
+//                    android.R.layout.simple_dropdown_item_1line, suggestions));
             return;
         }
 
@@ -379,6 +377,11 @@ public class NavigationDrawerFragment extends Fragment
         android.support.v4.content.Loader<Object> loader = null;
         switch (id) {
             case AUTOCOMPLETE_LOADER:
+                ArrayList<String> tmp = new ArrayList<>();
+                tmp.add("Loading city list...");
+                input.setAdapter(new MyStringAdapter(getActivity(),
+                        android.R.layout.simple_dropdown_item_1line, tmp));
+                input.showDropDown();
                 loader = new CityNameLoader(getActivity(), args.getString("query"));
         }
         return loader;
@@ -387,17 +390,19 @@ public class NavigationDrawerFragment extends Fragment
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Object> loader, Object data) {
         if (data == null || ((ArrayList<Pair<String>>) data).isEmpty()) {
-            suggestions.clear();
-            input.setAdapter(new ArrayAdapter<>(getActivity(),
-                    android.R.layout.simple_dropdown_item_1line, suggestions));
+            ArrayList<String> tmp = new ArrayList<>();
+            tmp.add("No cities with this prefix :(");
+            input.setAdapter(new MyStringAdapter(getActivity(),
+                    android.R.layout.simple_dropdown_item_1line, tmp));
+            input.showDropDown();
             return;
         }
 
-        suggestions.clear();
+        ArrayList<String> tmp = new ArrayList<>();
         for (Pair<String> city: (ArrayList<Pair<String>>) data)
-            suggestions.add(city.x);
-        input.setAdapter(new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, suggestions));
+            tmp.add(city.x);
+        input.setAdapter(new MyStringAdapter(getActivity(),
+                android.R.layout.simple_dropdown_item_1line, tmp));
         input.showDropDown();
 
         cities = (ArrayList<Pair<String>>) data;
