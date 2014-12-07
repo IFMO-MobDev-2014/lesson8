@@ -1,18 +1,14 @@
 package ru.ifmo.md.lesson8;
 
-import android.app.AlertDialog;
-import android.content.ContentValues;
+import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,8 +29,8 @@ import ru.ifmo.md.lesson8.provider.WeatherProvider;
  * Created by pva701 on 05.12.14.
  */
 public class CitiesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private CityAdapter adapter;
-    private City selectedCity;
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -49,7 +44,6 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         while (cursor.moveToNext()) {
             City c = wc.getCity();
             adapter.add(c);
-            if (c.isSelected()) selectedCity = c;
         }
         cursor.close();
         setListAdapter(adapter);
@@ -57,9 +51,8 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 City newSelCity = (City)adapterView.getItemAtPosition(i);
-                setSelect(getActivity(), newSelCity);
+                DataManager.get(getActivity()).setSelect(newSelCity);
                 getLoaderManager().restartLoader(0, null, CitiesFragment.this);
-                selectedCity = newSelCity;
             }
         });
     }
@@ -73,13 +66,34 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
+        setHasOptionsMenu(true);
         getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.fragment_cities, menu);
+    }
+
+    private final int REQUEST_ADD_CITY = 0;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_add_city) {
+            startActivityForResult(new Intent(getActivity(), AddCityActivity.class), REQUEST_ADD_CITY);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ADD_CITY) {
+            if (resultCode == Activity.RESULT_OK) {
+                String name = data.getStringExtra(AddCityActivity.ADDED_NAME);
+                DataManager.get(getActivity()).insertCity(new City(0, name, 0, 0));
+                getLoaderManager().restartLoader(0, null, this);
+            }
+        }
     }
 
     @Override
@@ -94,34 +108,6 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         getActivity().getMenuInflater().inflate(R.menu.fragment_city_list_context, menu);
     }
 
-    public static void setSelect(Context con, City c) {
-        ContentValues cv2 = new ContentValues();
-        cv2.put(WeatherDatabaseHelper.CITY_IS_SELECTED, 0);
-        con.getContentResolver().update(WeatherProvider.CITY_CONTENT_URI, cv2,
-                WeatherDatabaseHelper.CITY_IS_SELECTED + " = " + 1, null);
-
-        ContentValues cv = new ContentValues();
-        cv.put(WeatherDatabaseHelper.CITY_IS_SELECTED, 1);
-        con.getContentResolver().update(WeatherProvider.CITY_CONTENT_URI, cv,
-                WeatherDatabaseHelper.CITY_ID + " = " + c.getId(), null);
-    }
-
-    public boolean delCity(City c) {
-        if (adapter.getCount() == 1)
-            return false;
-        getActivity().getContentResolver().delete(WeatherProvider.CITY_CONTENT_URI,
-                WeatherDatabaseHelper.CITY_ID + " = " + c.getId(), null);
-        return true;
-    }
-
-    public static void insCity(Context con, City c) {
-        ContentValues cv = new ContentValues();
-        cv.put(WeatherDatabaseHelper.CITY_IS_SELECTED, 0);
-        cv.put(WeatherDatabaseHelper.CITY_NAME, c.getName());
-        cv.put(WeatherDatabaseHelper.CITY_LAST_UPDATE, 0);
-        con.getContentResolver().insert(WeatherProvider.CITY_CONTENT_URI, cv);
-    }
-
     private void selFirst() {
         Cursor cursor = getActivity().getContentResolver().query(WeatherProvider.CITY_CONTENT_URI, null, WeatherDatabaseHelper.CITY_IS_SELECTED + " = 1", null, null);
         if (cursor.isAfterLast()) {
@@ -130,8 +116,9 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
                 return;
             cur.moveToNext();
             City d = WeatherDatabaseHelper.CityCursor.getCity(cur);
-            setSelect(getActivity(), d);
+            DataManager.get(getActivity()).setSelect(d);
         }
+        cursor.close();
     }
 
     @Override
@@ -139,7 +126,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         int pos = info.position;
         if (item.getItemId() == R.id.menu_item_delete_city) {
-            boolean d = delCity(adapter.getItem(pos));
+            boolean d = DataManager.get(getActivity()).deleteCity(adapter.getItem(pos));
             if (!d) {
                 Toast.makeText(getActivity(), "Specify at least one city", Toast.LENGTH_SHORT).show();
                 return true;

@@ -61,6 +61,7 @@ public class CommonWeatherActivity extends Activity
         setContentView(R.layout.activity_common_weather);
         if (savedInstanceState != null)
             cityId = savedInstanceState.getInt(CITY_ID_EXTRA);
+        DataManager.get(this);//initializate data manager
         getLoaderManager().restartLoader(42, null, this);
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         getLoaderManager().initLoader(41, null, this);
@@ -87,8 +88,8 @@ public class CommonWeatherActivity extends Activity
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     City c = new City(0, name, 0, 0);
-                                    CitiesFragment.insCity(CommonWeatherActivity.this, c);
-                                    CitiesFragment.setSelect(CommonWeatherActivity.this, c);
+                                    DataManager.get(CommonWeatherActivity.this).insertCity(c);
+                                    DataManager.get(CommonWeatherActivity.this).setSelect(c);
                                 }
                             });
 
@@ -108,7 +109,7 @@ public class CommonWeatherActivity extends Activity
                             alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    CitiesFragment.setSelect(CommonWeatherActivity.this, city);
+                                    DataManager.get(CommonWeatherActivity.this).setSelect(city);
                                 }
                             });
 
@@ -193,7 +194,8 @@ public class CommonWeatherActivity extends Activity
             args.putString(CommonWeatherFragment.CITY_NAME_EXTRA, cities.get(i).getName());
             fragment.setArguments(args);
             getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-        }
+        } else
+            getFragmentManager().beginTransaction().replace(R.id.container, f).commit();
         return true;
     }
 }
