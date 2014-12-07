@@ -30,7 +30,7 @@ public class YahooQuery {
                 + name + "*\""));
     }
 
-    public static Weather getWeatherInPlace(Place place) {
+    public static Weather fetchWeatherInPlace(Place place) {
         return WeatherHandler.parse(query("select * from weather.forecast where woeid=" + place.getWoeid()));
     }
 }

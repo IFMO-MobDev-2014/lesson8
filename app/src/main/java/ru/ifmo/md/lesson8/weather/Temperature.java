@@ -17,6 +17,10 @@ public class Temperature {
         return unit.representValue(value);
     }
 
+    public int getFahrenheit() {
+        return value;
+    }
+
     public static interface Unit {
         String representValue(int value);
         int getFahrenheitValue(int value);

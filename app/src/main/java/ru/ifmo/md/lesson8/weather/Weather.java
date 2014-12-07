@@ -1,5 +1,9 @@
 package ru.ifmo.md.lesson8.weather;
 
+import android.content.ContentValues;
+
+import ru.ifmo.md.lesson8.content.WeatherContract;
+
 /**
  * @author Zakhar Voit (zakharvoit@gmail.com)
  */
@@ -8,6 +12,13 @@ public class Weather {
 
     public Weather(Temperature temperature) {
         this.temperature = temperature;
+    }
+
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(WeatherContract.WeatherInfo.TEMPERATURE_COLUMN,
+                "" + getTemperature().getFahrenheit());
+        return values;
     }
 
     public Temperature getTemperature() {
