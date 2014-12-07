@@ -3,6 +3,10 @@ package ru.ifmo.md.lesson8;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+
+import ru.ifmo.md.lesson8.content.ContentHelper;
+import ru.ifmo.md.lesson8.places.Place;
 
 
 /**
@@ -34,6 +38,16 @@ public class ItemListActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+
+        final ContentHelper helper = new ContentHelper(this);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (Place place : helper.getPlaces()) {
+                    Log.d("PLACE", place.formattedName());
+                }
+            }
+        }).start();
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
