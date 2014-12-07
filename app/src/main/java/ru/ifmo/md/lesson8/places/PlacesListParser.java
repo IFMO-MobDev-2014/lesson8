@@ -17,13 +17,13 @@ import javax.xml.parsers.SAXParserFactory;
 /**
  * @author Zakhar Voit (zakharvoit@gmail.com)
  */
-public class PlacesListHandler extends DefaultHandler {
+public class PlacesListParser extends DefaultHandler {
     public static List<Place> parse(URL url) {
         try {
             InputStream stream = url.openStream();
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser parser = factory.newSAXParser();
-            PlacesListHandler handler = new PlacesListHandler();
+            PlacesListParser handler = new PlacesListParser();
             parser.parse(stream, handler);
             return handler.places;
         } catch (ParserConfigurationException | SAXException | IOException e) {

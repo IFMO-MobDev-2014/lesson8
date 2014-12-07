@@ -4,11 +4,17 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import ru.ifmo.md.lesson8.places.Place;
+import ru.ifmo.md.lesson8.weather.Forecast;
 import ru.ifmo.md.lesson8.weather.Temperature;
 import ru.ifmo.md.lesson8.weather.Weather;
 
@@ -26,6 +32,15 @@ public class ContentHelper {
 
     public ContentHelper(Context context) {
         this.contentResolver = context.getContentResolver();
+    }
+
+    public static Date getCurrentDate() {
+        GregorianCalendar current = new GregorianCalendar();
+        GregorianCalendar calendar = new GregorianCalendar(
+                current.get(GregorianCalendar.YEAR),
+                current.get(GregorianCalendar.MONTH),
+                current.get(GregorianCalendar.DAY_OF_MONTH));
+        return calendar.getTime();
     }
 
     public Iterable<Place> getPlaces() {
@@ -82,23 +97,109 @@ public class ContentHelper {
     }
 
     public Weather getWeatherInPlace(Place place) {
-        String[] projection = {WeatherInfo.TEMPERATURE_COLUMN};
-        String selection = WeatherInfo.WOEID_COLUMN + "=?";
-        String[] selectionArgs = {"" + place.getWoeid()};
+        String[] projection = {WeatherInfo.TEMPERATURE_COLUMN, WeatherInfo.DESCRIPTION_COLUMN};
+        String selection = WeatherInfo.WOEID_COLUMN + "=?"
+                + " and " + WeatherInfo.DATE_COLUMN + "=?";
+        String[] selectionArgs = {"" + place.getWoeid(), "" + getCurrentDate().getTime()};
         Cursor cursor = contentResolver.query(
                 WeatherInfo.URI, projection, selection, selectionArgs, null);
-        cursor.moveToFirst();
-        return new Weather(
-                new Temperature(Integer.parseInt(cursor.getString(0)),
-                        Temperature.fahrenheit()));
+
+
+        Weather result;
+        if (!cursor.moveToFirst()) {
+            result = null;
+        } else {
+            result = new Weather.Builder()
+                    .setCurrent(new Temperature(Integer.parseInt(cursor.getString(0)),
+                            Temperature.fahrenheit()))
+                    .setDescription(cursor.getString(1))
+                    .createWeather();
+        }
+        return result;
     }
 
-    public void setWeather(Place place, Weather weather) {
+    public void setForecasts(Place place, List<Forecast> forecasts) {
         String selection = WeatherInfo.WOEID_COLUMN + "=?";
         String[] selectionArgs = {"" + place.getWoeid()};
         contentResolver.delete(WeatherInfo.URI, selection, selectionArgs);
-        ContentValues values = weather.toContentValues();
-        values.put(WeatherInfo.WOEID_COLUMN, place.getWoeid());
-        contentResolver.insert(WeatherInfo.URI, values);
+
+        for (Forecast forecast : forecasts) {
+            Weather weather = forecast.getWeather();
+            Date date = forecast.getDate();
+            ContentValues values = weather.toContentValues();
+            values.put(WeatherInfo.WOEID_COLUMN, place.getWoeid());
+            values.put(WeatherInfo.DATE_COLUMN, date.getTime());
+            contentResolver.insert(WeatherInfo.URI, values);
+        }
+    }
+
+    public Place getPlaceByWoeid(int woeid) {
+        String[] projection = {Places.NAME_COLUMN, Places.COUNTRY_COLUMN};
+        String selection = Places.WOEID_COLUMN + "=?";
+        String[] selectionArgs = {woeid + ""};
+        Cursor cursor = contentResolver.query(Places.URI, projection, selection, selectionArgs, null);
+        cursor.moveToFirst();
+        return new Place(cursor.getString(cursor.getColumnIndex(Places.COUNTRY_COLUMN)),
+                cursor.getString(cursor.getColumnIndex(Places.NAME_COLUMN)),
+                woeid);
+    }
+
+    public List<Forecast> getForecasts(int woeid) {
+        List<Forecast> forecasts = new ArrayList<>();
+
+        String[] projection = {
+                WeatherInfo.DATE_COLUMN,
+                WeatherInfo.TEMPERATURE_COLUMN,
+                WeatherInfo.LOW_COLUMN,
+                WeatherInfo.HIGH_COLUMN,
+                WeatherInfo.DESCRIPTION_COLUMN};
+        String selection = WeatherInfo.WOEID_COLUMN + " =?";
+        String[] selectionArgs = {"" + woeid};
+        Cursor cursor = contentResolver.query(WeatherInfo.URI, projection, selection, selectionArgs,
+                WeatherInfo.DATE_COLUMN);
+        if (cursor.moveToFirst()) {
+            do {
+                long time = cursor.getLong(cursor.getColumnIndex(WeatherInfo.DATE_COLUMN));
+                Temperature current;
+                Temperature high;
+                Temperature low;
+
+                try {
+                    current = new Temperature(
+                            cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
+                            Temperature.fahrenheit()
+                    );
+                } catch (Exception e) {
+                    current = null;
+                }
+
+                try {
+                    high = new Temperature(
+                            cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
+                            Temperature.fahrenheit()
+                    );
+                } catch (Exception e) {
+                    high = null;
+                }
+
+                try {
+                    low = new Temperature(
+                            cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
+                            Temperature.fahrenheit()
+                    );
+                } catch (Exception e) {
+                    low = null;
+                }
+
+                String desc = cursor.getString(cursor.getColumnIndex(WeatherInfo.DESCRIPTION_COLUMN));
+
+                forecasts.add(new Forecast(
+                        new Date(time),
+                        new Weather(low, high, current, desc, 0, 0))
+                );
+            } while (cursor.moveToNext());
+        }
+
+        return forecasts;
     }
 }

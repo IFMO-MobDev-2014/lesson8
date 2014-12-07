@@ -5,34 +5,22 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import java.util.List;
+
 import ru.ifmo.md.lesson8.R;
-import ru.ifmo.md.lesson8.dummy.DummyContent;
+import ru.ifmo.md.lesson8.content.ContentHelper;
+import ru.ifmo.md.lesson8.weather.Forecast;
 
-/**
- * A fragment representing a single Item detail screen.
- * This fragment is either contained in a {@link ItemListActivity}
- * in two-pane mode (on tablets) or a {@link ItemDetailActivity}
- * on handsets.
- */
+
 public class ItemDetailFragment extends Fragment {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
-    public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_PLACE_WOEID = "place_woeid";
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
+    int woeid;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public ItemDetailFragment() {
     }
 
@@ -40,24 +28,26 @@ public class ItemDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-        }
+        woeid = getArguments().getInt(ARG_PLACE_WOEID);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.content);
+        ContentHelper contentHelper = new ContentHelper(getActivity());
+        View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
+        TextView cityName = (TextView) view.findViewById(R.id.city_name);
+        LinearLayout forecastsList = (LinearLayout) view.findViewById(R.id.forecasts_list);
+        forecastsList.removeAllViews();
+        List<Forecast> forecasts = contentHelper.getForecasts(woeid);
+        Forecast today = forecasts.get(0);
+        cityName.setText(contentHelper.getPlaceByWoeid(woeid).formattedName() + ": " + today.getWeather().getDescription());
+        for (Forecast forecast : forecasts) {
+            TextView child = new TextView(getActivity());
+            child.setText(forecast.getDate() + ": " + forecast.getWeather().getDescription());
+            forecastsList.addView(child);
         }
-
-        return rootView;
+        return view;
     }
 }

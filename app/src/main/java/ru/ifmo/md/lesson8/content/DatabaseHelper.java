@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Date;
+
 import ru.ifmo.md.lesson8.places.Place;
 
 import static ru.ifmo.md.lesson8.content.WeatherContract.*;
@@ -34,11 +36,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Places.NAME_COLUMN, place.getName());
         values.put(Places.WOEID_COLUMN, place.getWoeid());
         db.insert(Places.TABLE_NAME, null, values);
-
-        values.clear();
-        values.put(WeatherInfo.WOEID_COLUMN, place.getWoeid());
-        values.put(WeatherInfo.TEMPERATURE_COLUMN, 100);
-        db.insert(WeatherInfo.TABLE_NAME, null, values);
     }
 
     private void createWeatherInfoTable(SQLiteDatabase db) {

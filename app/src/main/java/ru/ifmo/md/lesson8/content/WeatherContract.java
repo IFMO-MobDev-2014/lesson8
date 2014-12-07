@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
  * @author Zakhar Voit (zakharvoit@gmail.com)
  */
 public class WeatherContract {
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 7;
     public static final String DATABASE_NAME = "ru.ifmo.md.lesson8.WeatherDatabase";
     public static final String AUTHORITY = "ru.ifmo.md.lesson8.contentprovider";
 
@@ -40,15 +40,23 @@ public class WeatherContract {
     public static final class WeatherInfo implements BaseColumns {
         public static final String TABLE_NAME = "weather_info";
         public static final String WOEID_COLUMN = "woeid";
+        public static final String DATE_COLUMN = "date";
         /**
          * Temperature stored in db is represented using Fahrenheit scale.
          */
         public static final String TEMPERATURE_COLUMN = "temperature";
+        public static final String HIGH_COLUMN = "high";
+        public static final String LOW_COLUMN = "low";
+        public static final String DESCRIPTION_COLUMN = "description";
         public static final String CREATE_TABLE = "create table "
                 + TABLE_NAME + "("
                 + _ID + " integer primary key, "
                 + WOEID_COLUMN + " integer, "
-                + TEMPERATURE_COLUMN + " integer "
+                + DATE_COLUMN + " integer, "
+                + TEMPERATURE_COLUMN + " integer, "
+                + HIGH_COLUMN + " integer, "
+                + LOW_COLUMN + " integer, "
+                + DESCRIPTION_COLUMN + " text "
                 + ")";
 
         public static final String DELETE_TABLE = "drop table if exists " + WeatherInfo.TABLE_NAME;

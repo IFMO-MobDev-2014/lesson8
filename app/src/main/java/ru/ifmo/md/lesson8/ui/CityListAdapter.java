@@ -2,7 +2,6 @@ package ru.ifmo.md.lesson8.ui;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
@@ -10,9 +9,9 @@ import android.widget.TextView;
 
 import ru.ifmo.md.lesson8.R;
 import ru.ifmo.md.lesson8.content.ContentHelper;
-import ru.ifmo.md.lesson8.net.YahooQuery;
 import ru.ifmo.md.lesson8.places.Place;
 import ru.ifmo.md.lesson8.weather.Temperature;
+import ru.ifmo.md.lesson8.weather.Weather;
 
 /**
  * @author Zakhar Voit (zakharvoit@gmail.com)
@@ -43,7 +42,14 @@ public class CityListAdapter extends CursorAdapter {
         final Place place = contentHelper.getPlace(cursor);
         placeName.setText(place.formattedName());
 
-        temperature.setText(contentHelper.getWeatherInPlace(place).getTemperature()
-                .representAs(Temperature.celsius()));
+        Weather weather = contentHelper.getWeatherInPlace(place);
+        if (weather == null) {
+            temperature.setText("Fetching...");
+            condition.setText("");
+        } else {
+            temperature.setText(weather.getCurrent()
+                    .representAs(Temperature.celsius()));
+            condition.setText(weather.getDescription());
+        }
     }
 }
