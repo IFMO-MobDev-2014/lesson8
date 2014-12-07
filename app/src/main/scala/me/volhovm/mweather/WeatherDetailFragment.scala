@@ -113,8 +113,8 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
           var forecastView: View = null
           val forecast = mForecast(id)
           if (id == 0) {
-            forecastView = mInflater.inflate(R.layout.fragment_weather_main, p3, false)
-            cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText(getResources.getString(R.string.humidity) + " :" + forecast.humidity + "%")
+            forecastView = mInflater.inflate(R.layout.main_weather_data, p3, false)
+            cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText(getResources.getString(R.string.humidity) + ": " + forecast.humidity + "%")
             cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText(getResources.getString(R.string.pressure) + ": " + forecast.pressure + " mmhg")
             cast[View, TextView](forecastView.findViewById(R.id.wind)).setText(getResources.getString(R.string.wind) + ": " + forecast.wind)
           } else {
@@ -124,7 +124,9 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
               cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText(getResources.getString(R.string.humidity) + ": " + forecast.humidity + "%")
               cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText(getResources.getString(R.string.pressure) + ": " + forecast.pressure + " mmhg")
               cast[View, TextView](forecastView.findViewById(R.id.wind)).setText(getResources.getString(R.string.wind) + ": " + forecast.wind)
-              cast[View, TextView](forecastView.findViewById(R.id.weatherState)).setText(getResources.getString(R.string.state) + ": " + forecast.weatherState.getDesc)
+              cast[View, TextView](forecastView.findViewById(R.id.weatherState)).setText(
+//                getResources.getString(R.string.state) + ": "+
+                  forecast.weatherState.getDesc)
             } else {
               forecastView.findViewById(R.id.additional_table).setVisibility(View.GONE)
             }

@@ -8,48 +8,46 @@
               android:paddingBottom="@dimen/android_spaces"
               android:textIsSelectable="true"
               tools:context=".ItemDetailFragment"
-              android:orientation="horizontal" android:weightSum="1"
+              android:orientation="vertical" android:weightSum="1"
               android:gravity="center_vertical|center_horizontal">
 
         <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/android_spaces"
-                android:layout_marginRight="@dimen/android_spaces"
+                android:layout_margin="@dimen/android_spaces"
                 android:gravity="center_vertical">
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="+28°C"
-                    android:textSize="45dp"
+                    android:text="+28 °C"
                     android:padding="@dimen/android_spaces_small"
                     android:id="@+id/upper_temp"
                     android:layout_weight="1"
                     style="@style/Content.TitleText"
+                    android:textSize="55dp"
                     android:gravity="center"/>
 
             <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="+14°C"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="+14 °C"
                     android:padding="@dimen/android_spaces_small"
                     android:background="@color/grey"
                     android:id="@+id/lower_temp"
                     android:layout_weight="1"
                     style="@style/Content.TitleText"
+                    android:textSize="25dp"
                     android:gravity="center"/>
         </LinearLayout>
         <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/android_spaces_small"
-                android:paddingLeft="@dimen/android_spaces"
-                android:paddingRight="@dimen/android_spaces"
+                android:padding="@dimen/android_spaces"
+                android:gravity="center"
                 android:background="@color/grey"
                 android:layout_marginRight="@dimen/android_spaces_small"
                 android:baselineAligned="false">

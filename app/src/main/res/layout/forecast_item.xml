@@ -33,6 +33,7 @@
                 android:layout_marginLeft="@dimen/android_spaces_small"
                 android:layout_marginRight="@dimen/android_spaces_small"
                 android:layout_weight="1"
+                android:weightSum="2"
                 android:gravity="center_vertical">
             <TextView
                     android:layout_width="wrap_content"
