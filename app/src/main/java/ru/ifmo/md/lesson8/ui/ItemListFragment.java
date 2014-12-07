@@ -1,6 +1,7 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.ui;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
+import ru.ifmo.md.lesson8.content.ContentHelper;
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 /**
@@ -71,12 +73,12 @@ public class ItemListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ContentHelper contentHelper = new ContentHelper(getActivity());
+
+        Cursor cursor = contentHelper.getPlacesCursor();
+
         // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        setListAdapter(new CityListAdapter(getActivity(), cursor));
     }
 
     @Override

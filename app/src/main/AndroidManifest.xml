@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name="ru.ifmo.md.lesson8.ItemListActivity"
+            android:name=".ui.ItemListActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,12 +20,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="ru.ifmo.md.lesson8.ItemDetailActivity"
+            android:name=".ui.ItemDetailActivity"
             android:label="@string/title_item_detail"
-            android:parentActivityName="ru.ifmo.md.lesson8.ItemListActivity" >
+            android:parentActivityName=".ui.ItemListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ItemListActivity" />
+                android:value=".ui.ItemListActivity" />
         </activity>
         <provider
             android:authorities="ru.ifmo.md.lesson8.contentprovider"

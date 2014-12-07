@@ -1,4 +1,4 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
+import ru.ifmo.md.lesson8.R;
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 /**
