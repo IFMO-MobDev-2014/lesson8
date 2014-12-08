@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bar">
+
+        <TextView
+            android:id="@+id/tvChooser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/choose"
+            android:textSize="21dp"
+            android:textStyle="bold"
+            android:layout_margin="12dp">
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="21dp"
+            android:clickable="true"
+            android:onClick="clickPlus"
+            android:text="+"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp">
+        </TextView>
+
+        <Button
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/button"
+            android:clickable="false"
+            android:background="@drawable/abc_btn_radio_to_on_mtrl_015"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lvChooser"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </ListView>
+
+</LinearLayout>
