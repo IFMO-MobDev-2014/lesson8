@@ -51,28 +51,52 @@ public class ForecastParser extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
 
-        if (qName.equals("yweather:forecast")) {
-            Date date = parseDate(attributes.getValue("date"));
+        switch (qName) {
+            case "yweather:forecast": {
+                Date date = parseDate(attributes.getValue("date"));
 
-            int low = Integer.parseInt(attributes.getValue("low"));
-            int high = Integer.parseInt(attributes.getValue("high"));
+                int low = Integer.parseInt(attributes.getValue("low"));
+                int high = Integer.parseInt(attributes.getValue("high"));
 
-            Weather.Builder builder = getBuilder(date);
+                Weather.Builder builder = getBuilder(date);
 
-            String description = attributes.getValue("text");
-            builder.setLow(new Temperature(low, Temperature.fahrenheit()))
-                    .setDescription(description);
-            builder.setHigh(new Temperature(high, Temperature.fahrenheit()))
-                    .setDescription(description);
-        } else if (qName.equals("yweather:condition")) {
-            Date date = ContentHelper.getCurrentDate();
-            Weather.Builder builder = getBuilder(date);
-            int temp = Integer.parseInt(attributes.getValue("temp"));
-            String desc = attributes.getValue("text");
+                String description = attributes.getValue("text");
+                builder.setLow(new Temperature(low, Temperature.fahrenheit()))
+                        .setDescription(description);
+                builder.setHigh(new Temperature(high, Temperature.fahrenheit()))
+                        .setDescription(description);
+                break;
+            }
+            case "yweather:condition": {
+                Date date = ContentHelper.getCurrentDate();
+                Weather.Builder builder = getBuilder(date);
+                int temp = Integer.parseInt(attributes.getValue("temp"));
+                String desc = attributes.getValue("text");
 
-            builder.setCurrent(new Temperature(temp, Temperature.fahrenheit()))
-                    .setDescription(desc);
+                builder.setCurrent(new Temperature(temp, Temperature.fahrenheit()))
+                        .setDescription(desc);
+                break;
+            }
+            case "yweather:wind": {
+                Date date = ContentHelper.getCurrentDate();
+                Weather.Builder builder = getBuilder(date);
+                // Force to use meters per second here
+                int windSpeed = fromMphTomps(Integer.parseInt(attributes.getValue("speed")));
+                builder.setWindSpeed(windSpeed);
+                break;
+            }
+            case "yweather:atmosphere": {
+                Date date = ContentHelper.getCurrentDate();
+                Weather.Builder builder = getBuilder(date);
+                int humidity = Integer.parseInt(attributes.getValue("humidity"));
+                builder.setHumidity(humidity);
+                break;
+            }
         }
+    }
+
+    private static int fromMphTomps(int speed) {
+        return (int) (2.24 * speed);
     }
 
     private Weather.Builder getBuilder(Date date) {

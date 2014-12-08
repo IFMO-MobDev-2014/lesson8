@@ -42,7 +42,8 @@ public class ItemDetailFragment extends Fragment {
         forecastsList.removeAllViews();
         List<Forecast> forecasts = contentHelper.getForecasts(woeid);
         Forecast today = forecasts.get(0);
-        cityName.setText(contentHelper.getPlaceByWoeid(woeid).formattedName() + ": " + today.getWeather().getDescription());
+        cityName.setText(contentHelper.getPlaceByWoeid(woeid).formattedName() + ": " +
+                today.getWeather().getDescription());
         for (Forecast forecast : forecasts) {
             TextView child = new TextView(getActivity());
             child.setText(forecast.getDate() + ": " + forecast.getWeather().getDescription());

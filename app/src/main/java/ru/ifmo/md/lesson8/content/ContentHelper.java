@@ -97,13 +97,17 @@ public class ContentHelper {
     }
 
     public Weather getWeatherInPlace(Place place) {
-        String[] projection = {WeatherInfo.TEMPERATURE_COLUMN, WeatherInfo.DESCRIPTION_COLUMN};
+        String[] projection = {
+                WeatherInfo.TEMPERATURE_COLUMN,
+                WeatherInfo.DESCRIPTION_COLUMN,
+                WeatherInfo.WIND_COLUMN,
+                WeatherInfo.HUMIDITY_COLUMN
+        };
         String selection = WeatherInfo.WOEID_COLUMN + "=?"
                 + " and " + WeatherInfo.DATE_COLUMN + "=?";
         String[] selectionArgs = {"" + place.getWoeid(), "" + getCurrentDate().getTime()};
         Cursor cursor = contentResolver.query(
                 WeatherInfo.URI, projection, selection, selectionArgs, null);
-
 
         Weather result;
         if (!cursor.moveToFirst()) {
@@ -113,6 +117,8 @@ public class ContentHelper {
                     .setCurrent(new Temperature(Integer.parseInt(cursor.getString(0)),
                             Temperature.fahrenheit()))
                     .setDescription(cursor.getString(1))
+                    .setWindSpeed(Integer.parseInt(cursor.getString(2)))
+                    .setHumidity(Integer.parseInt(cursor.getString(3)))
                     .createWeather();
         }
         return result;
@@ -163,6 +169,8 @@ public class ContentHelper {
                 Temperature current;
                 Temperature high;
                 Temperature low;
+                Integer windSpeed;
+                Integer humidity;
 
                 try {
                     current = new Temperature(
@@ -191,12 +199,33 @@ public class ContentHelper {
                     low = null;
                 }
 
+                try {
+                    windSpeed = cursor.getInt(cursor.getColumnIndex(WeatherInfo.WIND_COLUMN));
+                } catch (Exception ignored) {
+                    windSpeed = null;
+                }
+
+                try {
+                    humidity = cursor.getInt(cursor.getColumnIndex(WeatherInfo.HUMIDITY_COLUMN));
+                } catch (Exception e) {
+                    humidity = null;
+                }
+
                 String desc = cursor.getString(cursor.getColumnIndex(WeatherInfo.DESCRIPTION_COLUMN));
 
-                forecasts.add(new Forecast(
+                Weather.Builder weatherBuilder = new Weather.Builder();
+                Forecast forecast = new Forecast(
                         new Date(time),
-                        new Weather(low, high, current, desc, 0, 0))
-                );
+                        weatherBuilder
+                                .setLow(low)
+                                .setHigh(high)
+                                .setCurrent(current)
+                                .setDescription(desc)
+                                .setWindSpeed(windSpeed)
+                                .setHumidity(humidity)
+                                .createWeather());
+                forecasts.add(forecast);
+                Log.d("WEATHER " + forecast.getDate(), forecast.getWeather() + "");
             } while (cursor.moveToNext());
         }
 

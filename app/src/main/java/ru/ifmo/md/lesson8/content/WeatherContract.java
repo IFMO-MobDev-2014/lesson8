@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
  * @author Zakhar Voit (zakharvoit@gmail.com)
  */
 public class WeatherContract {
-    public static final int DATABASE_VERSION = 7;
+    public static final int DATABASE_VERSION = 10;
     public static final String DATABASE_NAME = "ru.ifmo.md.lesson8.WeatherDatabase";
     public static final String AUTHORITY = "ru.ifmo.md.lesson8.contentprovider";
 
@@ -47,6 +47,8 @@ public class WeatherContract {
         public static final String TEMPERATURE_COLUMN = "temperature";
         public static final String HIGH_COLUMN = "high";
         public static final String LOW_COLUMN = "low";
+        public static final String WIND_COLUMN = "wind";
+        public static final String HUMIDITY_COLUMN = "humidity";
         public static final String DESCRIPTION_COLUMN = "description";
         public static final String CREATE_TABLE = "create table "
                 + TABLE_NAME + "("
@@ -56,6 +58,8 @@ public class WeatherContract {
                 + TEMPERATURE_COLUMN + " integer, "
                 + HIGH_COLUMN + " integer, "
                 + LOW_COLUMN + " integer, "
+                + WIND_COLUMN + " integer, "
+                + HUMIDITY_COLUMN + " integer, "
                 + DESCRIPTION_COLUMN + " text "
                 + ")";
 
