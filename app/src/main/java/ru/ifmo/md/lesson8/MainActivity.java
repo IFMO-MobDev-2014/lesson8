@@ -1,8 +1,11 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
@@ -18,6 +21,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import ru.ifmo.md.lesson8.db.CitiesTable;
@@ -27,7 +31,7 @@ import ru.ifmo.md.lesson8.service.Receiver;
 import ru.ifmo.md.lesson8.service.SupportReceiver;
 
 public class MainActivity extends ActionBarActivity
-        implements CitiesListFragment.Callbacks, Receiver, LoaderManager.LoaderCallbacks<Cursor> {
+        implements CitiesListFragment.Callbacks, Receiver, LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -39,6 +43,7 @@ public class MainActivity extends ActionBarActivity
     private LocationManager locationManager;
     private LocationListener locationListener;
     private String currentCityId = null;
+    private ProgressDialog dialog;
 
     public static final String CITY_ID = "city_id";
     public static final String WOEID = "woeid";
@@ -76,6 +81,7 @@ public class MainActivity extends ActionBarActivity
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                dialog.dismiss();
                 updateCurrentLocation(location);
             }
 
@@ -95,19 +101,7 @@ public class MainActivity extends ActionBarActivity
             }
         };
 
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        if(provider != null) {
-
-            Location curLoc = locationManager.getLastKnownLocation(provider);
-            if (curLoc != null) {
-                updateCurrentLocation(curLoc);
-            } else {
-                locationManager.requestSingleUpdate(provider, locationListener, null);
-            }
-        }
+        startCurrentLocationUpdate();
         getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
@@ -176,8 +170,45 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    private void startCurrentLocationUpdate() {
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.POWER_LOW);
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        if(provider != null) {
+
+            Location curLoc = locationManager.getLastKnownLocation(provider);
+            if (curLoc != null) {
+                updateCurrentLocation(curLoc);
+            } else {
+                locationManager.requestSingleUpdate(provider, locationListener, null);
+                dialog = ProgressDialog.show(this, getString(R.string.current_loc_retrieving), getString(R.string.loading_wait));
+            }
+        }
+    }
+
     public void updateCurrentLocation(Location loc) {
         ForecastService.getCurrentLocation(this, loc, new SupportReceiver(new Handler(), this));
+    }
+
+    public void addNewCity() {
+
+        // TODO: make it DO SOMETHING
+        /*
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("Adding new city")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert);
+        */
     }
 
     @Override
@@ -241,5 +272,16 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.current_location_btn:
+                startCurrentLocationUpdate();
+                break;
+            case R.id.add_new_city_btn:
+                addNewCity();
+        }
     }
 }

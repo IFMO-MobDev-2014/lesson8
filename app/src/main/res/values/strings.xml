@@ -18,4 +18,6 @@
     <string name="nav_drawer_cities_empty">No cities are added yet</string>
     <string name="nav_drawer_cities_heading">Added cities</string>
     <string name="current_location">Current location</string>
+    <string name="current_loc_retrieving">Retrieving current location...</string>
+    <string name="loading_wait">Wait a bit</string>
 </resources>

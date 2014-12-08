@@ -10,6 +10,8 @@ import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -106,6 +108,12 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
         super.onViewCreated(view, savedInstanceState);
 
         view.setBackgroundResource(android.R.color.background_light);
+
+        Button currentLocBtn = (Button) view.findViewById(R.id.current_location_btn);
+        ImageButton newCityBtn = (ImageButton) view.findViewById(R.id.add_new_city_btn);
+
+        currentLocBtn.setOnClickListener((MainActivity) getActivity());
+        newCityBtn.setOnClickListener((MainActivity) getActivity());
 
         setEmptyText(getResources().getString(R.string.cities_list_empty_text));
         // Restore the previously serialized activated item position.
