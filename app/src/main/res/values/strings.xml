@@ -7,5 +7,6 @@
     <string name="add_button">Добавить</string>
     <string name="wrong_city_name">Не удалось найти город</string>
     <string name="no_internet">Нет соединения с интернетом</string>
+    <string name="cur_place">Где я?</string>
 
 </resources>

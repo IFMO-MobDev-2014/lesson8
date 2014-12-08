@@ -29,6 +29,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -38,6 +39,7 @@ import android.widget.Toast;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -96,14 +98,6 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
         AlarmManagerHelper.stopAlarm(getApplicationContext());
         AlarmManagerHelper.startAlarm(getApplicationContext(), 3 * 60 * 60 * 1000); //every 3 hours
-
-        LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        Location location = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        double latitude = 0;
-        double longitude = 0;
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        
     }
 
     @Override
@@ -335,5 +329,26 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         }
     }
 
+    public void onCurLocationClick(View view) {
+        LocationManager locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location == null) {
+            showMessage("Не удалось получить местоположение");
+            return;
+        }
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        Geocoder gcd = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses = new ArrayList<Address>();
+        try {
+            addresses = gcd.getFromLocation(lat, lng, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses.size() > 0) {
+            Log.d("debug1", "cur place = " + addresses.get(0).getLocality());
+            showMessage("Вы находитесь в " + addresses.get(0).getLocality());
+        }
+    }
 }
 
