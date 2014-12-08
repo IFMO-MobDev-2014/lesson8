@@ -1,0 +1,181 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#ff4767bb"
+              android:orientation="horizontal"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              tools:context="ru.ifmo.md.lesson8.WeatherActivity$PlaceholderFragment">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+    <ImageView
+            android:id="@+id/iconWeatherBig"
+            android:layout_width="128dp"
+            android:layout_height="100dp"
+            android:contentDescription="@string/weather_icon"/>
+
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="30dp"
+            />
+
+        <TextView
+            android:id="@+id/temperatureTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/abc_text_size_display_2_material"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/humidityTextView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/abc_text_size_large_material"/>
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/humidity"
+                    android:textColor="#ff7da4ff"
+                    android:textSize="@dimen/abc_text_size_medium_material"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/windTextView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/abc_text_size_large_material"/>
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/wind"
+                    android:textColor="#ff7da4ff"
+                    android:textSize="@dimen/abc_text_size_medium_material"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/pressureTextView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/abc_text_size_large_material"/>
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/pressure"
+                    android:textColor="#ff7da4ff"
+                    android:textSize="@dimen/abc_text_size_medium_material"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="20dp"
+        android:layout_height="10dp"
+        />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/dateMinTextView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#ff7da4ff"
+                android:textSize="@dimen/abc_text_size_large_material"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/infoMinTextView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/abc_text_size_medium_material"/>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="10dp"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/my_recycler_view"
+            android:layout_width="75dp"
+            android:layout_height="fill_parent"
+            android:background="#ff4767bb"
+            android:minWidth="150dp"
+            android:tag="vertical"
+            />
+    </LinearLayout>
+
+</LinearLayout>
