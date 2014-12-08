@@ -6,6 +6,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.util.JsonReader;
 import android.util.Log;
@@ -57,9 +60,13 @@ public class WeatherLoaderService extends IntentService {
      * @see IntentService
      */
     public static void startActionGetAll(Context context) {
+        context.startService(getIntentGetAll(context));
+    }
+
+    public static Intent getIntentGetAll(Context context) {
         Intent intent = new Intent(context, WeatherLoaderService.class);
         intent.setAction(ACTION_GET_ALL);
-        context.startService(intent);
+        return intent;
     }
 
     /**
@@ -107,7 +114,6 @@ public class WeatherLoaderService extends IntentService {
 
         for (int i = 0; i < ids.length; i++) {
             loadSingleCity(ids[i]);
-            Log.i("DL", "DOWNLORDING " + ids[i]);
         }
     }
 
@@ -125,7 +131,16 @@ public class WeatherLoaderService extends IntentService {
         HttpURLConnection conn = null;
         URL url = null;
         try {
-            url = new URL("http://api.openweathermap.org/data/2.5/weather?units=metric&id=" + cityid);
+            if(cityid == 0) {
+                LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if(mgr == null)
+                    return;
+
+                Location location = mgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                url = new URL("http://api.openweathermap.org/data/2.5/weather?units=metric&lat=" + location.getLatitude() + "&lon=" + location.getLongitude());
+            } else {
+                url = new URL("http://api.openweathermap.org/data/2.5/weather?units=metric&id=" + cityid);
+            }
         } catch(MalformedURLException ex) {
             // oops
         }
@@ -172,7 +187,17 @@ public class WeatherLoaderService extends IntentService {
 
         // 2: forecasts
         try {
-            url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?units=metric&cnt=5&id=" + cityid);
+            if(cityid == 0) {
+                LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if(mgr == null)
+                    return;
+
+                Location location = mgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?units=metric&cnt=5&lat=" + location.getLatitude() + "&lon=" + location.getLongitude());
+            } else {
+                url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?units=metric&cnt=5&id=" + cityid);
+            }
+
         } catch(MalformedURLException ex) {
             // oops
         }

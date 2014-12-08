@@ -3,7 +3,7 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Weather3</string> <!-- so that nobody (like me) confuses this with stock weather -->
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>

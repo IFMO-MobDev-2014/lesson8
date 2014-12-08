@@ -3,7 +3,6 @@ package ru.ifmo.md.lesson8;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -23,6 +22,8 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        StuffReceiver.setAlarms(this);
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
@@ -40,7 +41,7 @@ public class MainActivity extends Activity
         super.onResume();
 
         if((System.currentTimeMillis() - lastUpdate) / 1000L > 1800) { // magic: 30 minuntes
-            WeatherLoaderService.startActionGetAll(getApplicationContext());
+            WeatherLoaderService.startActionGetAll(getApplicationContext()); // even though we have alarms, still update now, because there's nothing like REALLY FRESH weather.
         }
     }
 
@@ -103,4 +104,5 @@ public class MainActivity extends Activity
 
         onNavigationDrawerItemSelected(name, cityId);
     }
+
 }

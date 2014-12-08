@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
@@ -35,9 +36,11 @@ public class WeatherFragment extends Fragment {
     private ListView forecastList;
     private View forecastView;
 
+    private CursorAdapter adapterNow, adapterForecast;
+    private MergeAdapter mergeAdapter;
+
     private OnFragmentInteractionListener mListener;
 
-    // TODO: Rename and change types and number of parameters
     public static WeatherFragment newInstance(int cityId, String cityName) {
         WeatherFragment fragment = new WeatherFragment();
         Bundle args = new Bundle();
@@ -74,7 +77,8 @@ public class WeatherFragment extends Fragment {
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                ((CursorAdapter) forecastList.getAdapter()).swapCursor(data);
+                //((CursorAdapter) forecastList.getAdapter()).swapCursor(data);
+                adapterForecast.swapCursor(data);
             }
 
             @Override
@@ -97,7 +101,8 @@ public class WeatherFragment extends Fragment {
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                onFreshCityData(data);
+                //onFreshCityData(data);
+                adapterNow.swapCursor(data);
             }
 
             @Override
@@ -131,6 +136,8 @@ public class WeatherFragment extends Fragment {
 
         tv = (TextView) forecastView.findViewById(R.id.weatherDayText);
         tv.setText(getActivity().getString(R.string.now));
+
+        //mListener.setCityName(cr.getString(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_NAME)));
     }
 
     @Override
@@ -140,7 +147,12 @@ public class WeatherFragment extends Fragment {
         forecastView = w;
 
         forecastList = (ListView) w.findViewById(R.id.forecastList);
-        forecastList.setAdapter(new WeatherCursorAdapter(getActivity().getApplicationContext(), null, false));
+
+        adapterNow = new WeatherCursorAdapter(getActivity(), null, 0, true);
+        adapterForecast = new WeatherCursorAdapter(getActivity(), null, 0, false);
+        mergeAdapter = new MergeAdapter(adapterNow, adapterForecast);
+
+        forecastList.setAdapter(mergeAdapter);
 
         return w;
     }
@@ -168,8 +180,11 @@ public class WeatherFragment extends Fragment {
 
     private class WeatherCursorAdapter extends CursorAdapter {
 
-        public WeatherCursorAdapter(Context context, Cursor c, boolean autoRequery) {
-            super(context, c, autoRequery);
+        private boolean isNow;
+
+        public WeatherCursorAdapter(Context context, Cursor c, int flags, boolean isNow) {
+            super(context, c, flags);
+            this.isNow = isNow;
         }
 
         @Override
@@ -186,11 +201,17 @@ public class WeatherFragment extends Fragment {
             ImageView iv = (ImageView) view.findViewById(R.id.weatherImage);
             iv.setImageResource(WeatherDataUtils.getIconForCode(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_DESCRIPTION)), cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_CLOUDS)), false));
 
-            TextView tv = (TextView) view.findViewById(R.id.tempText);
-            tv.setText(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TEMPERATURE_MIN)) / 10.0f + "/" + cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TEMPERATURE_MAX)) / 10.0f + " °C");
-
-            tv = (TextView) view.findViewById(R.id.windText);
+            TextView tv = (TextView) view.findViewById(R.id.windText);
             tv.setText(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_WIND)) / 10.0f + " m/s " + WeatherDataUtils.getWindDirByDegs(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_WIND_DIR))));
+
+
+            tv = (TextView) view.findViewById(R.id.tempText);
+            if(!isNow) {
+                tv.setText(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TEMPERATURE_MIN)) / 10.0f + "/" + cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TEMPERATURE_MAX)) / 10.0f + " °C");
+            } else {
+                tv.setText(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TEMPERATURE)) / 10.0f + " °C");
+            }
+
 
             tv = (TextView) view.findViewById(R.id.pressHumText);
             tv.setText(((int) (cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_PRESSURE)) * 0.75d)) + " mmHg " + cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_HUMIDITY)) + "%");
@@ -198,10 +219,15 @@ public class WeatherFragment extends Fragment {
             tv = (TextView) view.findViewById(R.id.weatherSubText);
             tv.setText(WeatherDataUtils.getDescriptionForCode(cr.getInt(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_DESCRIPTION))));
 
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(cr.getLong(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TIME)) * 1000L);
-            tv = (TextView) view.findViewById(R.id.weatherDayText);
-            tv.setText(DateFormat.getDateInstance().format(cal.getTime()));
+            if(!isNow) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(cr.getLong(cr.getColumnIndex(WeatherDatabase.Structure.COLUMN_TIME)) * 1000L);
+                tv = (TextView) view.findViewById(R.id.weatherDayText);
+                tv.setText(DateFormat.getDateInstance().format(cal.getTime()));
+            } else {
+                tv = (TextView) view.findViewById(R.id.weatherDayText);
+                tv.setText(R.string.now);
+            }
         }
     }
 

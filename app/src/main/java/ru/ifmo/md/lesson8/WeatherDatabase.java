@@ -12,7 +12,7 @@ public class WeatherDatabase extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "weather.db";
 
-    private static final int DB_VERSION = 9;
+    private static final int DB_VERSION = 10;
     public WeatherDatabase(Context context, SQLiteDatabase.CursorFactory factory) {
         super(context, DB_NAME, factory, DB_VERSION);
     }
@@ -62,6 +62,10 @@ public class WeatherDatabase extends SQLiteOpenHelper {
 
         // todo: test data, remove
         ContentValues cv = new ContentValues();
+        cv.put(Structure.COLUMN_NAME, "My Location");
+        cv.put(Structure.COLUMN_URL, 0);
+        db.insert(Structure.CITIES_TABLE, null, cv);
+        cv = new ContentValues();
         cv.put(Structure.COLUMN_NAME, "Saint-Petersburg");
         cv.put(Structure.COLUMN_URL, 498817);
         db.insert(Structure.CITIES_TABLE, null, cv);

@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.ifmo.md.lesson8" >
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- duh -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- for "current location" -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- for timed auto-refresh -->
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -17,12 +21,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
+            android:name="ru.ifmo.md.lesson8.WeatherContentProvider"
             android:authorities="ru.ifmo.md.lesson8.weather"
-            android:name=".WeatherContentProvider"
             android:enabled="true"
             android:exported="false" />
+
         <service android:name="ru.ifmo.md.lesson8.WeatherLoaderService" />
+
+        <receiver
+            android:name="ru.ifmo.md.lesson8.StuffReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -10,7 +10,8 @@
         <SearchView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/citySearch" />
+            android:id="@+id/citySearch"
+            android:iconifiedByDefault="false" />
 
         <ListView
             android:layout_width="fill_parent"

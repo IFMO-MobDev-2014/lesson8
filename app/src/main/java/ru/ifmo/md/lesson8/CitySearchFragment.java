@@ -56,7 +56,7 @@ public class CitySearchFragment extends Fragment {
         // Inflate the layout for this fragment
         View rv = inflater.inflate(R.layout.fragment_city_search, container, false);
 
-        SearchView sv = (SearchView) rv.findViewById(R.id.citySearch);
+        final SearchView sv = (SearchView) rv.findViewById(R.id.citySearch);
         final ListView lv = (ListView) rv.findViewById(R.id.searchList);
 
         class NanoPair {
@@ -155,6 +155,7 @@ public class CitySearchFragment extends Fragment {
                 };
 
                 task.execute(s);
+                sv.clearFocus();
 
                 return true;
             }
