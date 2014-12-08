@@ -18,10 +18,9 @@
         android:id="@+id/weather_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/pressure"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/top"
-        android:layout_toEndOf="@+id/weather_description"
         android:src="@drawable/na" />
 
     <TextView
