@@ -4,13 +4,15 @@ package com.alex700.lesson9;
  * Created by Алексей on 30.11.2014.
  */
 public enum WeatherInfo {
-    Clear("Clear"), Snow("Snow");
+    Clear("Clear"), Snow("Snow"), Clouds("Clouds"), Thunderstorm("Thunderstorm"),
+    Drizzle("Drizzle"), Rain("Rain"), Mist("Mist");
+
     private String main;
     private String iconName;
 
     WeatherInfo(String main) {
         this.main = main;
-        iconName = main.toLowerCase();
+        iconName = main.toLowerCase() + ".png";
     }
 
     public static WeatherInfo getWeatherInfo(String s) {
@@ -20,6 +22,10 @@ public enum WeatherInfo {
             }
         }
         return null;
+    }
+
+    public String getIconName() {
+        return iconName;
     }
 
     public String getMain() {

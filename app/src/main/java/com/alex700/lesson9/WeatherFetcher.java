@@ -115,7 +115,7 @@ public class WeatherFetcher {
                 }
             }
         }
-
+        Log.d("fetcher", forecastJSONStr);
         try {
             return getWeatherDataFromJson(forecastJSONStr, city);
         } catch (JSONException e) {

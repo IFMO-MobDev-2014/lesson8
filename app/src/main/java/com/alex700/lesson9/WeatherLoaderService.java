@@ -4,12 +4,14 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import android.os.Handler;
+import android.util.Log;
 
 /**
  * Created by Алексей on 30.11.2014.
@@ -25,7 +27,7 @@ public class WeatherLoaderService extends IntentService {
     public static final int UPDATING = 2;
     public static final int ERROR = 3;
     public static final int NUMBER_OF_DAYS = 7;
-    public static final long UPDATE_INTERVAL = 10L * 60L; // 30 minutes
+    public static final long UPDATE_INTERVAL = 10L * 60L * 1000L; // 10 minutes
     private static final List<String> tasks = new ArrayList<>();
     private static Handler handler;
 
@@ -58,6 +60,7 @@ public class WeatherLoaderService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         String cityName = intent.getStringExtra(CITY_NAME);
+        Log.d("service", "start for " + cityName);
         Cursor cursor = getApplication().getContentResolver()
                 .query(WeatherContentProvider.CITY_CONTENT_URI, null, WeatherDatabaseHelper.CITY_NAME + "='" + cityName + "'", null, null);
         cursor.moveToNext();
@@ -67,6 +70,7 @@ public class WeatherLoaderService extends IntentService {
         }
 
         City city = WeatherDatabaseHelper.CityCursor.getCity(cursor);
+        Log.d("service","city id " + city.getId());
         if (isAlreadyUpdated(city)) {
             if (handler != null) {
                 handler.obtainMessage(ALREADY_UPDATED).sendToTarget();
@@ -110,11 +114,13 @@ public class WeatherLoaderService extends IntentService {
     }
 
     private WeatherData[] loadWeatherInCity(City city) {
+        Log.d("load", "start load " + city.getId());
         return WeatherFetcher.fetch(city, NUMBER_OF_DAYS, API_KEY);
     }
 
     private boolean isAlreadyUpdated(City city) {
         Date date = new Date();
+        Log.d("IS_ALREADY_UPDATED", date.getTime() + " " + city.getUpdateDate());
         return date.getTime() <= city.getUpdateDate() + UPDATE_INTERVAL;
     }
 }

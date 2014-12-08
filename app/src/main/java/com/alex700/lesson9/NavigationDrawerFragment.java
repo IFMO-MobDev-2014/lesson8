@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -36,7 +37,7 @@ import java.util.List;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class NavigationDrawerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     /**
      * Remember the position of the selected item.
@@ -67,6 +68,12 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
     private List<String> elements;
+    private List<City> cities;
+    private boolean firstStart = true;
+
+    public List<City> getCities() {
+        return cities;
+    }
 
     public List<String> getElements() {
         return elements;
@@ -89,8 +96,6 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
             mFromSavedInstanceState = true;
         }
 
-        // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition);
     }
 
     @Override
@@ -103,6 +108,8 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Log.d("NAVIG", "onCreateView");
         mDrawerListView = (LinearLayout) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
         ((ListView) mDrawerListView.findViewById(R.id.city_list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -112,13 +119,30 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
         });
 
         elements = new ArrayList<>();
-        elements.add("empty");
-        ((ListView) mDrawerListView.findViewById(R.id.city_list)).setAdapter(new ArrayAdapter<String>(
+        cities = new ArrayList<>();
+        //elements.add("empty");
+        ((ListView) mDrawerListView.findViewById(R.id.city_list)).setAdapter(new ArrayAdapter<>(
                 getActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 elements));
+
         ((ListView) mDrawerListView.findViewById(R.id.city_list)).setItemChecked(mCurrentSelectedPosition, true);
+        ((ListView) mDrawerListView.findViewById(R.id.city_list)).setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                City delCity = cities.get(position);
+                getActivity().getContentResolver().delete(WeatherContentProvider.WEATHER_CONTENT_URI,
+                        WeatherDatabaseHelper.WEATHER_CITY_ID + "=" + delCity.getId(), null);
+                getActivity().getContentResolver().delete(WeatherContentProvider.CITY_CONTENT_URI,
+                        WeatherDatabaseHelper.CITY_ID + "=" + delCity.getId(), null);
+                cities.remove(position);
+                elements.remove(position);
+                if (elements.size() != 0)selectItem(0);
+                return true;
+            }
+        });
+        ((Button) mDrawerListView.findViewById(R.id.add_city_button)).setOnClickListener(this);
         getLoaderManager().restartLoader(2222, null, this);
         return mDrawerListView;
     }
@@ -202,6 +226,8 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
     }
 
     private void selectItem(int position) {
+        Log.d("SELECT ITEM", "start");
+        //try { throw new RuntimeException(); } catch(RuntimeException ex) {ex.printStackTrace();}
         mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             ((ListView) mDrawerListView.findViewById(R.id.city_list)).setItemChecked(position, true);
@@ -290,18 +316,37 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        //try { throw new RuntimeException(); } catch(RuntimeException ex) {ex.printStackTrace();}
         elements.clear();
+        cities.clear();
         cursor.moveToNext();
         while (!cursor.isAfterLast()) {
             City c = WeatherDatabaseHelper.CityCursor.getCity(cursor);
             elements.add(c.getName());
+            cities.add(c);
             cursor.moveToNext();
+        }
+        if (firstStart) {
+            mDrawerLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    selectItem(mCurrentSelectedPosition);
+                }
+            });
+            firstStart = false;
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (mCallbacks != null) {
+            mCallbacks.onAddClick();
+        }
     }
 
     /**
@@ -311,6 +356,7 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
         /**
          * Called when an item in the navigation drawer is selected.
          */
+        void onAddClick();
         void onNavigationDrawerItemSelected(int position);
     }
 }

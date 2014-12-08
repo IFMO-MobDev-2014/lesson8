@@ -15,7 +15,7 @@ import android.util.Log;
 public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
     public static final String DB_NAME = "weather.db";
-    public static final int DB_VERSION = 3;
+    public static final int DB_VERSION = 4;
 
     public static final String CITY_TABLE_NAME = "cities";
     public static final String CITY_ID = _ID;
@@ -77,6 +77,11 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
         cv.put(CITY_NAME, "Kirov");
         sqLiteDatabase.insert(CITY_TABLE_NAME, null, cv);
         Log.d("base", "kir");
+
+        cv = new ContentValues();
+        cv.put(CITY_NAME, "Antananarivo");
+        sqLiteDatabase.insert(CITY_TABLE_NAME, null, cv);
+
 
     }
 

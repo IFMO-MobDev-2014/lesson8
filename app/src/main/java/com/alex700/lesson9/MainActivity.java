@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -20,7 +21,9 @@ import android.widget.TextView;
 
 
 public class MainActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+        WeatherFragment.OnFragmentInteractionListener
+            {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -48,27 +51,26 @@ public class MainActivity extends Activity
     }
 
     @Override
+    public void onAddClick() {
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, AddCityFragment.newInstance())
+                .commit();
+    }
+
+                @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, WeatherFragment.newInstance(position + 1,
+                        mNavigationDrawerFragment.getElements().get(position),
+                        mNavigationDrawerFragment.getCities().get(position).getId()))
                 .commit();
     }
 
     public void onSectionAttached(int number) {
         mTitle = mNavigationDrawerFragment.getElements().get(number - 1);
-        /*switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }*/
     }
 
     public void restoreActionBar() {
@@ -107,7 +109,12 @@ public class MainActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+                /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
@@ -121,11 +128,13 @@ public class MainActivity extends Activity
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(int sectionNumber, String name) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putString("name", name);
             fragment.setArguments(args);
+
             return fragment;
         }
 
@@ -136,6 +145,8 @@ public class MainActivity extends Activity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            ((TextView) rootView.findViewById(R.id.section_label)).setText(getArguments().getString("name"));
+
             return rootView;
         }
 
