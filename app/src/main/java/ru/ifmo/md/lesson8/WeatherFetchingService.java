@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -14,9 +15,9 @@ import java.net.URLEncoder;
  * Created by Евгения on 30.11.2014.
  */
 public class WeatherFetchingService extends IntentService {
-    private static final String ACTION_UPDATE_WEATHER
+    public static final String ACTION_UPDATE_WEATHER
             = "ru.ifmo.md.lesson8.action.updateWeather";
-    private static final String ACTION_UPDATE_ALL_WEATHER
+    public static final String ACTION_UPDATE_ALL_WEATHER
             = "ru.ifmo.md.lesson8.action.updateAllWeather";
 
     private static final String WEATHER_ID = "ru.ifmo.ctddev.katununa.rss_readerhw5.extra.weather_id";
@@ -63,16 +64,7 @@ public class WeatherFetchingService extends IntentService {
     private void handleActionUpdateWeather(final long weatherId) {
         final DBAdapter db = DBAdapter.getOpenedInstance(this);
         String name = db.getCityByWeatherId(weatherId).replace(' ', '_').replace("'", "");
-
-        if (name.equals(DBAdapter.CURRENT_LOCATION)) {
-            new CurrentCityResolver() {
-                @Override
-                protected void onPostExecute(String s) {
-                    fetchWeatherByCityName(weatherId, db, s);
-                }
-            }.execute(0., 0.);
-        } else
-            fetchWeatherByCityName(weatherId, db, name);
+        fetchWeatherByCityName(weatherId, db, name);
     }
 
     private void fetchWeatherByCityName(final long weatherId, final DBAdapter db, String name) {
@@ -89,17 +81,20 @@ public class WeatherFetchingService extends IntentService {
             public void onComplete(GsonGetter sender, ResponseContainer result) {
                 db.deleteForecasts(weatherId);
                 if (result.query.results.weather.rss.channel.item.forecast != null) {
+                    ContentValues weatherValues = db.getContentValuesByChannel(result.query.results.weather.rss.channel);
+                    weatherValues.put(DBAdapter.KEY_ID, weatherId);
+                    getContentResolver().update(Uri.parse(WeatherContentProvider.WEATHER_URI.toString()), weatherValues, null, null);
+                    long newWeatherId = DBAdapter.getOpenedInstance(getApplicationContext())
+                            .getIdByCityName(weatherValues.getAsString(DBAdapter.KEY_WEATHER_CITY));
                     for (ForecastItem item :
                             result.query.results.weather.rss.channel.item.forecast) {
-                        ContentValues values = db.getContentValuesByForecastItem(item, weatherId);
+                        ContentValues values = db.getContentValuesByForecastItem(item, newWeatherId);
                         getContentResolver().insert(Uri.parse(WeatherContentProvider.FORECAST_URI.toString()
-                                + "/" + weatherId), values);
+                                + "/" + newWeatherId), values);
                         getContentResolver().notifyChange(Uri.parse(WeatherContentProvider.FORECAST_URI.toString() + "/"
-                                + weatherId), null);
+                                + newWeatherId), null);
                     }
-                    ContentValues values = db.getContentValuesByChannel(result.query.results.weather.rss.channel);
-                    values.put(DBAdapter.KEY_ID, weatherId);
-                    getContentResolver().update(Uri.parse(WeatherContentProvider.WEATHER_URI.toString()), values, null, null);
+                    weatherValues.put(DBAdapter.KEY_ID, weatherId);
                     getContentResolver().notifyChange(Uri.parse(WeatherContentProvider.WEATHER_URI.toString() + "/"
                             + weatherId), null);
                 }

@@ -31,9 +31,10 @@ public class CurrentCityResolver extends AsyncTask<Double, Void, String> {
             HttpConnectionParams.setConnectionTimeout(p, 1000);
             HttpConnectionParams.setSoTimeout(p, 5000);
             HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet(String.format(
+            String requestStr = String.format(
                     "http://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f"
-                    , params[0], params[1]));
+                    , params[0], params[1]);
+            HttpGet request = new HttpGet(requestStr);
             try {
                 HttpResponse response = client.execute(request);
                 BufferedReader reader = new BufferedReader(
@@ -45,18 +46,22 @@ public class CurrentCityResolver extends AsyncTask<Double, Void, String> {
                     sb.append(s);
                     s = reader.readLine();
                 } while (s != null);
-                JSONObject json = new JSONObject(sb.toString());
+                String json1 = sb.toString();
+                JSONObject json = new JSONObject(json1);
                 if (json.has("status") && "OK".equals(json.getString("status"))) {
                     if (json.has("results")) {
                         JSONArray results = json.getJSONArray("results");
                         for (int i = 0; i < results.length(); i++) {
                             JSONObject o = results.getJSONObject(i);
-                            o = o.getJSONObject("address_components");
-                            JSONArray types = o.getJSONArray("types");
-                            for (int g = 0; g < types.length(); g++)
-                                if ("locality".equals(types.getString(g)))
-                                    if (o.has("long_name"))
-                                        return o.getString("long_name");
+                            JSONArray components = o.getJSONArray("address_components");
+                            for (int c = 0; c < components.length(); ++c) {
+                                JSONObject a = components.getJSONObject(i);
+                                JSONArray types = a.getJSONArray("types");
+                                for (int g = 0; g < types.length(); g++)
+                                    if ("locality".equals(types.getString(g)))
+                                        if (a.has("long_name"))
+                                            return a.getString("long_name");
+                            }
                         }
                     }
                     return null;

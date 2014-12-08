@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Евгения on 29.11.2014.
  */
 public class DBAdapter {
-    public static final String CURRENT_LOCATION = "######CURRENT_LOCATION";
 
     public static final String KEY_ID = "_id";
 
@@ -116,11 +115,6 @@ public class DBAdapter {
                 sqLiteDatabase.insert(TABLE_NAME_WEATHER, null, cv);
             }
 
-            if (cv.containsKey(KEY_WEATHER_CITY))
-                cv.remove(KEY_WEATHER_CITY);
-            cv.put(KEY_WEATHER_CITY, CURRENT_LOCATION);
-            sqLiteDatabase.insert(TABLE_NAME_WEATHER, null, cv);
-
             sqLiteDatabase.execSQL(CREATE_TABLE_FORECASTS);
         }
 
@@ -139,6 +133,17 @@ public class DBAdapter {
         }
         c.moveToFirst();
         String result = c.getString(c.getColumnIndex(KEY_WEATHER_CITY));
+        c.close();
+        return result;
+    }
+
+    public long getIdByCityName(String cityName) {
+        Cursor c = db.query(TABLE_NAME_WEATHER, new String[] {KEY_ID}, KEY_WEATHER_CITY +"=?", new String[] {cityName},
+                null, null, null, null);
+        if (c.getCount() == 0)
+            return -1;
+        c.moveToFirst();
+        long result = c.getLong(c.getColumnIndex(KEY_ID));
         c.close();
         return result;
     }
@@ -207,18 +212,13 @@ public class DBAdapter {
         return db.query(TABLE_NAME_WEATHER, new String[]{
                 KEY_ID, KEY_WEATHER_CITY, KEY_WEATHER_WIND_DIRECTION, KEY_WEATHER_WIND_SPEED, KEY_WEATHER_ATMOSPHERE_HUMIDITY,
                 KEY_WEATHER_ATMOSPHERE_PRESSURE, KEY_WEATHER_CODE, KEY_WEATHER_DATE, KEY_WEATHER_TEMPERATURE, KEY_WEATHER_TEXT
-        }, KEY_WEATHER_CITY+"!="+CURRENT_LOCATION, null, null, null, null);
-    }
-
-    public Cursor getCurrentLocationWeather() {
-        return db.query(TABLE_NAME_WEATHER, new String[]{
-                KEY_ID, KEY_WEATHER_CITY, KEY_WEATHER_WIND_DIRECTION, KEY_WEATHER_WIND_SPEED, KEY_WEATHER_ATMOSPHERE_HUMIDITY,
-                KEY_WEATHER_ATMOSPHERE_PRESSURE, KEY_WEATHER_CODE, KEY_WEATHER_DATE, KEY_WEATHER_TEMPERATURE, KEY_WEATHER_TEXT
-        }, KEY_WEATHER_CITY+"="+CURRENT_LOCATION, null, null, null, null);
+        }, null, null, null, null, null);
     }
 
     public boolean deleteWeather(long weatherId) {
+        db.delete(TABLE_NAME_FORECASTS, KEY_FORECASTS_WEATHER_ID +"="+weatherId, null);
         return db.delete(TABLE_NAME_WEATHER, KEY_ID + "=" + weatherId, null) == 1;
+
     }
 
     public boolean deleteForecasts(long weatherId){

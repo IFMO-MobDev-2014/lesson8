@@ -1,11 +1,15 @@
 package ru.ifmo.md.lesson8;
 
-import android.support.v4.content.CursorLoader;
+import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Point;
+import android.location.*;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -15,11 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-
-import java.nio.channels.NonWritableChannelException;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -33,6 +33,14 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        rootView = ((ViewGroup) contentView.findViewById(R.id.svContentPort));
+        if (rootView == null)
+            rootView = ((ViewGroup) contentView.findViewById(R.id.svContentLand));
+    }
 
     /**
      * The dummy content this fragment is presenting.
@@ -60,15 +68,21 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
 
     }
 
-    ScrollView rootView = null;
+    ViewGroup rootView = null;
+    ViewGroup contentView = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View result = inflater.inflate(R.layout.item_detail_layout, container, false);
-        rootView = ((ScrollView) result.findViewById(R.id.svContent));
+        contentView = (ViewGroup) inflater.inflate(R.layout.item_detail_layout, container, false).findViewById(R.id.flContent);
+        rootView = ((ViewGroup) contentView.findViewById(R.id.svContentPort));
+        if (rootView == null)
+            rootView = ((ViewGroup) contentView.findViewById(R.id.svContentLand));
         fillData();
-        return result;
+
+
+
+        return contentView;
     }
 
     @Override
@@ -85,8 +99,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         if (mWeatherId != -1 && data != null) {
             int[] pictures = getResources().getIntArray(R.array.weatherPicturesByCode);
             if (loader.getId() == LOADER_WEATHER) {
-                View currentWeather = rootView.findViewById(R.id.llCurrentWeather);
-                currentWeather.setVisibility(View.GONE);
+                View currentWeather = contentView.findViewById(R.id.llCurrentWeather);
                 TextView tvTemperature = (TextView) (currentWeather.findViewById(R.id.tvTemperature));
                 ImageView ivConditions = (ImageView) (currentWeather.findViewById(R.id.ivConditions));
                 TextView tvDetails = (TextView) (currentWeather.findViewById(R.id.tvDetails));
@@ -95,7 +108,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                     if (data.getLong(data.getColumnIndex(DBAdapter.KEY_ID)) == mWeatherId) {
                         if (data.getDouble(data.getColumnIndex(DBAdapter.KEY_WEATHER_ATMOSPHERE_PRESSURE)) != 0.) {
                             currentWeather.setVisibility(View.VISIBLE);
-                            rootView.findViewById(R.id.pbProgress).setVisibility(View.GONE);
+                            contentView.findViewById(R.id.pbProgress).setVisibility(View.GONE);
                         }
                         tvTemperature.setText
                                 ("" +
@@ -114,7 +127,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                         int picture = pictures[data.getInt(data.getColumnIndex(DBAdapter.KEY_WEATHER_CODE))];
                         ivConditions.setImageDrawable(getResources().getDrawable(getResources().getIdentifier("i96_" +
                                         picture,"drawable",
-                                        getActivity().getPackageName())));
+                                getActivity().getPackageName())));
                         ActionBar supportActionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
                         if (supportActionBar != null)
                             supportActionBar.setTitle(data.getString(data.getColumnIndex(DBAdapter.KEY_WEATHER_CITY)));
@@ -122,7 +135,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                     }
                 } while (data.moveToNext());
             } else if (loader.getId() == LOADER_FORECAST) {
-                LinearLayout layout = ((LinearLayout) rootView.findViewById(R.id.llItemDetail));
+                LinearLayout layout = ((LinearLayout) contentView.findViewById(R.id.llItemDetail));
                 layout.removeAllViews();
                 data.moveToFirst();
                 if (data.getCount() > 0)
@@ -135,8 +148,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                         TextView tvTemperature = (TextView) (forecastView.findViewById(R.id.tvTemperature));
                         tvDay.setText(
                                 data.getPosition() == 0 ? getString(R.string.dayToday) :
-                                data.getPosition() == 1 ? getString(R.string.dayTommorow) :
-                                       data.getString(data.getColumnIndex(DBAdapter.KEY_FORECASTS_DAY)));
+                                        data.getPosition() == 1 ? getString(R.string.dayTommorow) :
+                                                data.getString(data.getColumnIndex(DBAdapter.KEY_FORECASTS_DAY)));
                         String description = data.getInt(data.getColumnIndex(DBAdapter.KEY_FORECASTS_LOW)) + getString(R.string.celcius)
                                 + "\n" + data.getInt(data.getColumnIndex(DBAdapter.KEY_FORECASTS_HIGH)) + getString(R.string.celcius);
                         tvTemperature.setText(description);
@@ -175,9 +188,9 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == LOADER_WEATHER)
-            rootView.findViewById(R.id.llCurrentWeather).setVisibility(View.GONE);
+            contentView.findViewById(R.id.llCurrentWeather).setVisibility(View.GONE);
         else if (loader.getId() == LOADER_FORECAST)
-            ((ViewGroup) rootView.findViewById(R.id.llItemDetail)).removeAllViews();
+            ((ViewGroup) contentView.findViewById(R.id.llItemDetail)).removeAllViews();
     }
 
     public static final int LOADER_WEATHER = 0;

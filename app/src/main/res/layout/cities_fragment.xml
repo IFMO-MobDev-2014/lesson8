@@ -51,6 +51,7 @@
             android:src="@android:drawable/ic_menu_mylocation"/>
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/tvCurrentCity"
             style="@style/TextAppearance.AppCompat.Medium"
             android:text="@string/location_text"
             android:layout_width="wrap_content"

@@ -6,12 +6,14 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 
 /**
  * Created by Евгения on 30.11.2014.
  */
 public class WeatherContentProvider extends ContentProvider {
 
+    public static final String CURRENT_CITY_ID = "CURRENT_CITY_ID";
     // database
     private DBAdapter database;
 
@@ -98,9 +100,25 @@ public class WeatherContentProvider extends ContentProvider {
         int uriType = sURIMatcher.match(uri);
         if (uriType != WEATHER) throw new UnsupportedOperationException();
         long id = values.getAsLong(DBAdapter.KEY_ID);
-        int result = database.changeWeather(values, id) ? 1 : 0;
+        long testId = PreferenceManager.getDefaultSharedPreferences(getContext()).getLong(CURRENT_CITY_ID, -2);
+        boolean isCurrentCity = false;
+        if (id == testId) {
+            isCurrentCity = true;
+            database.deleteForecasts(id);
+        }
+        long existingId = database.getIdByCityName(values.getAsString(DBAdapter.KEY_WEATHER_CITY));
+        if (existingId != -1 && id != existingId) {
+            database.deleteWeather(id);
+            id = existingId;
+        }
+        values.remove(DBAdapter.KEY_ID);
+        values.put(DBAdapter.KEY_ID, id);
+        database.changeWeather(values, id);
+        long resultId = database.getIdByCityName(values.getAsString(DBAdapter.KEY_WEATHER_CITY));
+        if (isCurrentCity)
+            PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(CURRENT_CITY_ID, resultId).commit();
         getContext().getContentResolver().notifyChange(uri, null);
-        return result;
+        return 1;
     }
 }
 

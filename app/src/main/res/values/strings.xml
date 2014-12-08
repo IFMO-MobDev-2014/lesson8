@@ -17,5 +17,6 @@
     <string name="addText">Add a city</string>
     <string name="dlgAddCity_title">Add a city</string>
     <string name="location_text">Determining your location</string>
+    <string name="locationUnknown">Your location is unknown to Yahoo</string>
 
 </resources>
