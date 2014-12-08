@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import ru.ifmo.md.lesson8.R;
 import ru.ifmo.md.lesson8.places.Place;
 import ru.ifmo.md.lesson8.weather.Forecast;
 import ru.ifmo.md.lesson8.weather.Temperature;
@@ -153,7 +154,20 @@ public class ContentHelper {
     public List<Forecast> getForecasts(int woeid) {
         List<Forecast> forecasts = new ArrayList<>();
 
+        Cursor cursor = getForecastsCursor(woeid);
+        if (cursor.moveToFirst()) {
+            do {
+                Forecast forecast = getForecast(cursor);
+                forecasts.add(forecast);
+            } while (cursor.moveToNext());
+        }
+
+        return forecasts;
+    }
+
+    public Cursor getForecastsCursor(int woeid) {
         String[] projection = {
+                WeatherInfo._ID,
                 WeatherInfo.DATE_COLUMN,
                 WeatherInfo.TEMPERATURE_COLUMN,
                 WeatherInfo.LOW_COLUMN,
@@ -161,74 +175,85 @@ public class ContentHelper {
                 WeatherInfo.DESCRIPTION_COLUMN};
         String selection = WeatherInfo.WOEID_COLUMN + " =?";
         String[] selectionArgs = {"" + woeid};
-        Cursor cursor = contentResolver.query(WeatherInfo.URI, projection, selection, selectionArgs,
+        return contentResolver.query(WeatherInfo.URI, projection, selection, selectionArgs,
                 WeatherInfo.DATE_COLUMN);
-        if (cursor.moveToFirst()) {
-            do {
-                long time = cursor.getLong(cursor.getColumnIndex(WeatherInfo.DATE_COLUMN));
-                Temperature current;
-                Temperature high;
-                Temperature low;
-                Integer windSpeed;
-                Integer humidity;
+    }
 
-                try {
-                    current = new Temperature(
-                            cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
-                            Temperature.fahrenheit()
-                    );
-                } catch (Exception e) {
-                    current = null;
-                }
+    public static Forecast getForecast(Cursor cursor) {
+        Temperature current;
+        Temperature high;
+        Temperature low;
+        Integer windSpeed;
+        Integer humidity;
 
-                try {
-                    high = new Temperature(
-                            cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
-                            Temperature.fahrenheit()
-                    );
-                } catch (Exception e) {
-                    high = null;
-                }
+        long time = cursor.getLong(cursor.getColumnIndex(WeatherInfo.DATE_COLUMN));
+        String desc = cursor.getString(cursor.getColumnIndex(WeatherInfo.DESCRIPTION_COLUMN));
 
-                try {
-                    low = new Temperature(
-                            cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
-                            Temperature.fahrenheit()
-                    );
-                } catch (Exception e) {
-                    low = null;
-                }
-
-                try {
-                    windSpeed = cursor.getInt(cursor.getColumnIndex(WeatherInfo.WIND_COLUMN));
-                } catch (Exception ignored) {
-                    windSpeed = null;
-                }
-
-                try {
-                    humidity = cursor.getInt(cursor.getColumnIndex(WeatherInfo.HUMIDITY_COLUMN));
-                } catch (Exception e) {
-                    humidity = null;
-                }
-
-                String desc = cursor.getString(cursor.getColumnIndex(WeatherInfo.DESCRIPTION_COLUMN));
-
-                Weather.Builder weatherBuilder = new Weather.Builder();
-                Forecast forecast = new Forecast(
-                        new Date(time),
-                        weatherBuilder
-                                .setLow(low)
-                                .setHigh(high)
-                                .setCurrent(current)
-                                .setDescription(desc)
-                                .setWindSpeed(windSpeed)
-                                .setHumidity(humidity)
-                                .createWeather());
-                forecasts.add(forecast);
-                Log.d("WEATHER " + forecast.getDate(), forecast.getWeather() + "");
-            } while (cursor.moveToNext());
+        try {
+            current = new Temperature(
+                    cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
+                    Temperature.fahrenheit()
+            );
+        } catch (Exception e) {
+            current = null;
         }
 
-        return forecasts;
+        try {
+            high = new Temperature(
+                    cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
+                    Temperature.fahrenheit()
+            );
+        } catch (Exception e) {
+            high = null;
+        }
+
+        try {
+            low = new Temperature(
+                    cursor.getInt(cursor.getColumnIndex(WeatherInfo.TEMPERATURE_COLUMN)),
+                    Temperature.fahrenheit()
+            );
+        } catch (Exception e) {
+            low = null;
+        }
+
+        try {
+            windSpeed = cursor.getInt(cursor.getColumnIndex(WeatherInfo.WIND_COLUMN));
+        } catch (Exception ignored) {
+            windSpeed = null;
+        }
+
+        try {
+            humidity = cursor.getInt(cursor.getColumnIndex(WeatherInfo.HUMIDITY_COLUMN));
+        } catch (Exception e) {
+            humidity = null;
+        }
+
+        Weather.Builder weatherBuilder = new Weather.Builder();
+
+        return new Forecast(new Date(time),
+                weatherBuilder
+                .setLow(low)
+                .setHigh(high)
+                .setCurrent(current)
+                .setDescription(desc)
+                .setWindSpeed(windSpeed)
+                .setHumidity(humidity)
+                .createWeather());
+    }
+
+    public static int getResourceForConditionString(String condition) {
+        condition = condition.toLowerCase();
+        if (condition.contains("sun")
+                || condition.contains("clea")) {
+            return R.drawable.sunny;
+        } else if (condition.contains("snow")) {
+            return R.drawable.snow;
+        } else if (condition.contains("rain")) {
+            return R.drawable.rain;
+        } else if (condition.contains("cloud")) {
+            return R.drawable.cloudy;
+        } else { // wind r
+            return R.drawable.wind;
+        }
     }
 }

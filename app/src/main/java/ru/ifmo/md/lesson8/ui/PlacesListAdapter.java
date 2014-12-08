@@ -2,9 +2,11 @@ package ru.ifmo.md.lesson8.ui;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import ru.ifmo.md.lesson8.R;
@@ -16,10 +18,10 @@ import ru.ifmo.md.lesson8.weather.Weather;
 /**
  * @author Zakhar Voit (zakharvoit@gmail.com)
  */
-public class CityListAdapter extends CursorAdapter {
+public class PlacesListAdapter extends CursorAdapter {
     private final ContentHelper contentHelper;
 
-    public CityListAdapter(Context context, Cursor c) {
+    public PlacesListAdapter(Context context, Cursor c) {
         super(context, c, 0);
 
         this.contentHelper = new ContentHelper(context);
@@ -36,8 +38,9 @@ public class CityListAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView placeName = (TextView) view.findViewById(R.id.place_name);
-        final TextView temperature = (TextView) view.findViewById(R.id.temperature);
+        TextView temperature = (TextView) view.findViewById(R.id.temperature);
         TextView condition = (TextView) view.findViewById(R.id.condition);
+        ImageView conditionPicture = (ImageView) view.findViewById(R.id.condition_picture);
 
         final Place place = contentHelper.getPlace(cursor);
         placeName.setText(place.formattedName());
@@ -46,10 +49,13 @@ public class CityListAdapter extends CursorAdapter {
         if (weather == null) {
             temperature.setText("Fetching...");
             condition.setText("");
+            conditionPicture.setAlpha(1.0f);
         } else {
             temperature.setText(weather.getCurrent()
                     .representAs(Temperature.celsius()));
             condition.setText(weather.getDescription());
+            conditionPicture.setImageResource(
+                    ContentHelper.getResourceForConditionString(weather.getDescription()));
         }
     }
 }

@@ -80,7 +80,7 @@ public class ItemListFragment extends ListFragment {
         Cursor cursor = contentHelper.getPlacesCursor();
 
         // TODO: replace with a real list adapter.
-        CityListAdapter adapter = new CityListAdapter(getActivity(), cursor);
+        PlacesListAdapter adapter = new PlacesListAdapter(getActivity(), cursor);
         setListAdapter(adapter);
 
         getLoaderManager().initLoader(0, null, new CityListLoaderCallbacks(getActivity(), adapter));

@@ -5,15 +5,21 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import ru.ifmo.md.lesson8.R;
 import ru.ifmo.md.lesson8.content.ContentHelper;
 import ru.ifmo.md.lesson8.weather.Forecast;
+import ru.ifmo.md.lesson8.weather.Temperature;
+import ru.ifmo.md.lesson8.weather.Weather;
 
 
 public class ItemDetailFragment extends Fragment {
@@ -37,18 +43,11 @@ public class ItemDetailFragment extends Fragment {
 
         ContentHelper contentHelper = new ContentHelper(getActivity());
         View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
-        TextView cityName = (TextView) view.findViewById(R.id.city_name);
-        LinearLayout forecastsList = (LinearLayout) view.findViewById(R.id.forecasts_list);
-        forecastsList.removeAllViews();
-        List<Forecast> forecasts = contentHelper.getForecasts(woeid);
-        Forecast today = forecasts.get(0);
-        cityName.setText(contentHelper.getPlaceByWoeid(woeid).formattedName() + ": " +
-                today.getWeather().getDescription());
-        for (Forecast forecast : forecasts) {
-            TextView child = new TextView(getActivity());
-            child.setText(forecast.getDate() + ": " + forecast.getWeather().getDescription());
-            forecastsList.addView(child);
-        }
+        ListView forecastsList = (ListView) view.findViewById(R.id.forecasts_list);
+        ForecastsListAdapter adapter = new ForecastsListAdapter(getActivity(),
+                contentHelper.getForecastsCursor(woeid));
+        forecastsList.setAdapter(adapter);
+
         return view;
     }
 }
