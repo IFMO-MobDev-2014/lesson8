@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="app_name">Simple Weather</string>
+    <string name="input_city_name">Введите название города</string>
+    <string name="cancel_button">Отмена</string>
+    <string name="add_button">Добавить</string>
+    <string name="wrong_city_name">Не удалось найти город</string>
+    <string name="no_internet">Нет соединения с интернетом</string>
+    <string name="cur_place">Где я?</string>
 
 </resources>
