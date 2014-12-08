@@ -151,7 +151,7 @@ class WeatherActivity extends Activity with Receiver {
         override def onItemLongClick(p1: AdapterView[_], p2: View, position: Int, p4: Long): Boolean = {
           val builder = new Builder(WeatherActivity.this)
           builder.setTitle("Deleting location")
-          builder.setMessage("Remove " + mCityNames(position) + "? (That's unstable)")
+          builder.setMessage("Remove " + mCityNames(position) + "?")
           builder.setNegativeButton("Dismiss", new OnClickListener {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {}
           })
@@ -159,11 +159,19 @@ class WeatherActivity extends Activity with Receiver {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {
               if (mCityNames.length > 1) {
                 val curr = mCityNames(position)
+                val currentPos = mViewPager.getCurrentItem
+                val nextPos: Int = currentPos match {
+                  case i if i == mCityNames.length - 1 => mCityNames.length - 2
+                  case a => if (position > a) a else a - 1
+                }
                 mCityNames = mCityNames.diff(List(curr))
                 mSwipeAdapter.notifyDataSetChanged()
                 mViewPager.setCurrentItem(0, false)
                 mSwipeAdapter.destroyItem(mViewPager, position, getContainerFragment(position))
                 mSwipeAdapter.notifyDataSetChanged()
+                mViewPager.setAdapter(null)
+                mViewPager.setAdapter(mSwipeAdapter)
+                mViewPager.setCurrentItem(nextPos, false)
                 mDBHelper.deleteCity(curr)
                 dialog.dismiss()
               } else {
