@@ -22,7 +22,10 @@ object DatabaseHelper extends BaseColumns {
   val WEATHER_WIND = "weather_wind"
   val WEATHER_DATE = "weather_date"
 
-  val CREATE_TABLE = "create table " +
+  val CITIES_TABLE_NAME = "cities"
+  val CITY = "city"
+  
+  val CREATE_WEATHER_TABLE = "create table " +
     WEATHER_TABLE_NAME + " (" +
     BaseColumns._ID + " integer primary key autoincrement, " +
     WEATHER_CITY + " text not null, " +
@@ -34,9 +37,11 @@ object DatabaseHelper extends BaseColumns {
     WEATHER_HUMIDITY + " integer, " +
     WEATHER_PRESSURE + " integer, " +
     WEATHER_WIND + " text not null, " +
-    WEATHER_DATE + " integer)"
-  val ALL_COLUMNS: Array[String] = Array(BaseColumns._ID, WEATHER_CITY, WEATHER_COUNTRY, WEATHER_HIGH_TEMP, WEATHER_LOW_TEMP,
-    WEATHER_STATE_CODE, WEATHER_STATE_DESC, WEATHER_HUMIDITY, WEATHER_PRESSURE, WEATHER_WIND, WEATHER_DATE)
+    WEATHER_DATE + " integer);"
+
+  val CREATE_CITIES_TABLE = "create table " + CITIES_TABLE_NAME + " (" +
+    BaseColumns._ID  + " integer primary key autoincrement, " +
+    CITY + " text not null);"
 }
 
 class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, null, 1) with BaseColumns {
@@ -44,48 +49,40 @@ class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, n
   import me.volhovm.mweather.DatabaseHelper._
 
   override def onCreate(db: SQLiteDatabase): Unit = {
-    db.execSQL(CREATE_TABLE)
-//    new Thread(){
-//      override def run(): Unit = {
-//        Thread.sleep(1000)
-//        fakeInit()
-//      }
-//    }.start()
+    db.execSQL(CREATE_CITIES_TABLE)
+    db.execSQL(CREATE_WEATHER_TABLE)
   }
 
   override def onUpgrade(p1: SQLiteDatabase, p2: Int, p3: Int): Unit = throw new UnsupportedOperationException("CANNOT UPGRADE DB")
 
-  // DELETE IT
-  def fakeInit(): Unit = {
-    val rand: Random = new Random()
-    var forecast = new Weather("Saint-Petersburg", "Ruske", (20, 18), new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
-    for (i <- 0 to 10) forecast = new Weather(
-      "Saint-Petersburg",
-      "Russia",
-      (rand.nextInt(8) + 15, rand.nextInt(8) + 14),
-      new WeatherState(rand.nextInt(8) * 100 + rand.nextInt(24), if (rand.nextBoolean()) "clear" else "lol"),
-      rand.nextInt(100).toDouble / 100,
-      rand.nextInt(20) + 730,
-      "SW 5 m/s",
-      new Date(System.currentTimeMillis() + i * 86400000)) :: forecast
-    forecast.foreach(addWeather _)
-  }
-  // DELETE IT
-
-  def addWeather(weather: Weather): Unit = mContentResolver.insert(WeatherProvider.CONTENT_URI, weather.getValues())
+  def addWeather(weather: Weather): Unit = mContentResolver.insert(WeatherProvider.MAIN_CONTENT_URI, weather.getValues())
 
   def getCities(): List[String] = {
     var cursor: Cursor =
-      mContentResolver.query(WeatherProvider.CONTENT_URI, Array(DatabaseHelper.WEATHER_CITY), null, null, null)
+      mContentResolver.query(WeatherProvider.CITIES_CONTENT_URI, Array(DatabaseHelper.CITY), null, null, null)
     cursor.moveToFirst()
-    compose(cursor, (curs: Cursor) => curs.getString(0)).distinct
+    compose(cursor, (curs: Cursor) => curs.getString(0))
   }
 
   def getWeatherByCity(cityname: String) = {
     val cursor: Cursor =
-      mContentResolver.query(WeatherProvider.CONTENT_URI, DatabaseHelper.ALL_COLUMNS, WEATHER_CITY + "='" + cityname + "'", null, null)
+      mContentResolver.query(WeatherProvider.MAIN_CONTENT_URI, null, WEATHER_CITY + "='" + cityname + "'", null, null)
     cursor.moveToFirst()
     compose(cursor, cursorToWeather).reverse
+  }
+
+  def addCity(cityname: String) = {
+    val values = new ContentValues()
+    values.put(DatabaseHelper.CITY, cityname)
+    mContentResolver.insert(WeatherProvider.CITIES_CONTENT_URI, values)
+  }
+
+  def deleteCity(cityname: String) = mContentResolver.delete(WeatherProvider.CITIES_CONTENT_URI, DatabaseHelper.CITY + "='" + cityname + "'", null)
+
+  def updateCity(oldName: String, newName: String) = {
+    val values = new ContentValues()
+    values.put(DatabaseHelper.CITY, newName)
+    mContentResolver.update(WeatherProvider.CITIES_CONTENT_URI, values, DatabaseHelper.CITY + "='" + oldName + "'", null)
   }
 
   private def compose[A](cursor: Cursor, foo: (Cursor) => A): List[A] =

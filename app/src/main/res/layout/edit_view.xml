@@ -1,0 +1,16 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              style="?android:attr/textAppearanceLarge"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_margin="@dimen/android_spaces_large"
+              android:paddingTop="@dimen/android_spaces"
+              android:paddingBottom="@dimen/android_spaces"
+              android:textIsSelectable="true"
+              tools:context=".ItemDetailFragment"
+              android:orientation="vertical" android:weightSum="1"
+              android:gravity="center_vertical|center_horizontal">
+    <EditText android:layout_width="fill_parent" android:layout_height="wrap_content"
+            android:id="@+id/new_city_edittext"/>
+</LinearLayout>

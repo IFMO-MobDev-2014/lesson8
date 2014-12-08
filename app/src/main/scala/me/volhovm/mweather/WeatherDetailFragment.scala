@@ -205,6 +205,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
     Log.d(this.toString, "Reloading data")
     val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getActivity, classOf[WeatherLoadService])
     Toast.makeText(getActivity, "Refreshing", Toast.LENGTH_SHORT).show()
+    intent.putExtra(WeatherLoadService.IS_CITYNAME_MODE, true)
     intent.putExtra(WeatherLoadService.FRAGMENT_ID, mId)
     intent.putExtra(WeatherLoadService.CITY, cityName)
     intent.putExtra(WeatherLoadService.RECEIVER, mReciever)
