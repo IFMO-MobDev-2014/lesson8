@@ -18,9 +18,8 @@ import java.util.Locale;
 
 public class WeatherDownload extends IntentService {
     public static final String DEFAULT_KEY = "com.example.lesson8.WeatherDownload";
-   private static final String KEY = "tjdqdcj7hbk9s8g6urxtpv4b";
-   //private static final String KEY = "68b6c65fe1842c5ccb71b40db34d0";
-    private static final String BASE_URL = "http://api.worldweatheronline.com/free/v1/weather.ashx";
+   private static final String KEY = "68b6c65fe1842c5ccb71b40db34d0";
+    private static final String BASE_URL = "http://api.worldweatheronline.com/free/v2/weather.ashx";
 
     private Forecast result;
 
@@ -70,9 +69,10 @@ public class WeatherDownload extends IntentService {
                 Date date = new SimpleDateFormat("yyyy-M-d").parse(nextDayDate);
                 String dayOfWeek = new SimpleDateFormat("EEEE", Locale.ENGLISH).format(date);
                 nextDay.setDate(dayOfWeek);
-                nextDay.setTemp(current.getString("tempMinC") + "/" + current.getString("tempMaxC"));
-                JSONArray curArray = current.getJSONArray("weatherDesc");
-                nextDay.setWeather(curArray.getJSONObject(0).getString("value"));
+                nextDay.setTemp(current.getString("mintempC") + "/" + current.getString("maxtempC"));
+                //String weatherCode = current.getString("weatherCode");
+                //JSONArray curArray = current.getJSONArray("weatherCode");
+                nextDay.setWeather("");
                 if (nextDay.getTemp().equals(""))
                     continue;
                 result.addForecast(nextDay);
@@ -93,6 +93,35 @@ public class WeatherDownload extends IntentService {
 
     }
 
+    private String getDescByCode(String code) {
+    switch (Integer.getInteger(code)) {
+        case 113: return "sunny";
+        case 116: return "cloudy";
+        case 119: return "cloudy";
+        case 122: return "overcast";
+        case 143: return "mist";
+        case 176: return "rain";
+        case 179: return "snow";
+        case 182: return "rain";
+        case 185: return "drizzle";
+        case 200: return "thunder";
+        case 227: return "snow";
+        case 230: return "snow";
+        case 248: return "fog";
+        case 260: return "fog";
+        case 263: return "drizzle";
+        case 266: case 281: case 284: return "drizzle";
+        case 293: case 296: case 299: case 302: case 305:
+        case 308: case 311: case 314: case 317: case 320:
+        case 353: case 356: case 359: case 362: case 365:
+        case 386: case 389: return "rain";
+        case 395: case 392: case 377: case 374: case 371:
+        case 368: case 335: case 332: case 329: case 326:
+        case 323: return "snow";
+    }
+        return "overcast";
+
+    }
     private void update() {
         Intent intent = new Intent();
         intent.setAction(DEFAULT_KEY);

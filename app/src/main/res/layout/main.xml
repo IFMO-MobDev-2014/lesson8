@@ -9,11 +9,12 @@
             android:text="Add City"
             android:id="@+id/button"
             android:layout_gravity="center"
-        style="@style/Widget.AppCompat.ActionButton" />
+        style="@style/Widget.AppCompat.ActionBar.TabBar" />
 
     <ListView android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:id="@+id/listView"
-              android:layout_gravity="center"/>
+              android:layout_gravity="center"
+        style="@style/Base.TextAppearance.AppCompat.Body1" />
 </LinearLayout>
 

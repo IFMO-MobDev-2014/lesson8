@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -34,6 +35,10 @@ public class WeatherActivity extends Activity {
         Intent serviceIntent = new Intent(this, WeatherDownload.class);
         serviceIntent.putExtra("city", currentQueryCity);
         startService(serviceIntent);
+        /*if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+
+        else
+            setContentView(R.l);*/
         setContentView(R.layout.weather_activity);
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText(currentQueryCity);
@@ -63,18 +68,20 @@ public class WeatherActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent nextIntent = new Intent(this, WeatherDownload.class);
+
+
+                /*Intent nextIntent = new Intent(this, WeatherDownload.class);
                 nextIntent.putExtra("city", currentQueryCity);
                 nextIntent.addCategory(Intent.CATEGORY_DEFAULT);
                 startService(nextIntent);
                 imageButton.setEnabled(false);
                 finish = true;
-                return true;
-        }
+                return true;*/
+        finish();
+        return true;
 
-        return super.onOptionsItemSelected(item);
+
+
     }
 
     private class MyBroadcast extends BroadcastReceiver {
@@ -112,30 +119,30 @@ public class WeatherActivity extends Activity {
         DayForecast current = nextWeather.get(0);
         TextView dateView0 = (TextView) findViewById(R.id.date1);
         TextView temperatureView0 = (TextView) findViewById(R.id.temperature1);
-        ImageView imageView0 = (ImageView) findViewById(R.id.imageWeather1);
+        //ImageView imageView0 = (ImageView) findViewById(R.id.imageWeather1);
 
         dateView0.setText(current.getDate());
         temperatureView0.setText(current.getTemp() + "°С");
-        imageView0.setImageResource(getImageId(current.getWeather()));
+       // imageView0.setImageResource(getImageId(current.getWeather()));
 
         current = nextWeather.get(1);
         TextView dateView1 = (TextView) findViewById(R.id.date2);
         TextView temperatureView1 = (TextView) findViewById(R.id.temperature2);
-        ImageView imageView1 = (ImageView) findViewById(R.id.imageWeather2);
+       // ImageView imageView1 = (ImageView) findViewById(R.id.imageWeather2);
 
         dateView1.setText(current.getDate());
         temperatureView1.setText(current.getTemp() + "°С");
-        imageView1.setImageResource(getImageId(current.getWeather()));
+        //imageView1.setImageResource(getImageId(current.getWeather()));
 
 
         current = nextWeather.get(2);
         TextView dateView2 = (TextView) findViewById(R.id.date3);
         TextView temperatureView2 = (TextView) findViewById(R.id.temperature3);
-        ImageView imageView2 = (ImageView) findViewById(R.id.imageWeather3);
+        //ImageView imageView2 = (ImageView) findViewById(R.id.imageWeather3);
 
         dateView2.setText(current.getDate());
         temperatureView2.setText(current.getTemp() + "°С");
-        imageView2.setImageResource(getImageId(current.getWeather()));
+        //imageView2.setImageResource(getImageId(current.getWeather()));
 
 
     }

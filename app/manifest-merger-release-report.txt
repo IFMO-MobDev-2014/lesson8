@@ -21,59 +21,73 @@ uses-permission#android.permission.ACCESS_NETWORK_STATE
 ADDED from AndroidManifest.xml:6:5
 	android:name
 		ADDED from AndroidManifest.xml:6:22
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from AndroidManifest.xml:7:5
+	android:name
+		ADDED from AndroidManifest.xml:7:22
 application
-ADDED from AndroidManifest.xml:8:5
+ADDED from AndroidManifest.xml:9:5
 MERGED from com.android.support:appcompat-v7:21.0.2:16:5
 MERGED from com.android.support:support-v4:21.0.2:16:5
 MERGED from com.android.support:support-v4:21.0.2:16:5
+MERGED from com.google.android.gms:play-services:6.1.71:16:5
+MERGED from com.android.support:support-v4:21.0.2:16:5
 	android:label
-		ADDED from AndroidManifest.xml:11:9
-	android:allowBackup
-		ADDED from AndroidManifest.xml:9:9
-	android:icon
-		ADDED from AndroidManifest.xml:10:9
-	android:theme
 		ADDED from AndroidManifest.xml:12:9
+	android:allowBackup
+		ADDED from AndroidManifest.xml:10:9
+	android:icon
+		ADDED from AndroidManifest.xml:11:9
+	android:theme
+		ADDED from AndroidManifest.xml:13:9
 activity#com.example.lesson8.MyActivity
-ADDED from AndroidManifest.xml:13:9
+ADDED from AndroidManifest.xml:14:9
 	android:label
+		ADDED from AndroidManifest.xml:16:13
+	android:name
 		ADDED from AndroidManifest.xml:15:13
-	android:name
-		ADDED from AndroidManifest.xml:14:13
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:16:13
+ADDED from AndroidManifest.xml:17:13
 action#android.intent.action.MAIN
-ADDED from AndroidManifest.xml:17:17
-	android:name
-		ADDED from AndroidManifest.xml:17:25
-category#android.intent.category.LAUNCHER
 ADDED from AndroidManifest.xml:18:17
 	android:name
-		ADDED from AndroidManifest.xml:18:27
-activity#com.example.lesson8.AddCityActivity
-ADDED from AndroidManifest.xml:21:9
+		ADDED from AndroidManifest.xml:18:25
+category#android.intent.category.LAUNCHER
+ADDED from AndroidManifest.xml:19:17
 	android:name
-		ADDED from AndroidManifest.xml:21:19
-activity#com.example.lesson8.WeatherActivity
+		ADDED from AndroidManifest.xml:19:27
+activity#com.example.lesson8.AddCityActivity
 ADDED from AndroidManifest.xml:22:9
 	android:name
 		ADDED from AndroidManifest.xml:22:19
-service#com.example.lesson8.WeatherDownload
+activity#com.example.lesson8.WeatherActivity
+ADDED from AndroidManifest.xml:23:9
+	android:name
+		ADDED from AndroidManifest.xml:23:19
+meta-data#com.google.android.gms.version
 ADDED from AndroidManifest.xml:24:9
+	android:value
+		ADDED from AndroidManifest.xml:24:66
 	android:name
-		ADDED from AndroidManifest.xml:24:18
-provider#com.example.lesson8.WeatherContentProvider
+		ADDED from AndroidManifest.xml:24:20
+service#com.example.lesson8.WeatherDownload
 ADDED from AndroidManifest.xml:25:9
-	android:authorities
-		ADDED from AndroidManifest.xml:27:13
-	android:enabled
-		ADDED from AndroidManifest.xml:28:13
 	android:name
-		ADDED from AndroidManifest.xml:26:13
+		ADDED from AndroidManifest.xml:25:18
+provider#com.example.lesson8.WeatherContentProvider
+ADDED from AndroidManifest.xml:26:9
+	android:authorities
+		ADDED from AndroidManifest.xml:28:13
+	android:enabled
+		ADDED from AndroidManifest.xml:29:13
+	android:name
+		ADDED from AndroidManifest.xml:27:13
 uses-sdk
 INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
 MERGED from com.android.support:appcompat-v7:21.0.2:15:5
 MERGED from com.android.support:support-v4:21.0.2:15:5
+MERGED from com.android.support:support-v4:21.0.2:15:5
+MERGED from com.google.android.gms:play-services:6.1.71:15:5
 MERGED from com.android.support:support-v4:21.0.2:15:5
 	android:targetSdkVersion
 		INJECTED from AndroidManifest.xml:0:0
