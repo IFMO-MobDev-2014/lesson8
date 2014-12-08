@@ -9,8 +9,9 @@ import android.net.Uri;
 public class WeatherContentProvider extends ContentProvider {
     private static String AUTHORITY = "ru.ifmo.md.lesson8.weatherContentProvider";
 
-    public static final Uri WEATHER1_URI = Uri.parse("content://" + AUTHORITY + "/weather1");
-    public static final Uri WEATHER2_URI = Uri.parse("content://" + AUTHORITY + "/weather2");
+    public static final Uri WEATHER1_URI = Uri.parse("content://" + AUTHORITY + "/" + DBWeather.TABLE_WEATHER1);
+    public static final Uri WEATHER2_URI = Uri.parse("content://" + AUTHORITY + "/" + DBWeather.TABLE_WEATHER2);
+    public static final Uri CITIES_URI = Uri.parse("content://" + AUTHORITY + "/" + DBWeather.TABLE_CITIES);
 
     private DBWeather dbWeather;
 

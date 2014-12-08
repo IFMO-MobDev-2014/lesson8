@@ -38,6 +38,7 @@ public class WeatherLoader extends AsyncTaskLoader<Weather> {
             }
             weather.weather5Days.clear();
         }
+        c.close();
         c = context.getContentResolver().query(
                 WeatherContentProvider.WEATHER2_URI,
                 null,
@@ -58,6 +59,7 @@ public class WeatherLoader extends AsyncTaskLoader<Weather> {
                 c.moveToNext();
             }
         }
+        c.close();
         Log.d("debug1", "WeatherLoader finished for city " + city);
         return weather;
     }

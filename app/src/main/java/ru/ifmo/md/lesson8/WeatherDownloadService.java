@@ -111,10 +111,10 @@ public class WeatherDownloadService extends IntentService {
             cv2.put(DBWeather.WEATHER_TYPE2, weather.weather5Days.get(i).type);
             getContentResolver().insert(WeatherContentProvider.WEATHER2_URI, cv2);
         }
+        Log.d("debug1", "WeatherDownloadService finished for city " + weather.city);
         Intent response = new Intent();
         response.setAction(ACTION_RESPONSE);
         response.addCategory(Intent.CATEGORY_DEFAULT);
-        Log.d("debug1", "WeatherDownloadService finished for city " + weather.city);
         sendBroadcast(response);
     }
 }

@@ -25,6 +25,11 @@ public class DBWeather extends SQLiteOpenHelper {
     public static final String DATE2 = "date";
     public static final String WEATHER_TYPE2 = "weathertype";
 
+    public static final String TABLE_CITIES = "cities";
+    public static final String CITY_ID = "_id";
+    public static final String CITY_NAME = "name";
+    public static final String CITY_URL = "url";
+
     private static final String INIT_WEATHER1_TABLE =
             "CREATE TABLE " + TABLE_WEATHER1 + " (" +
                     ID1 + " INTEGER " + "PRIMARY KEY AUTOINCREMENT, " +
@@ -44,6 +49,12 @@ public class DBWeather extends SQLiteOpenHelper {
                     DATE2 + " TEXT, " +
                     WEATHER_TYPE2 + " TEXT );";
 
+    private static final String INIT_CITIES_TABLE =
+            "CREATE TABLE " + TABLE_CITIES + " (" +
+                    CITY_ID + " INTEGER " + "PRIMARY KEY AUTOINCREMENT, " +
+                    CITY_NAME + " TEXT, " +
+                    CITY_URL + " TEXT );";
+
     public DBWeather(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
@@ -53,12 +64,15 @@ public class DBWeather extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(INIT_WEATHER1_TABLE);
         db.execSQL(INIT_WEATHER2_TABLE);
+        db.execSQL(INIT_CITIES_TABLE);
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i2) {
         db.execSQL("DROP TABLE IF IT EXIST " + TABLE_WEATHER1);
         db.execSQL("DROP TABLE IF IT EXIST " + TABLE_WEATHER2);
+        db.execSQL("DROP TABLE IF IT EXIST " + TABLE_CITIES);
         onCreate(db);
     }
 }
