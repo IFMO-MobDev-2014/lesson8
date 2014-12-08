@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ru.ifmo.md.lesson8.MainActivity">
+    <item
+        android:id="@+id/action_location"
+        android:icon="@drawable/ic_action_location_searching"
+        android:title="@string/add_city_current_location"
+        app:showAsAction="ifRoom" />
+</menu>
