@@ -2,9 +2,14 @@ package ru.ifmo.md.lesson8;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Xml;
 
 import net.simonvt.numberpicker.NumberPicker;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -19,15 +24,40 @@ public class DatePickerWithBackground extends NumberPicker implements DateSelect
 
     public DatePickerWithBackground(Context context) {
         super(context);
+        initBackground();
     }
 
     public DatePickerWithBackground(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initBackground();
+    }
+
+    private void initBackground() {
+        AlphaGradientStateListDrawable background = new AlphaGradientStateListDrawable();
+        try {
+            XmlPullParser parser = getResources().getAssets().openXmlResourceParser("res/drawable/detailed.xml");
+            parser.next();
+            parser.next();
+            background.inflate(getResources(), parser, Xml.asAttributeSet(parser));
+        } catch (XmlPullParserException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        setBackground(background);
+    }
+
+    @Override
+    protected int[] onCreateDrawableState(int extraSpace) {
+        if (timeOfDay != null) {
+            int[] result = super.onCreateDrawableState(extraSpace + 1);
+            return mergeDrawableStates(result, new int[]{DAYTIME_STATE_SET[timeOfDay.ordinal()]});
+        }
+        return super.onCreateDrawableState(extraSpace);
     }
 
     @Override
     public void setTimeOfDay(TimeOfDay timeOfDay) {
         this.timeOfDay = timeOfDay;
+        refreshDrawableState();
     }
 
     @Override
@@ -37,11 +67,6 @@ public class DatePickerWithBackground extends NumberPicker implements DateSelect
 
     @Override
     public void setMaxDate(long maxDate) {
-
-    }
-
-    @Override
-    public void setMinDate(long minDate) {
 
     }
 

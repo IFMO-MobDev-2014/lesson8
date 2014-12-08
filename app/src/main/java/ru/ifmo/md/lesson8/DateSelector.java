@@ -8,11 +8,9 @@ public interface DateSelector extends WeatherView {
 
     void setMaxDate(long maxDate);
 
-    void setMinDate(long minDate);
-
     void setOnTimeChangedListener(OnTimeChangedListener listener);
 
-    void setDate(long date, boolean arg1, boolean arg2);
+    void setDate(long date, boolean animate, boolean center);
 
     interface OnTimeChangedListener {
         void onTimeChanged(DateSelector selector, long newTime);

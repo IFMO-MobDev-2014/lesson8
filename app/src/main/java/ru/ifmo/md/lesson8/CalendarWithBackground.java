@@ -32,7 +32,8 @@ public class CalendarWithBackground extends CalendarView implements DateSelector
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(year, month, dayOfMonth);
-                listener.onTimeChanged((DateSelector) view, calendar.getTimeInMillis());
+                if (listener != null)
+                    listener.onTimeChanged((DateSelector) view, calendar.getTimeInMillis());
             }
         });
     }

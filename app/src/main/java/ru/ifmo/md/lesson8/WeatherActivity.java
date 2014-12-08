@@ -99,6 +99,12 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
         switchToPresent();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        switchToPresent();
+    }
+
     public void setProgressShown(boolean shown) {
         progress = shown;
         if (refreshButton != null) {
@@ -147,7 +153,7 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             actionBar.setTitle("");
             actionBar.setListNavigationCallbacks(adapter, this);
-            actionBar.setSelectedNavigationItem(0);
+            setCity(adapter.getItem(actionBar.getSelectedNavigationIndex()).toString());
         } else {
             setProgressShown(false);
             int[] tabNames = new int[]{R.id.night_tab, R.id.morning_tab, R.id.daytime_tab, R.id.evening_tab};
@@ -197,7 +203,7 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
         ((WeatherSoon) manager.findFragmentById(R.id.evening_tab)).setTimeOfDay(WeatherView.TimeOfDay.EVENING);
 
         setProgressShown(true);
-        getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().restartLoader(0, null, this);
 
         getContentResolver().registerContentObserver(
                 Uri.parse("content://net.dimatomp.weather.provider/weather"), false, observer);
@@ -248,10 +254,6 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
         DateSelector selector = (DateSelector) findViewById(R.id.calendar);
         calendar.add(Calendar.DATE, 4);
         selector.setMaxDate(calendar.getTimeInMillis());
-        calendar.add(Calendar.DATE, -3);
-        selector.setDate(calendar.getTimeInMillis(), false, false);
-        calendar.add(Calendar.MONTH, -1);
-        selector.setMinDate(calendar.getTimeInMillis());
         selector.setOnTimeChangedListener(this);
         selector.setDate(System.currentTimeMillis(), false, false);
 
