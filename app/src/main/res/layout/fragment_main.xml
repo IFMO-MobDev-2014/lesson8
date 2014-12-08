@@ -55,8 +55,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/imageView"
-                        android:layout_alignTop="@+id/description"
-                        android:layout_toEndOf="@+id/description" />
+                        android:layout_alignTop="@+id/description"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -79,8 +78,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/imageView2"
-                        android:layout_alignTop="@+id/textView1"
-                        android:layout_toEndOf="@+id/textView1" />
+                        android:layout_alignTop="@+id/textView1" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -114,12 +112,5 @@
         </LinearLayout>
     </TabHost>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Refresh"
-        android:id="@+id/button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

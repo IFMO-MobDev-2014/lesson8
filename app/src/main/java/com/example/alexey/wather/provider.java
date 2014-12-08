@@ -1,4 +1,4 @@
-package com.example.alexey.wather_2;
+package com.example.alexey.wather;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -18,7 +17,7 @@ import android.util.Log;
 public class provider extends ContentProvider {
 
     final String LOG_TAG = "myLogs";
-    static String DB_NAME = "mdb";
+    static String PATH = "mdb_41";
     static int DB_VERSION = 1;
     static String TABLE_NAME = "contacts";
     static final String _ID = "_id";
@@ -28,8 +27,7 @@ public class provider extends ContentProvider {
     static final String TEMPERATURE = "temperature";
     static final String FIVE_PATH = "five";
     static final String SIX_PATH = "six";
-    static final String AUTHORITY = "com.example.alexey.wather_2.provider";
-    static final String PATH = "mdb";
+    static final String AUTHORITY = "com.example.alexey.wather.provider";
     public static final Uri CONTENT_URI = Uri.parse("content://"
             + AUTHORITY + "/" + PATH);
     static final int URI_TO = 1;
@@ -56,9 +54,10 @@ public class provider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
+        sortOrder=sortOrder.replaceAll(", ","").replaceAll("_","").replaceAll("-","").replaceAll(" ","");
         db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, projection, selection,
-                selectionArgs, null, null, sortOrder);
+        Cursor cursor = db.query(sortOrder, projection, selection,
+                selectionArgs, null, null, null);
         cursor.setNotificationUri(getContext().getContentResolver(),
                 CONTENT_URI);
         return cursor;
@@ -72,7 +71,10 @@ public class provider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         db = dbHelper.getWritableDatabase();
-        long rowID = db.insert(TABLE_NAME, null, values);
+        String NAME=(String)values.get("mqin");
+        NAME=NAME.replaceAll(", ","").replaceAll("_","").replaceAll("-","").replaceAll(" ","");
+        values.remove("mqin");
+        long rowID = db.insert(NAME, null, values);
         Uri resultUri = ContentUris.withAppendedId(CONTENT_URI, rowID);
         getContext().getContentResolver().notifyChange(resultUri, null);
         return resultUri;
@@ -85,7 +87,8 @@ public class provider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         db = dbHelper.getWritableDatabase();
-        int cnt = db.delete(TABLE_NAME, selection, selectionArgs);
+        selectionArgs[0]=selectionArgs[0].replaceAll(", ","").replaceAll("_","").replaceAll("-","").replaceAll(" ","");
+        int cnt = db.delete(selectionArgs[0], selection,null);
         getContext().getContentResolver().notifyChange(uri, null);
         return cnt;
     }
@@ -94,7 +97,8 @@ public class provider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         db = dbHelper.getWritableDatabase();
-        int cnt = db.update(TABLE_NAME, values, selection, selectionArgs);
+        selectionArgs[0]=selectionArgs[0].replaceAll(", ","").replaceAll("_","").replaceAll("-","").replaceAll(" ","");
+        int cnt = db.update(selectionArgs[0], values, selection, null);
         getContext().getContentResolver().notifyChange(uri, null);
         return cnt;
     }
@@ -102,7 +106,7 @@ public class provider extends ContentProvider {
     private class DBHelper extends SQLiteOpenHelper {
 
         public DBHelper(Context context) {
-            super(context, DB_NAME, null, DB_VERSION);
+            super(context, PATH, null, DB_VERSION);
         }
 
         @Override
@@ -119,6 +123,7 @@ public class provider extends ContentProvider {
     }
 
     public static boolean add_table(String NAME) {
+        NAME=NAME.replaceAll(", ","").replaceAll("_","").replaceAll("-","").replaceAll(" ","");
         if (isTableExists(db, NAME)) return false;
         String DB_CREATE = "create table " + NAME + "("
                 + _ID + " integer primary key autoincrement, "
@@ -128,6 +133,7 @@ public class provider extends ContentProvider {
     }
 
     public static boolean isTableExists(SQLiteDatabase db, String tableName) {
+        tableName=tableName.replaceAll(", ","").replaceAll("_","").replaceAll("-","").replaceAll(" ","");
         if (tableName == null || db == null || !db.isOpen()) {
             return false;
         }

@@ -1,4 +1,4 @@
-package com.example.alexey.wather_2;
+package com.example.alexey.wather;
 
 /**
  * Created by Alexey on 01.12.2014.
@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 
 public class IServise extends IntentService {
 
@@ -61,27 +60,46 @@ public class IServise extends IntentService {
 
         final Bundle data = new Bundle();
 
+        String s = intent.getStringExtra("task");
+        if(s.equals("dont_w"))
+        {
+            data.putString(RECEIVER_DATA, "Sample result data");
+            receiver.send(STATUS_FINISHED, data);
+            return;
+        }
 
-        URL url = null;
         try {
-            String CITY = null;
-            String s = intent.getStringExtra("task");
-            if (s.charAt(0) == 'S') CITY = "zmw:00000.1.26063";
-            if (s.charAt(0) == 'M') CITY = "zmw:00000.1.27612";
-            if (s.charAt(0) == 'N') CITY = "zmw:00000.1.37036";
-            String KEY = "0c4d0979336b962f";
-            String link = "http://api.wunderground.com/api/" + KEY + "/forecast10day/q/" + CITY + ".json";
-            //http://api.wunderground.com/api/0c4d0979336b962f/forecast10day/q/zmw:00000.1.27612.json
-            // CHANGE PARSER
-            url = new URL(link);
+            URL url =new URL(intent.getStringExtra("link"));
             parseJ(getJ(url), s);
-
             data.putString(RECEIVER_DATA, "Sample result data");
         } catch (IOException e) {
             data.putString(RECEIVER_DATA, "Error");
         }
         receiver.send(STATUS_FINISHED, data);
     }
+
+    void getAuto()
+    {
+        String Jo_S = null;
+        try {
+            URL url=new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/autoip.json");
+            Jo_S=getJ(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        try {
+            JSONObject dataJsonObj = new JSONObject(Jo_S);
+            String shortLink = dataJsonObj.getJSONObject("location").getString("l");
+            String name =dataJsonObj.getJSONObject("location").getString("city");
+                //ContentValues cv.put(provider.SIX_PATH, ImageConverter.getBytes(bm));
+                //getContentResolver().insert(provider.CONTENT_URI, cv);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     String getJ(URL url) {
         HttpURLConnection urlConnection = null;
@@ -113,6 +131,11 @@ public class IServise extends IntentService {
         return resultJson;
     }
 
+    void putLink(){
+
+    }
+
+
     void parseJ(String strJson, String name) {
         String LOG_TAG = "JSON_PARS";
         Log.d(LOG_TAG, strJson);
@@ -132,7 +155,7 @@ public class IServise extends IntentService {
             String temper;
             String img1;
             String img2;
-            provider.match_name(name);
+            //provider.match_name(name);
             for (int i = 0; i < 10; i++) {
                 cv = new ContentValues();
                 temp = simp.getJSONObject(i).getJSONObject("date");
@@ -145,6 +168,7 @@ public class IServise extends IntentService {
                 Bitmap bm = BitmapFactory.decodeStream((InputStream) new URL(img1).getContent());
                 cv.put(provider.DATE, data);
                 cv.put(provider.DAY, day);
+                cv.put("mqin",name);
                 cv.put(provider.NIGHT, night);
                 cv.put(provider.TEMPERATURE, temper);
                 cv.put(provider.FIVE_PATH, ImageConverter.getBytes(bm));
