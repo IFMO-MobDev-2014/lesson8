@@ -1,10 +1,13 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+
+import ru.ifmo.md.lesson8.R;
+import ru.ifmo.md.lesson8.content.ContentHelper;
 
 
 /**
@@ -39,8 +42,10 @@ public class ItemDetailActivity extends ActionBarActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(ItemDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(ItemDetailFragment.ARG_ITEM_ID));
+            int woeid = getIntent().getIntExtra(ItemDetailFragment.ARG_PLACE_WOEID, -1);
+            setTitle(new ContentHelper(this).getPlaceByWoeid(woeid).formattedName());
+            arguments.putInt(ItemDetailFragment.ARG_PLACE_WOEID,
+                    woeid);
             ItemDetailFragment fragment = new ItemDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -48,6 +53,7 @@ public class ItemDetailActivity extends ActionBarActivity {
                     .commit();
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

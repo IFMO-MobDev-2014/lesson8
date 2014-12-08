@@ -1,14 +1,19 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.ui;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 
-
-import ru.ifmo.md.lesson8.dummy.DummyContent;
+import ru.ifmo.md.lesson8.content.CityListLoaderCallbacks;
+import ru.ifmo.md.lesson8.content.ContentHelper;
+import ru.ifmo.md.lesson8.content.WeatherContract;
+import ru.ifmo.md.lesson8.net.WeatherDownloadService;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -31,7 +36,7 @@ public class ItemListFragment extends ListFragment {
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
-    private Callbacks mCallbacks = sDummyCallbacks;
+    private Callbacks mCallbacks = sCallbacks;
 
     /**
      * The current activated item position. Only used on tablets.
@@ -47,16 +52,16 @@ public class ItemListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(int woeid);
     }
 
     /**
      * A dummy implementation of the {@link Callbacks} interface that does
      * nothing. Used only when this fragment is not attached to an activity.
      */
-    private static Callbacks sDummyCallbacks = new Callbacks() {
+    private static final Callbacks sCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(int woeid) {
         }
     };
 
@@ -71,12 +76,15 @@ public class ItemListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        ContentHelper contentHelper = new ContentHelper(getActivity());
+
+        Cursor cursor = contentHelper.getPlacesCursor();
+
+        PlacesListAdapter adapter = new PlacesListAdapter(getActivity(), cursor);
+        setListAdapter(adapter);
+
+        getLoaderManager().initLoader(0, null, new CityListLoaderCallbacks(getActivity(), adapter));
+        WeatherDownloadService.start(getActivity());
     }
 
     @Override
@@ -107,7 +115,7 @@ public class ItemListFragment extends ListFragment {
         super.onDetach();
 
         // Reset the active callbacks interface to the dummy implementation.
-        mCallbacks = sDummyCallbacks;
+        mCallbacks = sCallbacks;
     }
 
     @Override
@@ -116,7 +124,9 @@ public class ItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        Cursor cursor = ((CursorAdapter) getListAdapter()).getCursor();
+        int woeid = cursor.getInt(cursor.getColumnIndex(WeatherContract.Places.WOEID_COLUMN));
+        mCallbacks.onItemSelected(woeid);
     }
 
     @Override
