@@ -18,7 +18,7 @@ import javax.xml.parsers.SAXParserFactory;
  * @author Zakhar Voit (zakharvoit@gmail.com)
  */
 public class PlacesListParser extends DefaultHandler {
-    public static List<Place> parse(URL url) {
+    public static List<Place> parse(URL url) throws IOException {
         try {
             InputStream stream = url.openStream();
             SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -26,8 +26,8 @@ public class PlacesListParser extends DefaultHandler {
             PlacesListParser handler = new PlacesListParser();
             parser.parse(stream, handler);
             return handler.places;
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e.getMessage()); // TODO: No nice
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 

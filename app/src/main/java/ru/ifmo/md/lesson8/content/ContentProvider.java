@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.view.accessibility.AccessibilityNodeInfo;
 
 import static ru.ifmo.md.lesson8.content.WeatherContract.*;
 

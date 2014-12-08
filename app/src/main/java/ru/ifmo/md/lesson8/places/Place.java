@@ -6,7 +6,7 @@ package ru.ifmo.md.lesson8.places;
 public class Place {
     private final String name;
     private final String country;
-    private long woeid;
+    private final long woeid;
 
     public Place(String country, String name, long woeid) {
         this.country = country;

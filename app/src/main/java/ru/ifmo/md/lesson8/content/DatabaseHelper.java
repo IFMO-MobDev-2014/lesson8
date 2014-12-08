@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.util.Date;
-
 import ru.ifmo.md.lesson8.places.Place;
 
 import static ru.ifmo.md.lesson8.content.WeatherContract.*;

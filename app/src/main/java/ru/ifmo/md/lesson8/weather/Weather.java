@@ -18,7 +18,7 @@ public class Weather {
     private final Integer windSpeed;
     private final Integer humidity;
 
-    public Weather(Temperature low, Temperature high, Temperature current,
+    private Weather(Temperature low, Temperature high, Temperature current,
                     String description, Integer windSpeed, Integer humidity) {
         this.low = low;
         this.high = high;

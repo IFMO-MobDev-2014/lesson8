@@ -1,7 +1,5 @@
 package ru.ifmo.md.lesson8.weather;
 
-import android.util.Log;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -29,7 +27,7 @@ import ru.ifmo.md.lesson8.content.ContentHelper;
  */
 public class ForecastParser extends DefaultHandler {
 
-    public static List<Forecast> parse(URL url) {
+    public static List<Forecast> parse(URL url) throws IOException {
         try {
             InputStream stream = url.openStream();
             SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -37,8 +35,8 @@ public class ForecastParser extends DefaultHandler {
             ForecastParser handler = new ForecastParser();
             parser.parse(stream, handler);
             return handler.getForecasts();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e.getMessage()); // TODO: Remove this
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new RuntimeException(e.getMessage()); // Should not happen
         }
     }
 
@@ -81,7 +79,7 @@ public class ForecastParser extends DefaultHandler {
                 Date date = ContentHelper.getCurrentDate();
                 Weather.Builder builder = getBuilder(date);
                 // Force to use meters per second here
-                int windSpeed = fromMphTomps(Integer.parseInt(attributes.getValue("speed")));
+                int windSpeed = fromMphToMps(Integer.parseInt(attributes.getValue("speed")));
                 builder.setWindSpeed(windSpeed);
                 break;
             }
@@ -95,7 +93,7 @@ public class ForecastParser extends DefaultHandler {
         }
     }
 
-    private static int fromMphTomps(int speed) {
+    private static int fromMphToMps(int speed) {
         return (int) (2.24 * speed);
     }
 
@@ -115,19 +113,9 @@ public class ForecastParser extends DefaultHandler {
         try {
             parsedDate = dateFormat.parse(date);
         } catch (ParseException e) {
-            throw new RuntimeException(e.getMessage()); // TODO: Remove this
+            throw new RuntimeException(e.getMessage()); // Should not happen
         }
         return parsedDate;
-    }
-
-    @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-        super.endElement(uri, localName, qName);
-    }
-
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-        super.characters(ch, start, length);
     }
 
     public List<Forecast> getForecasts() {

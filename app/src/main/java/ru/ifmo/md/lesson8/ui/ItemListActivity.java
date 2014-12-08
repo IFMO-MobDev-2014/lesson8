@@ -3,6 +3,7 @@ package ru.ifmo.md.lesson8.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import ru.ifmo.md.lesson8.R;
 
@@ -43,15 +44,16 @@ public class ItemListActivity extends FragmentActivity
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+            Log.d("Mode", "Two-pane");
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((ItemListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
+        } else {
+            Log.d("Mode", "One-pane");
         }
-
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
     /**

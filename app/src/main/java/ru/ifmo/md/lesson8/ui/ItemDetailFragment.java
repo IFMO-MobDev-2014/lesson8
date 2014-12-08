@@ -5,27 +5,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
-
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 import ru.ifmo.md.lesson8.R;
 import ru.ifmo.md.lesson8.content.ContentHelper;
-import ru.ifmo.md.lesson8.weather.Forecast;
-import ru.ifmo.md.lesson8.weather.Temperature;
-import ru.ifmo.md.lesson8.weather.Weather;
 
 
 public class ItemDetailFragment extends Fragment {
     public static final String ARG_PLACE_WOEID = "place_woeid";
 
-    int woeid;
+    private int woeid;
 
     public ItemDetailFragment() {
     }

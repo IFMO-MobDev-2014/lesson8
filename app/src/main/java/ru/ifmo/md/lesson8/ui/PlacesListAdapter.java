@@ -2,7 +2,6 @@ package ru.ifmo.md.lesson8.ui;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;

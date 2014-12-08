@@ -3,6 +3,7 @@ package ru.ifmo.md.lesson8.net;
 import android.app.IntentService;
 import android.content.Intent;
 
+import java.io.IOException;
 import java.util.List;
 
 import ru.ifmo.md.lesson8.content.ContentHelper;
@@ -22,7 +23,12 @@ public class WeatherDownloadService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         ContentHelper contentHelper = new ContentHelper(getContentResolver());
         for (Place place : contentHelper.getPlaces()) {
-            List<Forecast> forecasts = YahooQuery.fetchWeatherInPlace(place);
+            List<Forecast> forecasts = null;
+            try {
+                forecasts = YahooQuery.fetchWeatherInPlace(place);
+            } catch (IOException ignore) {
+
+            }
             contentHelper.setForecasts(place, forecasts);
         }
     }

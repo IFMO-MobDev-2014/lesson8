@@ -14,25 +14,9 @@ import android.widget.CursorAdapter;
  */
 public class CursorLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
     private final CursorAdapter cursorAdapter;
-    private android.content.Context context;
-    private Uri uri;
-    private String[] projection;
-    private String selection;
-    private String[] selectionArgs;
-
-    public CursorLoaderCallbacks(Context context,
-                                 CursorAdapter cursorAdapter,
-                                 Uri uri,
-                                 String[] projection,
-                                 String selection,
-                                 String[] selectionArgs) {
-        this.context = context;
-        this.cursorAdapter = cursorAdapter;
-        this.uri = uri;
-        this.projection = projection;
-        this.selection = selection;
-        this.selectionArgs = selectionArgs;
-    }
+    private final android.content.Context context;
+    private final Uri uri;
+    private final String[] projection;
 
     public CursorLoaderCallbacks(Context context, CursorAdapter cursorAdapter, Uri uri, String[] projection) {
         this.cursorAdapter = cursorAdapter;
@@ -43,7 +27,7 @@ public class CursorLoaderCallbacks implements LoaderManager.LoaderCallbacks<Curs
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(context, uri, projection, selection, selectionArgs, null);
+        return new CursorLoader(context, uri, projection, null, null, null);
     }
 
     protected Cursor getNewCursor(Loader<Cursor> loader, Cursor data) {

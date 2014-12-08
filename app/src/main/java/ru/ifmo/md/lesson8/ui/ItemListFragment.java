@@ -58,7 +58,7 @@ public class ItemListFragment extends ListFragment {
      * A dummy implementation of the {@link Callbacks} interface that does
      * nothing. Used only when this fragment is not attached to an activity.
      */
-    private static Callbacks sCallbacks = new Callbacks() {
+    private static final Callbacks sCallbacks = new Callbacks() {
         @Override
         public void onItemSelected(int woeid) {
         }
@@ -79,7 +79,6 @@ public class ItemListFragment extends ListFragment {
 
         Cursor cursor = contentHelper.getPlacesCursor();
 
-        // TODO: replace with a real list adapter.
         PlacesListAdapter adapter = new PlacesListAdapter(getActivity(), cursor);
         setListAdapter(adapter);
 
