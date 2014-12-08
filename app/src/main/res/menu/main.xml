@@ -6,4 +6,7 @@
           android:orderInCategory="100"
           android:icon="@drawable/refresh"
           android:showAsAction="always" />
+    <item android:id="@+id/action_cities_list"
+          android:title="Cities"
+          android:showAsAction="always"/>
 </menu>

@@ -22,11 +22,17 @@ import com.achep.header2actionbar.HeaderFragment.OnHeaderScrollChangedListener
 //    def setElem(a: String): Unit
 //  }
 
+//trait FragmentViewProvider {
+//  def getFragmentView(id: Int): View
+//}
+
 object WeatherDetailFragment {
   val CITY_NAME = "city_name"
-  def newInstance(cityname: String): WeatherDetailFragment = {
+  val FRAGMENT_ID = "fragment_id"
+  def newInstance(cityname: String, id: Int): WeatherDetailFragment = {
     val bundle: Bundle = new Bundle()
     bundle.putString(CITY_NAME, cityname)
+    bundle.putInt(FRAGMENT_ID, id)
     val fragment: WeatherDetailFragment = new WeatherDetailFragment
     fragment.setArguments(bundle)
     fragment
@@ -34,6 +40,7 @@ object WeatherDetailFragment {
 }
 
 class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Weather]] {
+  private var mId: Int = -1
   private var mDatabaseHelper: DatabaseHelper = null
   private var mForecast: List[Weather] = null
   private var mForecastUsed: Array[Boolean] = null
@@ -49,6 +56,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
 
   override def onAttach(activity: Activity): Unit = {
     super.onAttach(activity)
+    mId = getArguments.getInt(WeatherDetailFragment.FRAGMENT_ID)
     setCity(getArguments.getString(WeatherDetailFragment.CITY_NAME))
     mInflater = cast(activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
     mDatabaseHelper = new DatabaseHelper(getActivity)
@@ -93,14 +101,18 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
     mContentOverlay
   }
 
-
   override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = {
     super.onViewCreated(view, savedInstanceState)
-    cast[View, TextView](getActivity.findViewById(R.id.title)).setText(cityName)
+    Log.d(this.toString, "View created")
+    cast[View, TextView](getView.findViewById(R.id.title)).setText(cityName)
   }
 
   def setForecast(forecast: List[Weather]) = {
     if (forecast.length > 0) {
+      Log.d(this.toString, "Setting forecast")
+      while (mContentOverlay == null | mListView == null) {
+        Log.d(this.toString, "Wating until view created")
+      }
       mForecast = if (forecast.head.date.after(forecast.last.date)) forecast.reverse else forecast
       if (mForecastUsed == null || mForecastUsed.length != forecast.length) {
         mForecastUsed = new Array(mForecast.length)
@@ -110,12 +122,12 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
       mListView.setVisibility(View.VISIBLE)
       mLoaded = true
       animate(
-        cast[View, ImageView](getActivity.findViewById(android.R.id.background)),
-        cast[View, ImageView](getActivity.findViewById(R.id.background_overlay)),
+        cast[View, ImageView](getView.findViewById(android.R.id.background)),
+        cast[View, ImageView](getView.findViewById(R.id.background_overlay)),
         mForecast(0).weatherState.getBackground)
       //    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0).weatherState.getBackground))
-      cast[View, TextView](getActivity.findViewById(R.id.title)).setText(cityName)
-      cast[View, TextView](getActivity.findViewById(R.id.subtitle)).setText(mForecast(0).weatherState.getDesc.capitalize)
+      cast[View, TextView](getView.findViewById(R.id.title)).setText(cityName)
+      cast[View, TextView](getView.findViewById(R.id.subtitle)).setText(mForecast(0).weatherState.getDesc.capitalize)
       if (mListView.getAdapter != null)
         cast[ListAdapter, BaseAdapter](cast[Adapter, HeaderViewListAdapter](mListView.getAdapter).getWrappedAdapter).notifyDataSetChanged()
       else setListViewAdapter(mListView, new BaseAdapter {
@@ -190,13 +202,16 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
   }
 
   def reloadContents() = {
-    Log.d("WeatherDetailFragment", "Reloading data")
+    Log.d(this.toString, "Reloading data")
     val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getActivity, classOf[WeatherLoadService])
     Toast.makeText(getActivity, "Refreshing", Toast.LENGTH_SHORT).show()
+    intent.putExtra(WeatherLoadService.FRAGMENT_ID, mId)
     intent.putExtra(WeatherLoadService.CITY, cityName)
-    intent.putExtra("receiver", mReciever)
+    intent.putExtra(WeatherLoadService.RECEIVER, mReciever)
     getActivity.startService(intent)
   }
+
+  override def toString: String = "WeatherDetailFragment #" + mId + " named " + cityName
 
   def onCreateLoader(id: Int, bundle: Bundle): Loader[List[Weather]] = new AsyncTaskLoader[List[Weather]](getActivity) {
     override def loadInBackground(): List[Weather] = {
@@ -208,4 +223,5 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
     if (forecast.length > 0) setForecast(forecast) else reloadContents()
 
   def onLoaderReset(loader: Loader[List[Weather]]): Unit = null
+
 }
