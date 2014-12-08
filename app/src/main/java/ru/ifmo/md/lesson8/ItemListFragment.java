@@ -1,11 +1,20 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.Application;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 
 import ru.ifmo.md.lesson8.dummy.DummyContent;
@@ -38,6 +47,8 @@ public class ItemListFragment extends ListFragment {
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
+
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -48,6 +59,7 @@ public class ItemListFragment extends ListFragment {
          * Callback for when an item has been selected.
          */
         public void onItemSelected(String id);
+        public void onItemLongClick(String id);
     }
 
     /**
@@ -58,6 +70,12 @@ public class ItemListFragment extends ListFragment {
         @Override
         public void onItemSelected(String id) {
         }
+
+        @Override
+        public void onItemLongClick(String id) {
+        }
+
+
     };
 
     /**
@@ -67,16 +85,19 @@ public class ItemListFragment extends ListFragment {
     public ItemListFragment() {
     }
 
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
+     /*  setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                DummyContent.ITEMS));
+                DummyContent.ITEMS));*/
     }
 
     @Override
@@ -88,6 +109,15 @@ public class ItemListFragment extends ListFragment {
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                mCallbacks.onItemLongClick(((TextView)view.findViewById(R.id.city_name_textview)).getText().toString());
+                return true;
+            }
+        });
+        setActivateOnItemClick(true);
     }
 
     @Override
@@ -116,8 +146,11 @@ public class ItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(Long.toString(position+1));
     }
+
+
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

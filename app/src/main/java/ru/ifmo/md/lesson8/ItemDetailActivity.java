@@ -1,10 +1,17 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.SimpleCursorAdapter;
 
 
 /**
@@ -16,7 +23,7 @@ import android.view.MenuItem;
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link ItemDetailFragment}.
  */
-public class ItemDetailActivity extends ActionBarActivity {
+public class ItemDetailActivity extends ActionBarActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +43,16 @@ public class ItemDetailActivity extends ActionBarActivity {
         // http://developer.android.com/guide/components/fragments.html
         //
         if (savedInstanceState == null) {
+
+            Log.d("DetailActivity", "SIS not null");
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(ItemDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(ItemDetailFragment.ARG_ITEM_ID));
+            String cityID = getIntent().getStringExtra(ItemDetailFragment.ARG_ITEM_ID);
+            String cityName = getIntent().getStringExtra("city_name");
+            getSupportActionBar().setTitle(cityName);
+            arguments.putString(ItemDetailFragment.ARG_ITEM_ID, cityID);
+            arguments.putString("city_name", cityName);
             ItemDetailFragment fragment = new ItemDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

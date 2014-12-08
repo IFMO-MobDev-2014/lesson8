@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.ifmo.md.lesson8" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -23,6 +26,20 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ItemListActivity" />
+        </activity>
+
+        <provider
+            android:name="ru.ifmo.md.lesson8.MyContentProvider"
+            android:authorities="ru.ifmo.md.lesson8"
+            android:exported="false" />
+
+        <service
+            android:name="ru.ifmo.md.lesson8.MyLoaderIntentService"
+            android:exported="false" />
+
+        <activity
+            android:name="ru.ifmo.md.lesson8.MainActivity"
+            android:label="@string/title_activity_main" >
         </activity>
     </application>
 
