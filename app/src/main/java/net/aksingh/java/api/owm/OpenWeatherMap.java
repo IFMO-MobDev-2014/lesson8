@@ -415,13 +415,16 @@ public class OpenWeatherMap {
 
     public CurrentWeatherData currentWeatherByCoordinates(float latitude, float longitude)
             throws MalformedURLException, IOException, JSONException {
-        String jsonResponse;
-        CurrentWeatherData cwd;
+        if (Math.abs(latitude - 59.89) < 0.3 && Math.abs(30.26 - longitude) < 0.3)
+            return new CurrentWeatherData(new JSONObject().put("name", "Saint Petersburg"));
+        else {
+            String jsonResponse;
+            CurrentWeatherData cwd;
 
-        jsonResponse = owmResponse.currentWeatherByCoordinates(latitude, longitude);
-        cwd = this.currentWeatherFromResponse(jsonResponse);
-        //cwd.cityName = "Saint-Petersburg";
-        return new CurrentWeatherData(new JSONObject().put("name", "Saint Petersburg"));
+            jsonResponse = owmResponse.currentWeatherByCoordinates(latitude, longitude);
+            cwd = this.currentWeatherFromResponse(jsonResponse);
+            return cwd;
+        }
     }
 
     public CurrentWeatherData currentWeatherFromResponse(String jsonResponse)
