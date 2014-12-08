@@ -12,7 +12,11 @@
         android:label="weather"
         android:theme="@style/AppTheme" >
 
-        <receiver android:name=".data.BackgroundReceiver" >
+        <receiver android:name=".data.WeatherBroadcast" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>        <receiver android:name=".data.BackgroundReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

@@ -65,18 +65,6 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         setContentView(R.layout.activity_weather_main);
         setEverything();
 
-        if (resumed) {
-            Log.d("resuming", resumedItem.getName());
-            WeatherDetails w = new WeatherDetails();
-            w.setItem(resumedItem);
-            transaction = getFragmentManager().beginTransaction();
-            transaction.add(R.id.root_layout, w, "detail");
-            transaction.commit();
-            resumed = false;
-        }
-        service = new Intent(getApplicationContext(), WeatherService.class);
-        service.putExtra("FLAG", "all");
-        startService(service);
         IntentFilter intentFilter = new IntentFilter(WeatherService.ACTION);
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(broadcast, intentFilter);
@@ -113,8 +101,8 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         Intent intent = new Intent(this, BackgroundReceiver.class);
         intent.setAction("upload");
         pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        //alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
-         //       SystemClock.elapsedRealtime() + 3000, 14400000, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 3000, 14400000, pendingIntent);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.left_drawer);
