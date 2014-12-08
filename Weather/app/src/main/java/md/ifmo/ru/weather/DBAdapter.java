@@ -15,7 +15,7 @@ public class DBAdapter {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
 
-    private static final String DATABASE_NAME = "Weatherix";
+    private static final String DATABASE_NAME = "Weather";
     private static final int DATABASE_VERSION = 1;
     private static final String CITIES_TABLE = "cities";
     private static final String LAST_TABLE = "last";
@@ -98,6 +98,14 @@ public class DBAdapter {
 
     public boolean deleteCity(long rowID) {
         return mDb.delete(CITIES_TABLE, KEY_ID + "=" + rowID, null) > 0;
+    }
+
+    public Cursor fetchCities() {
+        return mDb.query(CITIES_TABLE, new String[] {KEY_ID, KEY_CITY}, null, null, null, null, null);
+    }
+
+    public Cursor fetchCity(int cityID) {
+        return mDb.query(CITIES_TABLE, new String[] {KEY_ID, KEY_CITY}, KEY_ID + "=" + cityID, null, null, null, null);
     }
 
     public boolean setLast(int cityID) {

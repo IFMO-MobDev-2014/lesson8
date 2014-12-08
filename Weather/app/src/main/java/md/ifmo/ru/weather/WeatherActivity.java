@@ -28,8 +28,30 @@ import java.util.Date;
 import java.util.HashMap;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+
 public class WeatherActivity extends Activity {
-    Button refresh;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,17 +60,8 @@ public class WeatherActivity extends Activity {
         Intent intent = getIntent();
         String city = intent.getStringExtra(MainActivity.CODE);
         TextView cityName = (TextView) findViewById(R.id.city_name);
-        cityName.setText(city);
-        final String city_eng = intent.getStringExtra(MainActivity.CODE_ENG);
-        new WeatherTask().execute(city_eng);
-        refresh = (Button)findViewById(R.id.refresh);
-        refresh.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                new WeatherTask().execute(city_eng);
-            }
-
-        });
+        cityName.setText(city.split(",")[0]);
+        new WeatherTask().execute(city);
     }
 
     HashMap<Integer, String> weatherTexts;
@@ -78,6 +91,8 @@ public class WeatherActivity extends Activity {
                 String wText = tokens[i + 2];
                 weatherTexts.put(code, wText);
             }
+            isr.close();
+            is.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,7 +107,7 @@ public class WeatherActivity extends Activity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                String url = API_URL + "&q=" + params[0];
+                String url = API_URL + "&q=" + URLEncoder.encode(params[0]);
                 HttpResponse httpResponse = new DefaultHttpClient().execute(new HttpGet(url));
                 HttpEntity httpEntity = httpResponse.getEntity();
                 String json = EntityUtils.toString(httpEntity, "UTF-8");
@@ -128,7 +143,7 @@ public class WeatherActivity extends Activity {
                     }
                 }
                 String sWindSpeed = object.getString("windspeedKmph");
-                int windSpeed = 10 * Integer.parseInt(sWindSpeed) / 36;
+                int windSpeed = (10 * Integer.parseInt(sWindSpeed) + 35) / 36;
                 result += "Ветер: " + wind + ", " + windSpeed + " м/с\n";
                 // go on to forecasts
                 object = (JSONObject) new JSONTokener(json).nextValue();

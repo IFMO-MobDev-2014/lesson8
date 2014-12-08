@@ -7,5 +7,11 @@
     <string name="title_activity_weather">WeatherActivity</string>
     <string name="choose">Выберите город:</string>
     <string name="download">Загружаем...</string>
+    <string name="title_activity_add_city">AddCityActivity</string>
+    <string name="add_city">Введите название города:</string>
+    <string name="city_hint">Введите название города...</string>
+    <string name="search">Искать</string>
+    <string name="plus">+</string>
+    <string name="remove">Удалить</string>
 
 </resources>
