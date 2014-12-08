@@ -44,7 +44,7 @@ class WeatherActivity extends Activity with Receiver {
     mLocationManager = cast(getSystemService(Context.LOCATION_SERVICE))
     mLocationListener = new SimpleLocationListener
     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener)
-    mCityNames = Nil
+    mCityNames = mDBHelper.getCities()
     if (mCityNames.length == 0) {
       mCityNames = List("Saint Petersburg", "Kerch")
       mCityNames.foreach((a: String) => mDBHelper.addCity(a))
