@@ -2,6 +2,7 @@ package ru.ifmo.md.lesson8;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -32,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.ifmo.md.lesson8.data.BackgroundReceiver;
@@ -40,6 +42,7 @@ import ru.ifmo.md.lesson8.data.WeatherItem;
 import ru.ifmo.md.lesson8.data.WeatherListAdapter;
 import ru.ifmo.md.lesson8.data.WeatherService;
 
+import static android.content.DialogInterface.*;
 
 
 public class WeatherMain extends ActionBarActivity implements ListListener {
@@ -236,14 +239,14 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         input.setTextColor(0xff000000);
         alert.setView(input);
 
-        alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton("Add", new OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String value = String.valueOf(input.getText());
                 sendAddRequest(value);
             }
         });
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alert.setNegativeButton("Cancel", new OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
             }
         });
@@ -256,10 +259,14 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         service = new Intent(this, WeatherService.class);
         service.putExtra("FLAG", city);
         startService(service);
+    }
 
-		IntentFilter intentFilter = new IntentFilter(WeatherService.ACTION);
-		intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-		registerReceiver(broadcast, intentFilter);
+    void sendDeleteRequest(String city, int i) {
+        service = new Intent(this, WeatherService.class);
+        service.putExtra("FLAG", "delete");
+        service.putExtra("name", city);
+        service.putExtra("index", i);
+        startService(service);
     }
 
     public WeatherItem getCurrentWeatherItem() {
@@ -270,24 +277,30 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         this.currentWeatherItem = currentWeatherItem;
     }
 
-    public void deleteCities(MenuItem item) {
+    public void deleteCities(final MenuItem item) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-        alert.setTitle("Add city");
-        alert.setMessage("Enter city name in English, please");
-
-        final EditText input = new EditText(this);
-        input.setTextColor(0xff000000);
-        alert.setView(input);
-
-        alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                String value = String.valueOf(input.getText());
-                sendAddRequest(value);
+        alert.setTitle("Delete cities");
+        if (items != null) {
+            final ArrayList<String> cities = new ArrayList<>();
+            for (int i = 0; i < items.size(); i++) {
+                cities.add(items.get(i).getName());
             }
-        });
-
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            final ListView listView = new ListView(this);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    sendDeleteRequest(items.get(position).getName(), position);
+                    items.remove(position);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+            alert.setView(listView);
+        } else {
+            alert.setMessage("City list is not loaded. Please, wait a bit.");
+        }
+        alert.setNegativeButton("Close", new OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
             }
         });

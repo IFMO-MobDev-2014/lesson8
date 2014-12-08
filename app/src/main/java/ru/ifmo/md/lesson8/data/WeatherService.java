@@ -50,12 +50,33 @@ public class WeatherService extends IntentService {
             System.out.println(addresses.get(0).getLocality());
     */
 
-
-
         if (flag.equals("all"))
             updateAll();
-        else
+        else if (flag.equals("delete")) {
+            String name = intent.getStringExtra("name");
+            deleteCity(name);
+        } else {
             addCity(flag);
+        }
+    }
+
+    void deleteCity(String city) {
+        Cursor cursor = getContentResolver().query(WEATHER_URI, null, null, null, null);
+        Cursor cursor2 = getContentResolver().query(CITY_URI, null, null, null, null);
+        cursor.moveToFirst();
+        cursor2.moveToFirst();
+        int n = cursor.getCount();
+        for (int i = 0; i < n; i++) {
+            if (cursor.getString(1).equals(city)) {
+                Uri uri = ContentUris.withAppendedId(WEATHER_URI, cursor.getInt(0));
+                getContentResolver().delete(uri, null, null);
+                uri = ContentUris.withAppendedId(CITY_URI, cursor2.getInt(0));
+                getContentResolver().delete(uri, null, null);
+            }
+            cursor.moveToNext();
+            cursor2.moveToNext();
+        }
+
 
     }
 
