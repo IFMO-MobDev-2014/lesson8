@@ -1,8 +1,13 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Theme.Holo.OverlayActionBar" parent="android:Theme.Holo">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
 
+    <style name="WeatherDetails" parent="android:TextAppearance.Medium">
+        <!-- TODO Remove sp from everywhere -->
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">4dip</item>
+    </style>
 </resources>
