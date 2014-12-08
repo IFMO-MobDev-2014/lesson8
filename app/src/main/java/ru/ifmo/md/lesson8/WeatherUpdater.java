@@ -20,10 +20,12 @@ public class WeatherUpdater extends IntentService {
             } else {
                 resolver.update(intent.getData(), null, null, null);
                 resolver.notifyChange(intent.getData(), null, false);
-                AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                manager.set(AlarmManager.RTC_WAKEUP,
-                        System.currentTimeMillis() + AlarmManager.INTERVAL_HALF_DAY,
-                        PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                if (Long.parseLong(intent.getData().getQueryParameter("time")) >= System.currentTimeMillis()) {
+                    AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                    manager.set(AlarmManager.RTC_WAKEUP,
+                            System.currentTimeMillis() + AlarmManager.INTERVAL_HALF_DAY,
+                            PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                }
             }
     }
 }
