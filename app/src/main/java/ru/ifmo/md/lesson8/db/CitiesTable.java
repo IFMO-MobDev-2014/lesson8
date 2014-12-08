@@ -9,17 +9,19 @@ public class CitiesTable extends BaseTable {
     public static final String TABLE_NAME = "cities";
     public static final String COLUMN_NAME_NAME = "name";
     public static final String COLUMN_NAME_WOEID = "woeid";
-    public static final String СOLUMN_NAME_CUR_COND = "code";
+    public static final String COLUMN_NAME_CUR_COND = "code";
     public static final String COLUMN_NAME_CUR_TEMP = "temp";
     public static final String COLUMN_NAME_СUR_DESC = "text";
+    public static final String COLUMN_NAME_IS_CURRENT = "current";
 
     private static final String SQL_CREATE_CITIES =
             "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                     _ID + " INTEGER PRIMARY KEY," +
                     COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
-                    СOLUMN_NAME_CUR_COND + INTEGER_TYPE + COMMA_SEP +
+                    COLUMN_NAME_CUR_COND + INTEGER_TYPE + COMMA_SEP +
                     COLUMN_NAME_CUR_TEMP + INTEGER_TYPE + COMMA_SEP +
                     COLUMN_NAME_СUR_DESC + TEXT_TYPE + COMMA_SEP +
+                    COLUMN_NAME_IS_CURRENT + INTEGER_TYPE + " DEFAULT 0" + COMMA_SEP +
                     COLUMN_NAME_WOEID + INTEGER_TYPE + " UNIQUE ON CONFLICT IGNORE" +
                     " );";
 

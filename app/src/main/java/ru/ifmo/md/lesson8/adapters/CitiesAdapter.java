@@ -32,7 +32,7 @@ public class CitiesAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         int nameCol = cursor.getColumnIndex(CitiesTable.COLUMN_NAME_NAME);
-        int condCol = cursor.getColumnIndex(CitiesTable.СOLUMN_NAME_CUR_COND);
+        int condCol = cursor.getColumnIndex(CitiesTable.COLUMN_NAME_CUR_COND);
         int tempCol = cursor.getColumnIndex(CitiesTable.COLUMN_NAME_CUR_TEMP);
 
         String name = cursor.getString(nameCol);

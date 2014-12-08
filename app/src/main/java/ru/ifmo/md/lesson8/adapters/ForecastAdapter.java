@@ -18,7 +18,7 @@ import ru.ifmo.md.lesson8.db.ForecastsTable;
  */
 public class ForecastAdapter extends CursorAdapter {
 
-    public static final String CELSIUM = "C°";
+    public static final String CELSIUM = "°C";
 
     public static int getTempColor(int temp) {
         if (temp <= -25) {

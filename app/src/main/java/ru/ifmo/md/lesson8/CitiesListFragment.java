@@ -1,19 +1,18 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
-import android.content.ClipData;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-
-import java.text.CharacterIterator;
 
 import ru.ifmo.md.lesson8.adapters.CitiesAdapter;
 import ru.ifmo.md.lesson8.db.CitiesTable;
@@ -23,12 +22,12 @@ import ru.ifmo.md.lesson8.db.WeatherContentProvider;
  * A list fragment representing a list of Items. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link ItemDetailFragment}.
+ * currently being viewed in a {@link ForecastListFragment}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CitiesListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -50,7 +49,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     /**
      * List adapter for fragment.
      */
-    private CitiesAdapter mAdapter;
+    private SimpleCursorAdapter mAdapter;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -78,21 +77,35 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemListFragment() {
+    public CitiesListFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new CitiesAdapter(getActivity(), null);
+        mAdapter = new SimpleCursorAdapter(getActivity(),
+                android.R.layout.simple_list_item_activated_1,
+                null,
+                new String[] {CitiesTable.COLUMN_NAME_NAME},
+                new int[] {android.R.id.text1}, 0);
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+        ViewGroup parent = (ViewGroup) inflater.inflate(R.layout.nav_drawer, container, false);
+        parent.addView(v, 2);
+        return parent;
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        view.setBackgroundResource(android.R.color.background_light);
 
         setEmptyText(getResources().getString(R.string.cities_list_empty_text));
         // Restore the previously serialized activated item position.
@@ -128,12 +141,12 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        Cursor c = ((CitiesAdapter) listView.getAdapter()).getCursor();
+        Cursor c = ((SimpleCursorAdapter) listView.getAdapter()).getCursor();
         c.moveToPosition(position);
         String cityId = c.getString(c.getColumnIndexOrThrow(CitiesTable._ID));
         long woeid = c.getLong(c.getColumnIndexOrThrow(CitiesTable.COLUMN_NAME_WOEID));
         Bundle data = new Bundle();
-        data.putLong(ItemDetailFragment.WOEID, woeid);
+        data.putLong(MainActivity.WOEID, woeid);
         mCallbacks.onItemSelected(cityId, data);
     }
 

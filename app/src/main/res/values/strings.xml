@@ -6,10 +6,16 @@
     <string name="action_update">Update forecast</string>
     <string name="cities_list_empty_text">Loading cities…</string>
     <string name="forecasts_loading_text">Getting the forecasts…</string>
-    <string name="forecasts_empty_text">No forecasts are available.</string>
+    <string name="forecasts_empty_text">No forecasts are available.\nPull down to refresh.</string>
     <string name="forecasts_invalid_text">No city was specified.</string>
     <string name="fetching_error">Error while fetching forecasts</string>
     <string name="parsing_error">Invalid forecast data; cannot parse</string>
     <string name="feed_refresh_toast">Refreshing the forecast…</string>
     <string name="long_dash"> — </string>
+    <string name="week_forecast_btn">View week forecast...</string>
+    <string name="menu_refresh">Refresh the forecast</string>
+    <string name="menu_back">Back to today\'s weather</string>
+    <string name="nav_drawer_cities_empty">No cities are added yet</string>
+    <string name="nav_drawer_cities_heading">Added cities</string>
+    <string name="current_location">Current location</string>
 </resources>

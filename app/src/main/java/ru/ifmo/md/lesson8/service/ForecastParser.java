@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8.service;
 
 import android.content.ContentValues;
+import android.location.Location;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +30,11 @@ public class ForecastParser {
         public ContentValues condition = new ContentValues();
     }
 
+    public class LocationResult {
+        public String cityName;
+        public long woeid;
+    }
+
     public ForecastParser() {
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -48,7 +54,7 @@ public class ForecastParser {
             ArrayList<String> attrs = new ArrayList<String>() {
                 {
                     add(CitiesTable.COLUMN_NAME_CUR_TEMP);
-                    add(CitiesTable.СOLUMN_NAME_CUR_COND);
+                    add(CitiesTable.COLUMN_NAME_CUR_COND);
                     add(CitiesTable.COLUMN_NAME_СUR_DESC);
                 }
             };
@@ -75,6 +81,24 @@ public class ForecastParser {
                 }
                 res.forecasts.add(row);
             }
+
+            return res;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new SAXException(e);
+        }
+    }
+
+    public LocationResult parseLocation(InputStream stream) throws SAXException {
+        try {
+            LocationResult res = new LocationResult();
+
+            Document document = builder.parse(stream);
+            Element cityEl = (Element) document.getElementsByTagName("city").item(0);
+            Element woeidEl = (Element) document.getElementsByTagName("woeid").item(0);
+
+            res.cityName = cityEl.getTextContent();
+            res.woeid = Long.parseLong(woeidEl.getTextContent());
 
             return res;
         } catch (IOException e) {
