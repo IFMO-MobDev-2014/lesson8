@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -83,9 +84,7 @@ public class ItemListFragment extends ListFragment {
         setListAdapter(adapter);
 
         getLoaderManager().initLoader(0, null, new CityListLoaderCallbacks(getActivity(), adapter));
-
-        Intent intent = new Intent(getActivity(), WeatherDownloadService.class);
-        getActivity().startService(intent);
+        WeatherDownloadService.start(getActivity());
     }
 
     @Override

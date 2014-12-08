@@ -22,18 +22,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createCitiesTable(db);
         createWeatherInfoTable(db);
-
-        // TODO: Remove hardcoded adding
-        Place place = new Place.Builder()
-                        .setCountry("Russia")
-                        .setName("St. Petersburg")
-                        .setWoeid(2123260)
-                        .createPlace();
-        ContentValues values = new ContentValues();
-        values.put(Places.COUNTRY_COLUMN, place.getCountry());
-        values.put(Places.NAME_COLUMN, place.getName());
-        values.put(Places.WOEID_COLUMN, place.getWoeid());
-        db.insert(Places.TABLE_NAME, null, values);
     }
 
     private void createWeatherInfoTable(SQLiteDatabase db) {

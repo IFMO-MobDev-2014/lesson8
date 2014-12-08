@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8.net;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 
 import java.io.IOException;
@@ -17,6 +18,11 @@ public class WeatherDownloadService extends IntentService {
 
     public WeatherDownloadService() {
         super("ru.ifmo.md.net.WeatherDownload.Service");
+    }
+
+    public static void start(Context context) {
+        Intent intent = new Intent(context, WeatherDownloadService.class);
+        context.startService(intent);
     }
 
     @Override

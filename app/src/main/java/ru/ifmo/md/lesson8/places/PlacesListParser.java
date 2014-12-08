@@ -56,6 +56,7 @@ public class PlacesListParser extends DefaultHandler {
                 break;
             case "woeid":
                 placeBuilder.setWoeid(Long.parseLong(textBuilder.toString()));
+                break;
             case "name":
                 placeBuilder.setName(textBuilder.toString());
                 break;

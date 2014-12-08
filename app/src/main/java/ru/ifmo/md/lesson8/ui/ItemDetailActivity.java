@@ -2,8 +2,8 @@ package ru.ifmo.md.lesson8.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 import ru.ifmo.md.lesson8.R;
@@ -53,6 +53,7 @@ public class ItemDetailActivity extends ActionBarActivity {
                     .commit();
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

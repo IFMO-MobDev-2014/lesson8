@@ -97,34 +97,17 @@ public class ContentHelper {
     }
 
     public Weather getWeatherInPlace(Place place) {
-        String[] projection = {
-                WeatherInfo.TEMPERATURE_COLUMN,
-                WeatherInfo.DESCRIPTION_COLUMN,
-                WeatherInfo.WIND_COLUMN,
-                WeatherInfo.HUMIDITY_COLUMN
-        };
-        String selection = WeatherInfo.WOEID_COLUMN + "=?"
-                + " and " + WeatherInfo.DATE_COLUMN + "=?";
-        String[] selectionArgs = {"" + place.getWoeid(), "" + getCurrentDate().getTime()};
-        Cursor cursor = contentResolver.query(
-                WeatherInfo.URI, projection, selection, selectionArgs, null);
-
-        Weather result;
-        if (!cursor.moveToFirst()) {
-            result = null;
-        } else {
-            result = new Weather.Builder()
-                    .setCurrent(new Temperature(Integer.parseInt(cursor.getString(0)),
-                            Temperature.fahrenheit()))
-                    .setDescription(cursor.getString(1))
-                    .setWindSpeed(Integer.parseInt(cursor.getString(2)))
-                    .setHumidity(Integer.parseInt(cursor.getString(3)))
-                    .createWeather();
+        List<Forecast> forecasts = getForecasts((int) place.getWoeid());
+        if (forecasts.isEmpty()) {
+            return null;
         }
-        return result;
+        return forecasts.get(0).getWeather();
     }
 
     public void setForecasts(Place place, List<Forecast> forecasts) {
+        if (forecasts == null) {
+            return;
+        }
         String selection = WeatherInfo.WOEID_COLUMN + "=?";
         String[] selectionArgs = {"" + place.getWoeid()};
         contentResolver.delete(WeatherInfo.URI, selection, selectionArgs);
@@ -247,12 +230,17 @@ public class ContentHelper {
             return R.drawable.sunny;
         } else if (condition.contains("snow")) {
             return R.drawable.snow;
-        } else if (condition.contains("rain")) {
+        } else if (condition.contains("rain")
+                || condition.contains("show")) {
             return R.drawable.rain;
         } else if (condition.contains("cloud")) {
             return R.drawable.cloudy;
-        } else { // wind r
+        } else { // wind or something else
             return R.drawable.wind;
         }
+    }
+
+    public static String autodetectPlace() {
+        return "Saint Petersburg, Russia";
     }
 }
