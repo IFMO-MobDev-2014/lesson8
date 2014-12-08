@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
-
+    <string name="success_update">Weather was updated</string>
+    <string name="action_settings">Choose city</string>
 </resources>
