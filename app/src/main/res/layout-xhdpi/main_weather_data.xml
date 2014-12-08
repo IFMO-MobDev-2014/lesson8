@@ -7,7 +7,6 @@
               android:paddingTop="@dimen/android_spaces"
               android:paddingBottom="@dimen/android_spaces"
               android:textIsSelectable="true"
-              android:background="#aaff0000"
               tools:context=".ItemDetailFragment"
               android:orientation="horizontal" android:weightSum="1"
               android:gravity="center_vertical|center_horizontal">

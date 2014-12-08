@@ -21,7 +21,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+28 °C"
-                    android:padding="@dimen/android_spaces_small"
+                    android:padding="@dimen/android_spaces"
                     android:id="@+id/upper_temp"
                     android:layout_weight="1"
                     style="@style/Content.TitleText"

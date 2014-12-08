@@ -21,7 +21,7 @@ object WeatherLoadService {
   def fakeInit = {
     Log.d("WeatherLoadService", "Started fake init")
     val rand: Random = new Random()
-    var forecast = new Weather("Saint-Petersburg", "Russia", (20, 18), new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
+    var forecast = new Weather("Snt-Petersburg", "Russia", (20, 18), new WeatherState(803, "cloudy"), 0.68, 756, "2 m/s SW", new Date(System.currentTimeMillis())) :: Nil
     for (i <- 0 to 10) forecast = new Weather(
       "Saint-Petersburg",
       "Russia",
@@ -68,8 +68,8 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
     Log.d("WeatherLoadService", "sending request: " + url.toString)
     val connection: HttpURLConnection = cast(url.openConnection())
     connection.setRequestMethod("GET")
-    connection.setConnectTimeout(5000)
-    connection.setReadTimeout(5000)
+    connection.setConnectTimeout(15000)
+    connection.setReadTimeout(15000)
     connection.connect()
     Log.d("WeatherLoadService", "Connection passed or timeout")
     val reader: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
