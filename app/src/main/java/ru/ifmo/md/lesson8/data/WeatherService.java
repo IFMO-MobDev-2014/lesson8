@@ -30,7 +30,8 @@ public class WeatherService extends IntentService {
 
     private String a1 = "http://api.worldweatheronline.com/free/v2/weather.ashx?q=";
     private String a2 = "&format=xml&num_of_days=4&lang=en&key=074fdf086f7d38d448f8c3f44b353";
-
+    // api.worldweatheronline.com/free/v2/weather.ashx?q=45%2C-2&format=json&num_of_days=5&key=074fdf086f7d38d448f8c3f44b353
+    //q=45%2C-2 ------> 45, -2
     public static final String ACTION = "RESPONSE";
 
     public WeatherService() {
@@ -41,6 +42,15 @@ public class WeatherService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         String flag = intent.getStringExtra("FLAG");
+
+    /*
+        Geocoder gcd = new Geocoder(AndroidGPSTrackingActivity.this, Locale.getDefault());
+        List<Address> addresses = gcd.getFromLocation(latitude, longitude, 1);
+        if (addresses.size() > 0)
+            System.out.println(addresses.get(0).getLocality());
+    */
+
+
 
         if (flag.equals("all"))
             updateAll();

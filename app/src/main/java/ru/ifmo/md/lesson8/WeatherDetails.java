@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,11 +17,14 @@ import ru.ifmo.md.lesson8.data.WeatherItem;
  * Created by mariashka on 12/2/14.
  */
 public class WeatherDetails extends Fragment{
-    WeatherItem item;
-
+    private WeatherItem item;
 
     public void setItem(WeatherItem i) {
         item = i;
+    }
+
+    public WeatherItem getItem() {
+        return item;
     }
 
     @Override
