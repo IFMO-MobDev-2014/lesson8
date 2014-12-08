@@ -29,10 +29,18 @@
             android:onClick="clickPlus"
             android:text="+"
             android:textStyle="bold"
-            android:layout_marginRight="0dp"
             android:layout_marginTop="12dp"
-            android:layout_marginLeft="150dp">
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp">
         </TextView>
+
+        <Button
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/button"
+            android:clickable="false"
+            android:background="@drawable/abc_btn_radio_to_on_mtrl_015"
+            android:layout_marginTop="12dp" />
     </LinearLayout>
 
     <ListView

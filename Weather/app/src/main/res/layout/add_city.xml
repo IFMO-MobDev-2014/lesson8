@@ -29,7 +29,9 @@
             android:background="#000008ff"
             android:layout_gravity="center_vertical">
         </Button>
+
     </LinearLayout>
+
     <TextView android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:textSize="15sp"

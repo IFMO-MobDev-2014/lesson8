@@ -2,6 +2,7 @@ package md.ifmo.ru.weather;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -34,11 +35,22 @@ public class AddCityActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_city);
         context = this;
+        Intent intent = getIntent();
+        String localCity = intent.getStringExtra(MainActivity.CODE);
+        if ((localCity!=null) && (localCity!=" ")) {
+            TextView textView = (TextView) findViewById(R.id.add_download);
+            textView.setText("Загружаем...");
+            ListView lvAdd = (ListView) findViewById(R.id.lvAdd);
+            ArrayAdapter<String> adapterC = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, new String[0]);
+            lvAdd.setAdapter(adapterC);
+            new SearchTask().execute(localCity);
+        }
     }
 
     public void addCity(View v) {
         EditText editText = (EditText) findViewById(R.id.add_name);
-        String city = editText.getText().toString();
+        String city;
+        city = editText.getText().toString();
         TextView textView = (TextView) findViewById(R.id.add_download);
         textView.setText("Загружаем...");
         ListView lvAdd = (ListView) findViewById(R.id.lvAdd);
