@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -31,6 +34,7 @@ public class MyLoaderIntentService extends IntentService {
 
     public Uri forecastUriCurrCity;
     public Uri currCityUri;
+    public ResultReceiver rs;
 
     @Override
     public void onCreate() {
@@ -78,12 +82,10 @@ public class MyLoaderIntentService extends IntentService {
         String link = intent.getStringExtra("link");
         String name = intent.getStringExtra("city_name");
         int city_id = intent.getIntExtra("city_id", 0);
-
-        Log.d("onHandleIntent", mode + " "+ name);
+        rs = intent.getParcelableExtra("receiver");
 
         if (mode == 2) {
             Cursor c = getContentResolver().query(MyContentProvider.TABLE_CITIES_URI, null, MyContentProvider.COLUMN_CITY_NAME + " = '" + name +"'", null, null, null);
-
             if (c.getCount() == 0) {
                 ContentValues cv = new ContentValues();
                 cv.put(MyContentProvider.COLUMN_CITY_NAME, name);
@@ -96,8 +98,9 @@ public class MyLoaderIntentService extends IntentService {
             else {
                 currCityUri = Uri.withAppendedPath(MyContentProvider.TABLE_CITIES_URI, Long.toString(city_id));
             }
+            c.close();
         }
-        else {
+        else if (mode == 1) {
             forecastUriCurrCity = Uri.withAppendedPath(MyContentProvider.TABLE_FORECAST_URI, Long.toString(city_id));
         }
 
@@ -105,11 +108,15 @@ public class MyLoaderIntentService extends IntentService {
 
         try {
             xml = getXmlFromUrl(link);
-//            Log.d("XML", xml);
+            if (xml.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Service is unreachanble", Toast.LENGTH_LONG);
+                Log.d("Internet", "service is unreachable");
+                return;
+            }
             InputStream stream = new ByteArrayInputStream(xml.getBytes());
             (new MySAXParser(mode, city_id)).parse(stream);
         } catch (SAXException e) {
-            Log.i("SAX BAGUETTE", e.toString());
+            e.printStackTrace();
         } catch (Exception e) {
             Log.i("BAGUETTE", e.toString());
         }
@@ -136,9 +143,11 @@ public class MyLoaderIntentService extends IntentService {
                     break;
                 }
                 case 2: {
-                    //    getContentResolver().delete(forecastUriCurrCity, null, null);
                     saxHandler = new SAXCurrentWeatherParserHandler();
                     break;
+                }
+                case 3: {
+                    saxHandler = new SAXCoordParserHandler();
                 }
             }
 
@@ -187,6 +196,64 @@ public class MyLoaderIntentService extends IntentService {
             if (node != null) {
                 if (qName.equals("time")) {
                     getContentResolver().insert(forecastUriCurrCity, node);
+                    node = null;
+                }
+            }
+        }
+
+    }
+
+
+
+    public class SAXCoordParserHandler extends DefaultHandler {
+
+        private ContentValues node;
+        String cityName;
+
+        @Override
+        public void startElement(java.lang.String uri, java.lang.String localName, java.lang.String qName, org.xml.sax.Attributes attributes) throws org.xml.sax.SAXException {
+            if (qName.equals("current")) {
+                node = new ContentValues();
+            }
+            if (node != null) {
+                if (qName.equals("city")) {
+                    node.put(MyContentProvider.COLUMN_CITY_NAME, attributes.getValue("name"));
+                    cityName = attributes.getValue("name");
+                } else if (qName.equals("speed")) {
+                    node.put(MyContentProvider.COLUMN_WIND, attributes.getValue("name"));
+                    node.put(MyContentProvider.COLUMN_WIND_SPEED, attributes.getValue("value") + " mps");
+                } else if (qName.equals("temperature")) {
+                    node.put(MyContentProvider.COLUMN_TEMP, Integer.toString((int)(Double.parseDouble(attributes.getValue("value"))-273.16)) + " C ");
+                }
+                else if (qName.equals("weather")) {
+                    node.put(MyContentProvider.COLUMN_WEATHER, attributes.getValue("value"));
+                    node.put(MyContentProvider.COLUMN_WEATHER_ICON, attributes.getValue("icon"));
+                }
+            }
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+
+        }
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        @Override
+        public void endElement(java.lang.String uri, java.lang.String localName, java.lang.String qName) throws org.xml.sax.SAXException {
+            if (node != null) {
+                if (qName.equals("current")) {
+                    Cursor c = getContentResolver().query(MyContentProvider.TABLE_CITIES_URI, null, MyContentProvider.COLUMN_CITY_NAME + " = '" + cityName + "'", null, null, null);
+                    if (c.getCount() == 0) {
+                        getContentResolver().insert(MyContentProvider.TABLE_CITIES_URI, node);
+                        Bundle b = new Bundle();
+                        b.putString("city", cityName);
+                        rs.send(0,b);
+                        Log.d("GPS", "sent");
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "City already added", Toast.LENGTH_LONG).show();
+                    }
+                    c.close();
                     node = null;
                 }
             }

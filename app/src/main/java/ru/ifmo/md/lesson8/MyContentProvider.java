@@ -138,13 +138,13 @@ public class MyContentProvider extends ContentProvider {
         int result = 0;
         String ending;
         switch (uriMatcher.match(uri)) {
-            case CITIES_ID:
+            case CITIES:
                 ending = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(s)) {
-                    result = sqlQB.delete(TABLE_CITIES, COLUMN_ID + " = "+ ending, null);
+                    result = sqlQB.delete(TABLE_CITIES, COLUMN_CITY_NAME + " = "+ ending, null);
                 }
                 else {
-                    result = sqlQB.delete(TABLE_CITIES, COLUMN_ID + " = "+ ending + " and " + s, strings);
+                    result = sqlQB.delete(TABLE_CITIES,  s, strings);
                 }
                 break;
 

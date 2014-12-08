@@ -84,7 +84,7 @@ public class ItemDetailFragment extends Fragment implements android.support.v4.a
                         String imgName = "i"+cursor.getString(6);
                         int imgResource = getResources().getIdentifier(imgName, "drawable", getActivity().getPackageName());
                         imgView.setImageBitmap(BitmapFactory.decodeResource(getResources(), imgResource));
-                        Log.d("ImgSet", imgName + " " + imgResource);
+               //         Log.d("ImgSet", imgName + " " + imgResource);
                         return true;
                     }
                     return false;
