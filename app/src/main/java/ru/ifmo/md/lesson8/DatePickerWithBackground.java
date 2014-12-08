@@ -14,6 +14,7 @@ import java.util.Calendar;
  */
 public class DatePickerWithBackground extends NumberPicker implements DateSelector {
     private static final DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
+    TimeOfDay timeOfDay;
     private Calendar calendar = Calendar.getInstance();
 
     public DatePickerWithBackground(Context context) {
@@ -27,6 +28,18 @@ public class DatePickerWithBackground extends NumberPicker implements DateSelect
     @Override
     public void setTimeOfDay(TimeOfDay timeOfDay) {
         ((WeatherView) getParent()).setTimeOfDay(timeOfDay);
+        this.timeOfDay = timeOfDay;
+        refreshDrawableState();
+        invalidate();
+    }
+
+    @Override
+    protected int[] onCreateDrawableState(int extraSpace) {
+        if (timeOfDay != null) {
+            int[] result = super.onCreateDrawableState(extraSpace + 1);
+            return mergeDrawableStates(result, new int[]{DAYTIME_STATE_SET[timeOfDay.ordinal()]});
+        }
+        return super.onCreateDrawableState(extraSpace);
     }
 
     @Override
@@ -58,13 +71,13 @@ public class DatePickerWithBackground extends NumberPicker implements DateSelect
         setDisplayedValues(dates);
         setMinValue(0);
         setMaxValue(10);
+        setValue(5);
     }
 
     @Override
     public void setDate(long date, boolean arg1, boolean arg2) {
         calendar.setTimeInMillis(date);
         generateDates();
-        setValue(5);
     }
 
     @Override
@@ -74,9 +87,8 @@ public class DatePickerWithBackground extends NumberPicker implements DateSelect
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 if (newVal <= 1 || newVal >= 9) {
                     calendar.add(Calendar.DATE, newVal - 5);
-                    generateDates();
                     setOnValueChangedListener(null);
-                    setValue(5);
+                    generateDates();
                     setOnValueChangedListener(this);
                 }
                 if (listener != null)

@@ -127,7 +127,9 @@ public class WeatherStorage extends ContentProvider {
                 Log.d("WeatherStorage", "Loaded period [" + past[0].getAsLong(TIME) + ", " + past[past.length - 1].getAsLong(TIME) + "]");
                 Log.v("WeatherStorage", "(" + past.length + " entries)");
             } else
-                Log.d("WeatherStorage", "Loaded no data");
+                Log.w("WeatherStorage", "Loaded no data");
+            if (past.length == 0)
+                return 0;
             SQLiteDatabase db = database.getWritableDatabase();
             int result = 0;
             boolean cityExists = db.query(CITIES, null, CITY_NAME + " = ?", new String[]{cityName}, null, null, null).getCount() == 1;

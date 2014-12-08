@@ -1378,6 +1378,10 @@ public class NumberPicker extends LinearLayout {
 
         // draw the selection dividers
         if (mSelectionDivider != null) {
+            // Temporary fix for stateful selection dividers
+            if (mSelectionDivider.isStateful())
+                mSelectionDivider.setState(getDrawableState());
+
             // draw the top divider
             int topOfTopDivider = mTopSelectionDividerTop;
             int bottomOfTopDivider = topOfTopDivider + mSelectionDividerHeight;

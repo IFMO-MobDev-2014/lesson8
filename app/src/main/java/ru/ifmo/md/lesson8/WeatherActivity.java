@@ -24,9 +24,9 @@ import java.util.Calendar;
 import static ru.ifmo.md.lesson8.WeatherColumns.CITY_NAME;
 import static ru.ifmo.md.lesson8.WeatherColumns.TIME;
 
-public class WeatherActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, DateSelector.OnTimeChangedListener, ActionBar.OnNavigationListener {
+public class WeatherActivity extends Activity implements LoaderManager.LoaderCallbacks, DateSelector.OnTimeChangedListener, ActionBar.OnNavigationListener {
     static final int[] apprTimes = new int[]{0, 6, 9, 16, 24};
-    SpinnerAdapter adapter;
+    SpinnerAdapter adapter = new SpinnerAdapter(this);
     WeatherSoon activated;
     MenuItem refreshButton;
     boolean progress;
@@ -127,9 +127,11 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader onCreateLoader(int id, Bundle args) {
         if (id == 0)
             return new CursorLoader(this, Uri.parse("content://net.dimatomp.weather.provider/cities"), null, null, null, null);
+        if (id == 3)
+            return new DeviceLocationLoader(this);
         return new CursorLoader(this, Uri.parse("content://net.dimatomp.weather.provider/weather?" +
                 "city=" + Uri.encode(getCity()) + "&time=" + args.getLong("date")), null, null, null, null);
     }
@@ -140,20 +142,38 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
         return true;
     }
 
+    void forceSwitchToCity(int index) {
+        ActionBar actionBar = getActionBar();
+        if (actionBar.getSelectedNavigationIndex() != index)
+            actionBar.setSelectedNavigationItem(index);
+        else
+            onNavigationItemSelected(index, -1);
+    }
+
     @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if (data instanceof String) {
+            for (int i = 0; i < adapter.getCount(); i++)
+                if (adapter.getItem(i).equals(data)) {
+                    getActionBar().setSelectedNavigationItem(i);
+                    return;
+                }
+            adapter.addCity(data.toString());
+            getActionBar().setSelectedNavigationItem(adapter.getCount() - 1);
+        } else
+            onLoadFinished(loader, (Cursor) data);
+    }
+
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == 0) {
-            adapter = new SpinnerAdapter(this);
-            if (data.getCount() > 0)
+            if (data.getCount() > 0) {
                 for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext())
                     adapter.addCity(data.getString(data.getColumnIndex(CITY_NAME)));
-            else
-                adapter.addCity("Saint Petersburg");
-            ActionBar actionBar = getActionBar();
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            actionBar.setTitle("");
-            actionBar.setListNavigationCallbacks(adapter, this);
-            setCity(adapter.getItem(actionBar.getSelectedNavigationIndex()).toString());
+                if (adapter.getCount() > 0)
+                    forceSwitchToCity(0);
+            } else
+                Toast.makeText(this, R.string.first_use_location, Toast.LENGTH_SHORT);
+            getLoaderManager().initLoader(3, null, this).forceLoad();
         } else {
             setProgressShown(false);
             int[] tabNames = new int[]{R.id.night_tab, R.id.morning_tab, R.id.daytime_tab, R.id.evening_tab};
@@ -187,7 +207,7 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader loader) {
     }
 
     @Override
@@ -207,6 +227,9 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
 
         getContentResolver().registerContentObserver(
                 Uri.parse("content://net.dimatomp.weather.provider/weather"), false, observer);
+        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getActionBar().setListNavigationCallbacks(adapter, this);
+        getActionBar().setTitle("");
     }
 
     @Override
@@ -254,8 +277,10 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
         DateSelector selector = (DateSelector) findViewById(R.id.calendar);
         calendar.add(Calendar.DATE, 4);
         selector.setMaxDate(calendar.getTimeInMillis());
-        selector.setOnTimeChangedListener(this);
+        selector.setOnTimeChangedListener(null);
         selector.setDate(System.currentTimeMillis(), false, false);
+        onTimeChanged(selector, System.currentTimeMillis());
+        selector.setOnTimeChangedListener(this);
 
         long time = System.currentTimeMillis();
         long[] period = WeatherActivity.getDayRange(time);

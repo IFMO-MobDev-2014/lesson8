@@ -23,7 +23,7 @@ public class WeatherForecast implements WeatherContainer {
 
     @Override
     public ContentValues[] getWeatherInfo() {
-        ContentValues[] result = new ContentValues[list.size()];
+        ContentValues[] result = new ContentValues[list != null ? list.size() : 0];
         for (int i = 0; i < result.length; i++) {
             result[i] = new ContentValues();
             city.inflate(result[i]);

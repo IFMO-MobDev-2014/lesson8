@@ -19,4 +19,5 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_add">Add city</string>
     <string name="action_remove">Remove city</string>
+    <string name="first_use_location">Finding your city by location, please wait...</string>
 </resources>
