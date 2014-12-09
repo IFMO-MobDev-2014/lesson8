@@ -56,7 +56,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
     private ListView drawerList;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private WeatherItem currentWeatherItem;
+    private static WeatherItem currentWeatherItem;
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     private boolean resumed = false;
@@ -137,6 +137,7 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
             public void onProviderDisabled(String provider) {}
         };
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 100000, locationListener);
+        showCurrent(null);
     }
 
     public void setFragments() {
@@ -269,12 +270,12 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
         startService(service);
     }
 
-    public WeatherItem getCurrentWeatherItem() {
+    public static WeatherItem getCurrentWeatherItem() {
         return currentWeatherItem;
     }
 
-    public void setCurrentWeatherItem(WeatherItem currentWeatherItem) {
-        this.currentWeatherItem = currentWeatherItem;
+    public static void setCurrentWeatherItem(WeatherItem c) {
+        currentWeatherItem = c;
     }
 
     public void deleteCities(final MenuItem item) {
@@ -282,10 +283,6 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
 
         alert.setTitle("Delete cities");
         if (items != null) {
-            final ArrayList<String> cities = new ArrayList<>();
-            for (int i = 0; i < items.size(); i++) {
-                cities.add(items.get(i).getName());
-            }
             final ListView listView = new ListView(this);
             listView.setAdapter(adapter);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -307,5 +304,14 @@ public class WeatherMain extends ActionBarActivity implements ListListener {
 
         alert.show();
 
+    }
+
+    public void showCurrent(MenuItem item) {
+        WeatherDetails w = new WeatherDetails();
+        w.setItem(currentWeatherItem);
+        transaction = getFragmentManager().beginTransaction();
+        transaction.add(R.id.root_layout, w, "detail");
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

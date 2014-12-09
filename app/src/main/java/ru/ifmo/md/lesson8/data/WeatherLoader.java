@@ -35,20 +35,25 @@ public class WeatherLoader extends AsyncTaskLoader<List<WeatherItem>> {
             curr.setId(cursor.getInt(0));
             curr.setName(cursor.getString(1));
             curr.setCondition(cursor.getString(2));
-            curr.setCurrT(cursor.getInt(3));
-            curr.setDate(cursor.getString(4));
-            curr.setFeels(cursor.getInt(5));
+            if (curr.getCondition().equals("nothing")) {
+                curr.setLoaded(false);
+            } else {
+                curr.setLoaded(true);
+                curr.setCurrT(cursor.getInt(3));
+                curr.setDate(cursor.getString(4));
+                curr.setFeels(cursor.getInt(5));
 
-            for (int i = 6; i < 13; i += 2) {
-                curr.addHourlyT(cursor.getInt(i));
-                curr.addHourlyC(cursor.getString(i + 1));
-            }
-            for (int i = 14; i < 22; i += 3) {
-                WeatherItem tmp = new WeatherItem();
-                tmp.setMin(cursor.getInt(i));
-                tmp.setMax(cursor.getInt(i + 1));
-                tmp.setCondition(cursor.getString(i + 2));
-                curr.addNext(tmp);
+                for (int i = 6; i < 13; i += 2) {
+                    curr.addHourlyT(cursor.getInt(i));
+                    curr.addHourlyC(cursor.getString(i + 1));
+                }
+                for (int i = 14; i < 22; i += 3) {
+                    WeatherItem tmp = new WeatherItem();
+                    tmp.setMin(cursor.getInt(i));
+                    tmp.setMax(cursor.getInt(i + 1));
+                    tmp.setCondition(cursor.getString(i + 2));
+                    curr.addNext(tmp);
+                }
             }
             list.add(curr);
         } while (cursor.moveToNext());

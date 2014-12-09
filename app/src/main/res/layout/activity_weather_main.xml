@@ -9,15 +9,7 @@
         android:layout_height="match_parent"
         android:id="@+id/root_layout">
 
-        <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/primary_dark_material_dark"
-        android:textAppearance="?android:attr/textAppearanceListItem"
-        android:text="Let's start!"
-        android:textSize="150sp"
-        android:id="@+id/textView2"
-            android:layout_gravity="center" />
+
     </FrameLayout>
 
     <ListView

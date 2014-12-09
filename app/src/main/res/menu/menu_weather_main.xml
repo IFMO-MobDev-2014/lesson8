@@ -11,6 +11,13 @@
         android:onClick="listAppear"
         app:showAsAction="always" />
     <item
+        android:id="@+id/home"
+        android:icon="@drawable/home"
+        android:onClick="showCurrent"
+        android:title=""
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/delete_button"
         android:icon="@android:drawable/ic_delete"
         android:onClick="deleteCities"

@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class WeatherItem {
 
+    private boolean isLoaded;
     private int id;
     private String name;
     private int minT, maxT, feels;
@@ -105,5 +106,13 @@ public class WeatherItem {
 
     public void setFeels(int feels) {
         this.feels = feels;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
+    }
+
+    public void setLoaded(boolean isLoaded) {
+        this.isLoaded = isLoaded;
     }
 }

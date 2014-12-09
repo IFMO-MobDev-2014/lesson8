@@ -11,5 +11,6 @@
     <string name="hourly">Weather conditions during this day</string>
     <string name="naxt">Next days weather forecast</string>
     <string name="forecast">Weather forecast</string>
+    <string name="notLoadede">Forecast for this location is not loaded yet.\nPlease, check your GPS and Internet connection and refresh</string>
 
 </resources>

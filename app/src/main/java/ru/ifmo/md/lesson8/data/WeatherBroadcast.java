@@ -18,10 +18,15 @@ public class WeatherBroadcast extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getBooleanExtra("response", false)) {
-            WeatherLoader loader = new WeatherLoader(context);
-            List<WeatherItem> list = loader.loadInBackground();
-            ((WeatherMain) context).setItems(list);
-            ((WeatherMain)context).setFragments();
+            String done = intent.getStringExtra("done");
+            if (!done.equals("current")) {
+                WeatherLoader loader = new WeatherLoader(context);
+                List<WeatherItem> list = loader.loadInBackground();
+                ((WeatherMain) context).setItems(list);
+                ((WeatherMain) context).setFragments();
+            } else {
+                //TODO
+            }
         }
     }
 }

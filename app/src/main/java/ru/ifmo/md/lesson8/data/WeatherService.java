@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+import ru.ifmo.md.lesson8.WeatherMain;
 
 import static ru.ifmo.md.lesson8.data.WeatherContentProvider.CITY_URI;
 import static ru.ifmo.md.lesson8.data.WeatherContentProvider.WEATHER_URI;
@@ -30,8 +33,9 @@ public class WeatherService extends IntentService {
 
     private String a1 = "http://api.worldweatheronline.com/free/v2/weather.ashx?q=";
     private String a2 = "&format=xml&num_of_days=4&lang=en&key=074fdf086f7d38d448f8c3f44b353";
-    // api.worldweatheronline.com/free/v2/weather.ashx?q=45%2C-2&format=json&num_of_days=5&key=074fdf086f7d38d448f8c3f44b353
-    //q=45%2C-2 ------> 45, -2
+    private String b1 = "api.worldweatheronline.com/free/v2/weather.ashx?q=";
+    private String b2 = "%2C";
+    private String b3 = "&format=xml&num_of_days=4&lang=en&key=074fdf086f7d38d448f8c3f44b353";
     public static final String ACTION = "RESPONSE";
 
     public WeatherService() {
@@ -43,21 +47,49 @@ public class WeatherService extends IntentService {
 
         String flag = intent.getStringExtra("FLAG");
 
-    /*
-        Geocoder gcd = new Geocoder(AndroidGPSTrackingActivity.this, Locale.getDefault());
-        List<Address> addresses = gcd.getFromLocation(latitude, longitude, 1);
-        if (addresses.size() > 0)
-            System.out.println(addresses.get(0).getLocality());
-    */
-
         if (flag.equals("all"))
             updateAll();
-        else if (flag.equals("delete")) {
-            String name = intent.getStringExtra("name");
-            deleteCity(name);
-        } else {
-            addCity(flag);
+        else if (flag.equals("current")) {
+            double lat = intent.getDoubleExtra("latitude", 0.0);
+            double lon  = intent.getDoubleExtra("longitude", 0.0);
+            getCurrent(lat, lon);
+        } else if (flag.equals("delete")) {
+                String name = intent.getStringExtra("name");
+                deleteCity(name);
+            } else {
+                addCity(flag);
+            }
+    }
+
+    void getCurrent(double latitude, double longitude) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            WeatherHandler handler = new WeatherHandler();
+            URL url = new URL(b1 + Double.toString(latitude) + b2 + Double.toString(longitude) + b3);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            InputStream in = connection.getInputStream();
+            saxParser.parse(in, handler);
+            connection.disconnect();
+
+            List<WeatherItem> items = handler.getItems();
+            WeatherItem curr = items.get(0);
+            for (int i = 1; i < items.size(); i++) {
+                curr.addNext(items.get(i));
+            }
+            WeatherMain.setCurrentWeatherItem(curr);
+            response("current");
+        } catch (ParserConfigurationException e) {
+            response(false);
+            e.printStackTrace();
+        } catch (SAXException e) {
+            response(false);
+            e.printStackTrace();
+        } catch (IOException e) {
+            response(false);
+            e.printStackTrace();
         }
+
     }
 
     void deleteCity(String city) {
@@ -82,9 +114,9 @@ public class WeatherService extends IntentService {
 
 
     void addCity(String s) {
+        ContentValues cv = new ContentValues();
+        cv.put("name", s);
         try {
-            ContentValues cv = new ContentValues();
-            cv.put("name", s);
             getContentResolver().insert(CITY_URI, cv);
             Cursor cursor = getContentResolver().query(CITY_URI, null, null, null, null);
             int n = cursor.getCount();
@@ -118,15 +150,18 @@ public class WeatherService extends IntentService {
                 cv.put("hour_c" + Integer.toString(i + 1), hC.get(2*i));
             }
             getContentResolver().insert(WEATHER_URI, cv);
-            response(true);
+            response(s);
         } catch (ParserConfigurationException e) {
-            response(false);
+            cv.put("cond", "nothing");
+            getContentResolver().insert(WEATHER_URI, cv);
             e.printStackTrace();
         } catch (SAXException e) {
-            response(false);
+            cv.put("cond", "nothing");
+            getContentResolver().insert(WEATHER_URI, cv);
             e.printStackTrace();
         } catch (IOException e) {
-            response(false);
+            cv.put("cond", "nothing");
+            getContentResolver().insert(WEATHER_URI, cv);
             e.printStackTrace();
         }
     }
@@ -152,38 +187,44 @@ public class WeatherService extends IntentService {
                 subs = getContentResolver().query(CITY_URI, null, null, null, null);
                 subs.moveToFirst();
             }
-            try {
-                do {
+            do {
+                String city = subs.getString(1);
+                WeatherItem curr = new WeatherItem();
+                curr.setName(city);
+                curr.setLoaded(false);
+                curr.setCondition("nothing");
+                list.add(curr);
+
+                try {
                     SAXParserFactory factory = SAXParserFactory.newInstance();
                     SAXParser saxParser = factory.newSAXParser();
                     WeatherHandler handler = new WeatherHandler();
 
-                    String city = subs.getString(1);
                     URL url = new URL(a1 + city + a2);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     InputStream in = connection.getInputStream();
                     saxParser.parse(in, handler);
 
                     List<WeatherItem> items = handler.getItems();
-                    WeatherItem curr = items.get(0);
+                    curr = items.get(0);
                     curr.setName(city);
                     for (int i = 1; i < items.size(); i++) {
                         items.get(i).setCondition(items.get(i).getHourlyC().get(4));
                         curr.addNext(items.get(i));
                     }
+                    list.remove(list.size() - 1);
                     list.add(curr);
                     connection.disconnect();
-                } while (subs.moveToNext());
-            } catch (ParserConfigurationException e) {
-                response(false);
-                e.printStackTrace();
-            } catch (SAXException e) {
-                response(false);
-                e.printStackTrace();
-            } catch (IOException e) {
-                response(false);
-                e.printStackTrace();
-            }
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } while (subs.moveToNext());
         }
 
         Cursor cursor = getContentResolver().query(WEATHER_URI, null, null, null, null);
@@ -200,32 +241,43 @@ public class WeatherService extends IntentService {
             n = cursor.getCount();
             ContentValues cv = new ContentValues();
             cv.put("name", aCurr.getName());
-            cv.put("cond", aCurr.getCondition());
-            cv.put("curr_t", aCurr.getCurrT());
-            cv.put("date_t", aCurr.getDate());
-            cv.put("feel", aCurr.getFeels());
+            if (!aCurr.getCondition().equals("nothing")) {
+                cv.put("cond", aCurr.getCondition());
+                cv.put("curr_t", aCurr.getCurrT());
+                cv.put("date_t", aCurr.getDate());
+                cv.put("feel", aCurr.getFeels());
 
-            List<Integer> hT = aCurr.getHourlyT();
-            List<String> hC = aCurr.getHourlyC();
-            for (int i = 0; i < hT.size() / 2; i ++) {
-                cv.put("hour_t" + Integer.toString(i + 1), hT.get(2 * i));
-                cv.put("hour_c" + Integer.toString(i + 1), hC.get(2 * i));
-            }
+                List<Integer> hT = aCurr.getHourlyT();
+                List<String> hC = aCurr.getHourlyC();
+                for (int i = 0; i < hT.size() / 2; i++) {
+                    cv.put("hour_t" + Integer.toString(i + 1), hT.get(2 * i));
+                    cv.put("hour_c" + Integer.toString(i + 1), hC.get(2 * i));
+                }
 
-            List<WeatherItem> next = aCurr.getNext();
-            for (int i = 0; i < next.size(); i++) {
-                cv.put("next_min" + Integer.toString(i + 1), next.get(i).getMin());
-                cv.put("next_max" + Integer.toString(i + 1), next.get(i).getMax());
-                cv.put("next_c" + Integer.toString(i + 1), next.get(i).getCondition());
+                List<WeatherItem> next = aCurr.getNext();
+                for (int i = 0; i < next.size(); i++) {
+                    cv.put("next_min" + Integer.toString(i + 1), next.get(i).getMin());
+                    cv.put("next_max" + Integer.toString(i + 1), next.get(i).getMax());
+                    cv.put("next_c" + Integer.toString(i + 1), next.get(i).getCondition());
+                }
+            } else {
+                cv.put("cond", aCurr.getCondition());
             }
             getContentResolver().insert(WEATHER_URI, cv);
         }
-        response(true);
+        response("all");
     }
 
 
 
-
+    private void response(String s) {
+        Intent intentResponse = new Intent();
+		intentResponse.setAction(ACTION);
+		intentResponse.addCategory(Intent.CATEGORY_DEFAULT);
+        intentResponse.putExtra("response", true);
+        intentResponse.putExtra("done", s);
+		sendBroadcast(intentResponse);
+    }
 
     private void response(boolean f) {
         Intent intentResponse = new Intent();
