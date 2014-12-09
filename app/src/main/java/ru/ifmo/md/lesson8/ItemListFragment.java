@@ -1,8 +1,12 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -26,7 +30,8 @@ public class ItemListFragment extends ListFragment {
      * activated item position. Only used on tablets.
      */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
-
+    private static final String LOG_TAG = "itemlistfragment";
+    private static final Uri DB_URI = Uri.parse("content://ru.ifmo.md.lesson8.providers.weather/weather");
     /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
@@ -66,17 +71,14 @@ public class ItemListFragment extends ListFragment {
      */
     public ItemListFragment() {
     }
-
+    MyAdapter adapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        Log.d(LOG_TAG, "itemlistfragment");
+        Cursor cur = getActivity().getContentResolver().query(DB_URI, null, null, null, null);
+        adapter = new MyAdapter(getActivity(), cur);
+        setListAdapter(adapter);
     }
 
     @Override
@@ -117,6 +119,7 @@ public class ItemListFragment extends ListFragment {
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+
     }
 
     @Override

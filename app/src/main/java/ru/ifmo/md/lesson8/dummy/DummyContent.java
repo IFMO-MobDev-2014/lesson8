@@ -22,17 +22,26 @@ public class DummyContent {
      * A map of sample (dummy) items, by ID.
      */
     public static Map<String, DummyItem> ITEM_MAP = new HashMap<String, DummyItem>();
-
+    public static int sizeD = 6;
     static {
         // Add 3 sample items.
-        addItem(new DummyItem("1", "Item 1"));
-        addItem(new DummyItem("2", "Item 2"));
-        addItem(new DummyItem("3", "Item 3"));
+        addItem(new DummyItem("1", "2123260"));
+        addItem(new DummyItem("2", "2122265"));
+        addItem(new DummyItem("3", "2099280"));
+        addItem(new DummyItem("4", "2459115"));
+        addItem(new DummyItem("5", "2442047"));
+      //  addItem(new DummyItem("6", "2379574"));
     }
 
     private static void addItem(DummyItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.id, item);
+    }
+    public int size() {
+        return ITEM_MAP.size();
+    }
+    public void changeItem(String id, String value) {
+        ITEM_MAP.get(id).content = value;
     }
 
     /**

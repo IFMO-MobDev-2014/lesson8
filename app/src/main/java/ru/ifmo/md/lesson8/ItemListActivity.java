@@ -1,8 +1,11 @@
 package ru.ifmo.md.lesson8;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 
 /**
@@ -24,6 +27,7 @@ import android.support.v4.app.FragmentActivity;
 public class ItemListActivity extends FragmentActivity
         implements ItemListFragment.Callbacks {
 
+    private static final String LOG_TAG = "intemlistactivity";
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -34,7 +38,7 @@ public class ItemListActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
-
+        Log.d(LOG_TAG, "itemlistactivity");
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -48,7 +52,6 @@ public class ItemListActivity extends FragmentActivity
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
         }
-
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
