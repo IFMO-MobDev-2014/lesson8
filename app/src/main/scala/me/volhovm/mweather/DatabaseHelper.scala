@@ -1,8 +1,8 @@
 package me.volhovm.mweather
 
-import java.util.{Random, Date}
+import java.util.Date
 
-import android.content.{ContentValues, ContentResolver, Context}
+import android.content.{ContentResolver, ContentValues, Context}
 import android.database.Cursor
 import android.database.sqlite.{SQLiteDatabase, SQLiteOpenHelper}
 import android.provider.BaseColumns
@@ -24,7 +24,7 @@ object DatabaseHelper extends BaseColumns {
 
   val CITIES_TABLE_NAME = "cities"
   val CITY = "city"
-  
+
   val CREATE_WEATHER_TABLE = "create table " +
     WEATHER_TABLE_NAME + " (" +
     BaseColumns._ID + " integer primary key autoincrement, " +
@@ -40,12 +40,13 @@ object DatabaseHelper extends BaseColumns {
     WEATHER_DATE + " integer);"
 
   val CREATE_CITIES_TABLE = "create table " + CITIES_TABLE_NAME + " (" +
-    BaseColumns._ID  + " integer primary key autoincrement, " +
+    BaseColumns._ID + " integer primary key autoincrement, " +
     CITY + " text not null);"
 }
 
 class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, null, 1) with BaseColumns {
   private val mContentResolver: ContentResolver = context.getContentResolver
+
   import me.volhovm.mweather.DatabaseHelper._
 
   override def onCreate(db: SQLiteDatabase): Unit = {
@@ -55,7 +56,7 @@ class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, n
 
   override def onUpgrade(p1: SQLiteDatabase, p2: Int, p3: Int): Unit = throw new UnsupportedOperationException("CANNOT UPGRADE DB")
 
-  def addWeather(weather: Weather): Unit = mContentResolver.insert(WeatherProvider.MAIN_CONTENT_URI, weather.getValues())
+  def addWeather(weather: Weather): Unit = mContentResolver.insert(WeatherProvider.MAIN_CONTENT_URI, weather.getValues)
 
   def getCities(): List[String] = {
     var cursor: Cursor =
@@ -88,7 +89,8 @@ class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, n
   private def compose[A](cursor: Cursor, foo: (Cursor) => A): List[A] =
     if (cursor.isAfterLast) Nil
     else foo(cursor) :: compose({
-      cursor.moveToNext(); cursor
+      cursor.moveToNext();
+      cursor
     }, foo)
 
   def cursorToWeather(cursor: Cursor): Weather =

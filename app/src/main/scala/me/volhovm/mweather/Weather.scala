@@ -3,7 +3,6 @@ package me.volhovm.mweather
 import java.util.Date
 
 import android.content.ContentValues
-import android.util.Xml
 
 class Weather(val city: String,
               val country: String,
@@ -14,10 +13,10 @@ class Weather(val city: String,
               val wind: String,
               val date: Date) {
   private def wrapTemp(i: Int): String = if (i > 0) "+" + i.toString else if (i == 0) " " + i.toString else i.toString
-  def lowTemp() = wrapTemp(temp._1)
-  def highTemp() = wrapTemp(temp._2)
-  def getValues() = {
-    import DatabaseHelper._
+  def lowTemp = wrapTemp(temp._1)
+  def highTemp = wrapTemp(temp._2)
+  def getValues = {
+    import me.volhovm.mweather.DatabaseHelper._
     val values: ContentValues = new ContentValues()
     values.put(WEATHER_CITY, city)
     values.put(WEATHER_COUNTRY, country)
@@ -42,7 +41,7 @@ class WeatherState(code: Int, desc: String) {
     case a if a == 500 | a == 501 | a == 511 | a == 520 => R.drawable.background_rain_0
     case a if a == 502 | a == 504 | a == 521 | a == 522 | a == 531 => R.drawable.background_rain_2
     case a if a > 300 && a < 600 => R.drawable.background_rain_1
-    case a if a == 600 | a == 601 | a == 611 |  a == 620 => R.drawable.background_snow_0
+    case a if a == 600 | a == 601 | a == 611 | a == 620 => R.drawable.background_snow_0
     case a if a == 622 | a == 602 | a == 612 => R.drawable.background_snow_2
     case a if a == 615 | a == 616 => R.drawable.background_snow_rain_0
     case a if a > 600 && a < 700 => R.drawable.background_snow_1

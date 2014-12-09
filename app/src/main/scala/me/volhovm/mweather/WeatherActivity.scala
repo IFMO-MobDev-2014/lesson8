@@ -5,17 +5,16 @@ import java.util
 
 import android.app.AlertDialog.Builder
 import android.app._
-import android.content.{Intent, Context, DialogInterface}
 import android.content.DialogInterface.OnClickListener
+import android.content.{Context, DialogInterface, Intent}
 import android.location.{Location, LocationListener, LocationManager}
-import android.os.{Handler, Bundle}
+import android.os.{Bundle, Handler}
 import android.support.v13.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
 import android.util.Log
-import android.view.View.OnLongClickListener
 import android.view.{Menu, MenuItem, View, ViewGroup}
-import android.widget.AdapterView.{OnItemLongClickListener, OnItemClickListener}
+import android.widget.AdapterView.{OnItemClickListener, OnItemLongClickListener}
 import android.widget._
 import com.achep.header2actionbar.FadingActionBarHelper
 
@@ -80,7 +79,7 @@ class WeatherActivity extends Activity with Receiver {
 
   class SimpleLocationListener extends LocationListener {
     override def onLocationChanged(loc: Location): Unit = {
-//      Toast.makeText(WeatherActivity.this, "Location: " + loc.getLatitude.toString + " " + loc.getLongitude.toString, Toast.LENGTH_SHORT).show()
+      //      Toast.makeText(WeatherActivity.this, "Location: " + loc.getLatitude.toString + " " + loc.getLongitude.toString, Toast.LENGTH_SHORT).show()
     }
     override def onProviderEnabled(p1: String): Unit = Toast.makeText(WeatherActivity.this, "Location enabled", Toast.LENGTH_SHORT).show()
     override def onProviderDisabled(p1: String): Unit = Toast.makeText(WeatherActivity.this, "Location disabled", Toast.LENGTH_SHORT).show()
@@ -121,18 +120,19 @@ class WeatherActivity extends Activity with Receiver {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {
               val location: Location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
               if (location != null) {
+                import me.volhovm.mweather.WeatherLoadService._
                 val intent: Intent = new Intent(Intent.ACTION_SYNC, null, WeatherActivity.this, classOf[WeatherLoadService])
                 Toast.makeText(WeatherActivity.this, "Refreshing", Toast.LENGTH_SHORT).show()
-                intent.putExtra(WeatherLoadService.LATITUDE, location.getLatitude)
-                intent.putExtra(WeatherLoadService.LONGITUDE, location.getLongitude)
-                intent.putExtra(WeatherLoadService.IS_CITYNAME_MODE, false)
+                intent.putExtra(LATITUDE, location.getLatitude)
+                intent.putExtra(LONGITUDE, location.getLongitude)
+                intent.putExtra(SERVICE_MODE, COORD_MODE)
                 val receiver = new WeatherLoadReceiver(new Handler())
                 receiver.setReceiver(cast[Activity, Receiver](WeatherActivity.this))
-                intent.putExtra(WeatherLoadService.RECEIVER, receiver)
+                intent.putExtra(RECEIVER, receiver)
                 WeatherActivity.this.startService(intent)
                 Toast.makeText(WeatherActivity.this, location.getLatitude.toString + " " + location.getLongitude.toString, Toast.LENGTH_SHORT)
               } else
-                Toast.makeText(WeatherActivity.this, "Couldnt retrieve location", Toast.LENGTH_SHORT)
+                Toast.makeText(WeatherActivity.this, "Couldn't retrieve location", Toast.LENGTH_SHORT)
             }
           })
           weatherAddDialogBuilder.show()
@@ -195,8 +195,7 @@ class WeatherActivity extends Activity with Receiver {
     mDBHelper.addCity(cityname)
   }
 
-  def getCurrentContainerFragment(): WeatherDetailFragment =
-  {
+  def getCurrentContainerFragment(): WeatherDetailFragment = {
     val out = cast[AnyRef, WeatherDetailFragment](mSwipeAdapter.findRef(mViewPager.getCurrentItem))
     Log.d("WeatherActivity", "getContainerFragment: " + out.cityName + " on position " + mViewPager.getCurrentItem)
     out
@@ -210,25 +209,27 @@ class WeatherActivity extends Activity with Receiver {
 
   def getFadingActionBarHelper(): FadingActionBarHelper = mFadingActionBarHelper
 
+  import me.volhovm.mweather.WeatherLoadService._
+
   override def onReceiveResult(resCode: Int, resData: Bundle): Unit = resCode match {
-    case WeatherLoadService.STATUS_ERROR => Toast.makeText(this, "Failed to load data: " +
-      resData.getString(WeatherLoadService.NEW_CITY), Toast.LENGTH_LONG).show()
-    case WeatherLoadService.STATUS_FINISHED => {
-      if (resData.getBoolean(WeatherLoadService.IS_CITYNAME_MODE)) {
-        Toast.makeText(this, "Refreshed succesfully", Toast.LENGTH_SHORT).show()
-        val frag = getContainerFragment(resData.getInt(WeatherLoadService.FRAGMENT_ID))
-        frag.setCity(resData.getString(WeatherLoadService.NEW_CITY))
-        mCityNames = mCityNames.updated(resData.getInt(WeatherLoadService.FRAGMENT_ID), resData.getString(WeatherLoadService.NEW_CITY))
-        if (frag.isAdded) {
-          Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
-          frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
-        }
-      } else {
-        val city = resData.getString(WeatherLoadService.NEW_CITY)
-        Toast.makeText(this, "Loaded city: " + city, Toast.LENGTH_SHORT).show()
-        addCity(city)
+    case STATUS_ERROR => Toast.makeText(this, "Failed to load data: " +
+      resData.getString(NEW_CITY), Toast.LENGTH_LONG).show()
+    case STATUS_FINISHED =>
+      resData.getInt(SERVICE_MODE) match {
+        case CITY_MODE =>
+          Toast.makeText(this, "Refreshed succesfully", Toast.LENGTH_SHORT).show()
+          val frag = getContainerFragment(resData.getInt(FRAGMENT_ID))
+          frag.setCity(resData.getString(NEW_CITY))
+          mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), resData.getString(NEW_CITY))
+          if (frag.isAdded) {
+            Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
+            frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+          }
+        case COORD_MODE =>
+          val city = resData.getString(NEW_CITY)
+          Toast.makeText(this, "Loaded city: " + city, Toast.LENGTH_SHORT).show()
+          addCity(city)
       }
-    }
     case _ => ()
   }
 }

@@ -1,12 +1,11 @@
 package me.volhovm.mweather
 
 import java.text.SimpleDateFormat
-import java.util.{Date, Random}
 
+import android.app.Activity
 import android.app.LoaderManager.LoaderCallbacks
-import android.app.{Fragment, Activity}
-import android.content.{Intent, AsyncTaskLoader, Context, Loader}
-import android.os.{Handler, Bundle}
+import android.content.{AsyncTaskLoader, Context, Intent, Loader}
+import android.os.{Bundle, Handler}
 import android.util.Log
 import android.view._
 import android.view.animation.Animation.AnimationListener
@@ -158,9 +157,9 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
             cast[View, ImageView](forecastView.findViewById(R.id.image_status)).setImageResource(forecast.weatherState.getIcon)
             cast[View, TextView](forecastView.findViewById(R.id.date)).setText(new SimpleDateFormat("dd MMM").format(forecast.date))
           }
-          cast[View, TextView](forecastView.findViewById(R.id.lower_temp)).setText(forecast.lowTemp() + " °C")
+          cast[View, TextView](forecastView.findViewById(R.id.lower_temp)).setText(forecast.lowTemp + " °C")
           // TODO: trash, lots of
-          cast[View, TextView](forecastView.findViewById(R.id.upper_temp)).setText(forecast.highTemp() + " °C")
+          cast[View, TextView](forecastView.findViewById(R.id.upper_temp)).setText(forecast.highTemp + " °C")
           forecastView.setOnClickListener(new View.OnClickListener {
             override def onClick(p1: View): Unit = {
               if (id != 0) {
@@ -203,12 +202,13 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
 
   def reloadContents() = {
     Log.d(this.toString, "Reloading data")
+    import me.volhovm.mweather.WeatherLoadService._
     val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getActivity, classOf[WeatherLoadService])
     Toast.makeText(getActivity, "Refreshing", Toast.LENGTH_SHORT).show()
-    intent.putExtra(WeatherLoadService.IS_CITYNAME_MODE, true)
-    intent.putExtra(WeatherLoadService.FRAGMENT_ID, mId)
-    intent.putExtra(WeatherLoadService.CITY, cityName)
-    intent.putExtra(WeatherLoadService.RECEIVER, mReciever)
+    intent.putExtra(SERVICE_MODE, CITY_MODE)
+    intent.putExtra(FRAGMENT_ID, mId)
+    intent.putExtra(CITY, cityName)
+    intent.putExtra(RECEIVER, mReciever)
     getActivity.startService(intent)
   }
 
@@ -223,6 +223,6 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
   def onLoadFinished(loader: Loader[List[Weather]], forecast: List[Weather]): Unit =
     if (forecast.length > 0) setForecast(forecast) else reloadContents()
 
-  def onLoaderReset(loader: Loader[List[Weather]]): Unit = null
-
+  // TODO: Implement onLoaderReset
+  def onLoaderReset(loader: Loader[List[Weather]]): Unit = {}
 }

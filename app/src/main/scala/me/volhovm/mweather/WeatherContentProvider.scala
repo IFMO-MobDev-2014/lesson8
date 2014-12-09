@@ -2,14 +2,14 @@ package me.volhovm.mweather
 
 import android.content.{ContentProvider, ContentValues, UriMatcher}
 import android.database.Cursor
-import android.database.sqlite.{SQLiteQueryBuilder, SQLiteDatabase}
+import android.database.sqlite.{SQLiteDatabase, SQLiteQueryBuilder}
 import android.net.Uri
 import android.provider.BaseColumns
 import android.text.TextUtils
 
 object WeatherProvider {
   val AUTHORITY: String = "me.volhovm.mweather.WeatherProvider"
-//  val TABLE_NAME: String = "weather"
+  //  val TABLE_NAME: String = "weather"
   val MAIN_CONTENT_URI: Uri = Uri.parse("content://" + AUTHORITY + "/" + DatabaseHelper.WEATHER_TABLE_NAME)
   val CITIES_CONTENT_URI: Uri = Uri.parse("content://" + AUTHORITY + "/" + DatabaseHelper.CITIES_TABLE_NAME)
   val WEATHER_ITEMS = 1
@@ -24,6 +24,7 @@ object WeatherProvider {
 }
 
 class WeatherProvider extends ContentProvider {
+
   import me.volhovm.mweather.WeatherProvider._
 
   private var mDbHelper: DatabaseHelper = null
@@ -72,7 +73,7 @@ class WeatherProvider extends ContentProvider {
   }
 
   override def delete(uri: Uri, selection: String, selectionArgs: Array[String]): Int = {
-     val ret = sUriMatcher.`match`(uri) match {
+    val ret = sUriMatcher.`match`(uri) match {
       case WEATHER_ITEMS => mDbHelper.getWritableDatabase.delete(DatabaseHelper.WEATHER_TABLE_NAME, selection, selectionArgs)
       case WEATHER_ITEM_ID =>
         if (TextUtils.isEmpty(selection))
