@@ -172,10 +172,9 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
                 if (adapter.getCount() > 0)
                     forceSwitchToCity(0);
             } else
-                Toast.makeText(this, R.string.first_use_location, Toast.LENGTH_SHORT);
+                Toast.makeText(this, R.string.first_use_location, Toast.LENGTH_LONG).show();
             getLoaderManager().initLoader(3, null, this).forceLoad();
         } else {
-            setProgressShown(false);
             int[] tabNames = new int[]{R.id.night_tab, R.id.morning_tab, R.id.daytime_tab, R.id.evening_tab};
             WeatherInfo info[] = findAppropriateTimes(
                     getDayRange(((DateSelector) findViewById(R.id.calendar)).getDate()), data);
@@ -191,19 +190,24 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
             if (notFull) {
                 if (loader.getId() == 1)
                     refreshWeather();
-                else
+                else {
                     Toast.makeText(this, R.string.network_error, Toast.LENGTH_SHORT).show();
-            }
+                    setProgressShown(false);
+                }
+            } else
+                setProgressShown(false);
         }
     }
 
     void refreshWeather() {
-        Intent intent = new Intent(this, WeatherUpdater.class);
-        DateSelector calendar = (DateSelector) findViewById(R.id.calendar);
-        intent.setData(Uri.parse("content://net.dimatomp.weather.provider/weather?" +
-                "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()));
-        startService(intent);
-        setProgressShown(true);
+        if (getCity() != null && !getCity().isEmpty()) {
+            Intent intent = new Intent(this, WeatherUpdater.class);
+            DateSelector calendar = (DateSelector) findViewById(R.id.calendar);
+            intent.setData(Uri.parse("content://net.dimatomp.weather.provider/weather?" +
+                    "city=" + Uri.encode(getCity()) + "&time=" + calendar.getDate()));
+            startService(intent);
+            setProgressShown(true);
+        }
     }
 
     @Override
@@ -258,10 +262,13 @@ public class WeatherActivity extends Activity implements LoaderManager.LoaderCal
             case R.id.action_remove:
                 String city = getCity();
                 int index = getActionBar().getSelectedNavigationIndex();
-                if (adapter.getCount() == 1)
-                    adapter.addCity("Saint Petersburg");
                 adapter.removeCity(index);
-                onNavigationItemSelected(Math.min(index, adapter.getCount() - 1), 0);
+                if (adapter.getCount() == 0) {
+                    setProgressShown(true);
+                    Toast.makeText(this, R.string.first_use_location, Toast.LENGTH_LONG).show();
+                    getLoaderManager().restartLoader(3, null, this).forceLoad();
+                } else
+                    onNavigationItemSelected(Math.min(index, adapter.getCount() - 1), 0);
 
                 Intent intent = new Intent(this, WeatherUpdater.class);
                 intent.setData(Uri.parse("content://net.dimatomp.weather.provider/city?name=" + Uri.encode(city)));
