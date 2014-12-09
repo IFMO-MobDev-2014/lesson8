@@ -2,9 +2,9 @@ package me.volhovm.mweather
 
 import java.util.Locale
 
-import android.app.IntentService
-import android.content.Intent
-import android.os.{Bundle, Handler, ResultReceiver}
+import android.app.{AlarmManager, IntentService, PendingIntent}
+import android.content.{Context, Intent}
+import android.os.{SystemClock, Bundle, Handler, ResultReceiver}
 import android.util.Log
 
 object WeatherLoadService {
@@ -30,10 +30,9 @@ object WeatherLoadService {
 class WeatherLoadService extends IntentService("WeatherLoadService") {
   override def onHandleIntent(intent: Intent): Unit = {
     import me.volhovm.mweather.WeatherLoadService._
-    Log.d(SERVICE_NAME, "started service")
     val receiver: ResultReceiver = intent.getParcelableExtra(RECEIVER)
     val mode = intent.getIntExtra(SERVICE_MODE, -1)
-    receiver.send(STATUS_RUNNING, Bundle.EMPTY)
+    Log.d(SERVICE_NAME, "started service with mode #" + mode)
     try {
       mode match {
         case CITY_MODE =>
@@ -62,13 +61,32 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
             bundle.putString(NEW_CITY, w(0).city)
             receiver.send(STATUS_FINISHED, bundle)
           }
+        case GLOBAL_REFRESH_MODE =>
+          Log.i(this.toString, "Global data loading started")
+          val dbHelper = new HelperWrapper(getContentResolver)
+          dbHelper
+            .getCities()
+            .map((city: String) => Global.getCurrentApi.getForecastForCity(city, Locale.getDefault.getLanguage, 20000))
+            .foreach((forecast: List[Weather]) =>
+            if (forecast.length > 0) {
+              Log.i(this.toString, "Global: got forecast for " + forecast(0).city.toString)
+              dbHelper.deleteWeatherByCity(forecast(0).city)
+              forecast.foreach((weather: Weather) => dbHelper.addWeather(weather))
+
+//              val a: AlarmManager = cast(getSystemService(Context.ALARM_SERVICE))
+//              val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext, classOf[WeatherLoadService])
+//              intent.putExtra(SERVICE_MODE, GLOBAL_REFRESH_MODE)
+//              a.set(AlarmManager., SystemClock.elapsedRealtime() + 10 * 1000,
+//                FIXME: Service code ???
+//                PendingIntent.getService(getApplicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+            })
       }
     } catch {
       case a: Throwable =>
-        Log.e("WeaterLoadService", "Exception while loading weather: " + a.toString)
+        Log.e("WeaterLoadService", "Exception for mode #" + mode + ": " + a.toString)
         val bundle: Bundle = new Bundle()
         bundle.putString(Intent.EXTRA_TEXT, a.toString)
-        receiver.send(STATUS_ERROR, bundle)
+        if (receiver != null) receiver.send(STATUS_ERROR, bundle)
     }
   }
 }

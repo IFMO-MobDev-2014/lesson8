@@ -33,7 +33,7 @@ object OpenWeatherMapApi extends WeatherApi {
     val reader: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
     var jsonString = ""
     val str = scala.collection.immutable.Stream.continually(reader.readLine()).takeWhile(_ != null).mkString(" ")
-    Log.d("WeatherLoaderService", "got string from url")
+//    Log.d("WeatherLoaderService", "got string from url, parsing: " + str)
     parseWeather(str)
     //    WeatherLoadService.fakeInit
   }
@@ -53,9 +53,9 @@ object OpenWeatherMapApi extends WeatherApi {
           curr.getJSONObject("temp").getInt("night")),
         new WeatherState(curr.getJSONArray("weather").getJSONObject(0).getInt("id"),
           curr.getJSONArray("weather").getJSONObject(0).getString("description").capitalize),
-        curr.getInt("humidity").toDouble / 100,
-        (curr.getDouble("pressure") / 1.3332239).toInt,
-        curr.getDouble("speed").toInt.toString + "m/s " + degToDir(curr.getDouble("deg")),
+        curr.optInt("humidity", 0).toDouble / 100,
+        (curr.optDouble("pressure", 0) / 1.3332239).toInt,
+        curr.optDouble("speed", 0).toInt.toString + "m/s " + degToDir(curr.optDouble("deg", 0)),
         new Date(curr.getInt("dt") * 1000)
       ) :: forecast
     }

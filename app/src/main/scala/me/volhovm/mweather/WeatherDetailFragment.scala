@@ -71,6 +71,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
           .setActionBarAlpha((255 * progress2).toInt)
       }
     })
+    Log.d(this.toString, "Initiating loader in onAttach()")
     getLoaderManager.initLoader(0, null, this).forceLoad()
   }
 
@@ -148,12 +149,12 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
               cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText(getResources.getString(R.string.humidity) + ": " + forecast.humidity + "%")
               cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText(getResources.getString(R.string.pressure) + ": " + forecast.pressure + " mmhg")
               cast[View, TextView](forecastView.findViewById(R.id.wind)).setText(getResources.getString(R.string.wind) + ": " + forecast.wind)
-              cast[View, TextView](forecastView.findViewById(R.id.weatherState)).setText(
-                //                getResources.getString(R.string.state) + ": "+
-                forecast.weatherState.getDesc)
             } else {
               forecastView.findViewById(R.id.additional_table).setVisibility(View.GONE)
             }
+            cast[View, TextView](forecastView.findViewById(R.id.weatherState)).setText(
+                //                getResources.getString(R.string.state) + ": "+
+                forecast.weatherState.getDesc)
             cast[View, ImageView](forecastView.findViewById(R.id.image_status)).setImageResource(forecast.weatherState.getIcon)
             cast[View, TextView](forecastView.findViewById(R.id.date)).setText(new SimpleDateFormat("dd MMM").format(forecast.date))
           }
@@ -216,7 +217,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
 
   def onCreateLoader(id: Int, bundle: Bundle): Loader[List[Weather]] = new AsyncTaskLoader[List[Weather]](getActivity) {
     override def loadInBackground(): List[Weather] = {
-      mDatabaseHelper.getWeatherByCity(cityName)
+      mDatabaseHelper.mWrapper.getWeatherByCity(cityName)
     }
   }
 

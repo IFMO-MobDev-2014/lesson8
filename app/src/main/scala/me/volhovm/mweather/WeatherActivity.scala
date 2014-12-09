@@ -8,7 +8,7 @@ import android.app._
 import android.content.DialogInterface.OnClickListener
 import android.content.{Context, DialogInterface, Intent}
 import android.location.{Location, LocationListener, LocationManager}
-import android.os.{Bundle, Handler}
+import android.os.{SystemClock, Bundle, Handler}
 import android.support.v13.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
@@ -43,10 +43,11 @@ class WeatherActivity extends Activity with Receiver {
     mLocationManager = cast(getSystemService(Context.LOCATION_SERVICE))
     mLocationListener = new SimpleLocationListener
     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener)
-    mCityNames = mDBHelper.getCities()
+//    mCityNames = mDBHelper.mWrapper.getCities()
+    mCityNames = new HelperWrapper(getContentResolver).getCities()
     if (mCityNames.length == 0) {
       mCityNames = List("Saint Petersburg", "Kerch")
-      mCityNames.foreach((a: String) => mDBHelper.addCity(a))
+      mCityNames.foreach((a: String) => mDBHelper.mWrapper.addCity(a))
     }
     mSwipeAdapter = new SwipeAdapter(getFragmentManager)
     mViewPager = cast(findViewById(R.id.pager))
@@ -59,6 +60,11 @@ class WeatherActivity extends Activity with Receiver {
     })
     mFadingActionBarHelper = new FadingActionBarHelper(getActionBar, getResources.getDrawable(R.drawable.actionbar_bg))
     mViewPager.setAdapter(mSwipeAdapter)
+    val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext, classOf[WeatherLoadService])
+    intent.putExtra(WeatherLoadService.SERVICE_MODE, WeatherLoadService.GLOBAL_REFRESH_MODE)
+    cast[Object, AlarmManager](getSystemService(Context.ALARM_SERVICE)).setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+      AlarmManager.INTERVAL_FIFTEEN_MINUTES, AlarmManager.INTERVAL_HALF_HOUR,
+      PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT))
   }
 
   class SwipeAdapter(manager: FragmentManager) extends FragmentStatePagerAdapter(manager) {
@@ -112,7 +118,7 @@ class WeatherActivity extends Activity with Receiver {
           weatherAddDialogBuilder.setPositiveButton("Add city", new OnClickListener {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {
               if (editText.getText != "") {
-                addCity(editText.getText.toString)
+                addCity(editText.getText.toString.trim.capitalize)
               }
             }
           })
@@ -172,7 +178,7 @@ class WeatherActivity extends Activity with Receiver {
                 mViewPager.setAdapter(null)
                 mViewPager.setAdapter(mSwipeAdapter)
                 mViewPager.setCurrentItem(nextPos, false)
-                mDBHelper.deleteCity(curr)
+                mDBHelper.mWrapper.deleteCity(curr)
                 dialog.dismiss()
               } else {
                 Toast.makeText(WeatherActivity.this, "Can't delete the only weather", Toast.LENGTH_SHORT).show()
@@ -192,7 +198,7 @@ class WeatherActivity extends Activity with Receiver {
     mCityNames = mCityNames ::: List(cityname)
     mSwipeAdapter.notifyDataSetChanged()
     mViewPager.setCurrentItem(mCityNames.length - 1, !Global.performanceOn)
-    mDBHelper.addCity(cityname)
+    mDBHelper.mWrapper.addCity(cityname)
   }
 
   def getCurrentContainerFragment(): WeatherDetailFragment = {

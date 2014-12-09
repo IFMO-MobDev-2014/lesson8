@@ -6,6 +6,7 @@ import android.content.{ContentResolver, ContentValues, Context}
 import android.database.Cursor
 import android.database.sqlite.{SQLiteDatabase, SQLiteOpenHelper}
 import android.provider.BaseColumns
+import android.util.Log
 
 object DatabaseHelper extends BaseColumns {
   private val DATABASE_VERSION: Int = 1
@@ -45,8 +46,7 @@ object DatabaseHelper extends BaseColumns {
 }
 
 class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, null, 1) with BaseColumns {
-  private val mContentResolver: ContentResolver = context.getContentResolver
-
+  val mWrapper = new HelperWrapper(context.getContentResolver)
   import me.volhovm.mweather.DatabaseHelper._
 
   override def onCreate(db: SQLiteDatabase): Unit = {
@@ -55,10 +55,14 @@ class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, n
   }
 
   override def onUpgrade(p1: SQLiteDatabase, p2: Int, p3: Int): Unit = throw new UnsupportedOperationException("CANNOT UPGRADE DB")
+}
 
+class HelperWrapper(mContentResolver: ContentResolver) {
+  import me.volhovm.mweather.DatabaseHelper._
   def addWeather(weather: Weather): Unit = mContentResolver.insert(WeatherProvider.MAIN_CONTENT_URI, weather.getValues)
 
   def getCities(): List[String] = {
+    Log.d(this.toString, "Getting city list")
     var cursor: Cursor =
       mContentResolver.query(WeatherProvider.CITIES_CONTENT_URI, Array(DatabaseHelper.CITY), null, null, null)
     cursor.moveToFirst()
@@ -71,6 +75,9 @@ class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, n
     cursor.moveToFirst()
     compose(cursor, cursorToWeather).reverse
   }
+
+  def deleteWeatherByCity(cityname: String) =
+    mContentResolver.delete(WeatherProvider.MAIN_CONTENT_URI, DatabaseHelper.WEATHER_CITY + "='" + cityname + "'", null)
 
   def addCity(cityname: String) = {
     val values = new ContentValues()
