@@ -164,6 +164,7 @@ public class WeatherService extends IntentService {
             getContentResolver().insert(WEATHER_URI, cv);
             e.printStackTrace();
         }
+        response(s);
     }
 
     void updateAll() {
