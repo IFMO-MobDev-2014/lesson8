@@ -14,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -63,9 +65,16 @@ public class ItemDetailFragment extends Fragment {
         ((TextView) v.findViewById(r)).setText(d.date + "\n" +
                 "from " + d.low + " to " + d.high + "\n" +
                 d.comment);
-        ((TextView) v.findViewById(r)).setBackgroundResource(R.drawable.sunny);
+        for (int i = 0; i < DummyContent.images.size(); i++) {
+            String name = DummyContent.images.get(i).getWeather();
+            int image = DummyContent.images.get(i).getImage();
+            if (d.comment.contains(name)) {
+                ((TextView) v.findViewById(r)).setBackgroundResource(image);
+            }
+        }
         return v;
     }
+
     View setParam(View v) {
         Cursor result = getActivity().getContentResolver().query(DB_URI, null, null, null, null);
         result.moveToPosition(Integer.parseInt(mItem.id) - 1);
@@ -76,9 +85,18 @@ public class ItemDetailFragment extends Fragment {
                 + "\n" + "Sunset: " + result.getString(result.getColumnIndex(MySQLite.SUNSET)));
         ((TextView) v.findViewById(R.id.city)).setText(result.getString(result.getColumnIndex(MySQLite.CITY)));
         ((TextView) v.findViewById(R.id.date)).setText(result.getString(result.getColumnIndex(MySQLite.DAY)));
+        for (int i = 0; i < DummyContent.images.size(); i++) {
+            String name = DummyContent.images.get(i).getWeather();
+            int image = DummyContent.images.get(i).getImage();
+            if (result.getString(result.getColumnIndex(MySQLite.COMMENT)).contains(name)) {
+                ((LinearLayout) v.findViewById(R.id.item_detail)).setBackgroundResource(image);
+            }
+        }
         return v;
     }
+
     View rootView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

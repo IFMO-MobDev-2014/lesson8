@@ -7,29 +7,26 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="7"
-        android:minHeight="50dp"
-        android:minWidth="50dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
     />
 
     <TextView
         android:id="@+id/city"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="16"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
         android:autoLink="web"
-        android:text="'City"
+        android:text="City"
+        android:textSize="16dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="bold" />
 
 
     <TextView
         android:id="@+id/temp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="7"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:textSize="24dp"
         android:text="Temp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

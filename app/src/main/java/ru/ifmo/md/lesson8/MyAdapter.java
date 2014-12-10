@@ -13,6 +13,8 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import ru.ifmo.md.lesson8.dummy.DummyContent;
+
 /**
  * Created by Daria on 29.11.2014.
  */
@@ -41,53 +43,15 @@ public class MyAdapter extends CursorAdapter {
 
         ((TextView) view.findViewById(R.id.city)).setText(cursor.getString(cursor.getColumnIndex(MySQLite.CITY)));
         ((TextView) view.findViewById(R.id.temp)).setText(cursor.getString(cursor.getColumnIndex(MySQLite.TEMP)));
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("sunny")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.sunny);
-//        }
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("snow")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.snow);
-//        }
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("cloudy")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.cloudy);
-//        }
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("rain")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.rain);
-//        }
+        for (int i = 0; i < DummyContent.images.size(); i++) {
+            String name = DummyContent.images.get(i).getWeather();
+            int icon = DummyContent.images.get(i).getIcon();
+            if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).contains(name)) {
+                ((ImageView) view.findViewById(R.id.image)).setImageResource(icon);
+            }
+        }
     }
 
-//    @Override
-//    public int getCount() {
-//        return cursor.getCount();
-//    }
-//
-//    @Override
-//    public long getItemId(int position) {
-//        return position;
-//    }
-//
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        View view = convertView;
-//        if (view == null) {
-//            view = inflater.inflate(R.layout.my_item, parent, false);
-//        }
-//        cursor.moveToPosition(position);
-//        ((TextView) view.findViewById(R.id.city)).setText(cursor.getString(cursor.getColumnIndex(MySQLite.CITY)));
-//        ((TextView) view.findViewById(R.id.temp)).setText(cursor.getString(cursor.getColumnIndex(MySQLite.TEMP)));
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("sunny")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.sunny);
-//        }
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("snow")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.snow);
-//        }
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("cloudy")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.cloudy);
-//        }
-//        if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).equals("rain")) {
-//            ((ImageView) view.findViewById(R.id.image)).setImageResource(R.drawable.rain);
-//        }
-//        return view;
-//    }
     Weather getIt(int position) {
         return ((Weather) getItem(position));
     }
