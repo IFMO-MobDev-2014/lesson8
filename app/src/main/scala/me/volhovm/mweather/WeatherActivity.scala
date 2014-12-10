@@ -46,7 +46,7 @@ class WeatherActivity extends Activity with Receiver {
     //    mCityNames = mDBHelper.mWrapper.getCities()
     mCityNames = new HelperWrapper(getContentResolver).getCities()
     if (mCityNames.length == 0) {
-      mCityNames = List("Saint Petersburg", "Kerch")
+      mCityNames = List("Saint Petersburg", "London")
       mCityNames.foreach((a: String) => mDBHelper.mWrapper.addCity(a))
     }
     mSwipeAdapter = new SwipeAdapter(getFragmentManager)
