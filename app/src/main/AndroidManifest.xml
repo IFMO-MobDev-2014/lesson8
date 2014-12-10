@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        package="me.volhovm.mweather">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	package="me.volhovm.mweather"
+	android:versionCode="2"
+	android:versionName="1.1">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
-            android:allowBackup="true"
-            android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme">
-        <!--<activity-->
-        <!--android:name="me.volhovm.mweather.ListActivity"-->
-        <!--android:screenOrientation="portrait"-->
-        <!--android:label="@string/app_name">-->
-        <!--</activity>-->
-        <provider
-                android:name="me.volhovm.mweather.WeatherProvider"
-                android:authorities="me.volhovm.mweather.provider"/>
-        <activity
-                android:name="me.volhovm.mweather.WeatherActivity"
-                android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            <!--<meta-data-->
-            <!--android:name="android.support.PARENT_ACTIVITY"-->
-            <!--android:value=".ListActivity"/>-->
-        </activity>
-        <service android:name="me.volhovm.mweather.WeatherLoadService"
-                 android:exported="false"/>
+	    android:allowBackup="true"
+	    android:icon="@drawable/ic_launcher"
+	    android:label="@string/app_name"
+	    android:theme="@style/AppTheme">
+	<!--<activity-->
+	<!--android:name="me.volhovm.mweather.ListActivity"-->
+	<!--android:screenOrientation="portrait"-->
+	<!--android:label="@string/app_name">-->
+	<!--</activity>-->
+	<provider
+		android:name="me.volhovm.mweather.WeatherProvider"
+		android:authorities="me.volhovm.mweather.provider"/>
+	<activity
+		android:name="me.volhovm.mweather.WeatherActivity"
+		android:screenOrientation="portrait">
+	    <intent-filter>
+		<action android:name="android.intent.action.MAIN"/>
+		<category android:name="android.intent.category.LAUNCHER"/>
+	    </intent-filter>
+	    <!--<meta-data-->
+	    <!--android:name="android.support.PARENT_ACTIVITY"-->
+	    <!--android:value=".ListActivity"/>-->
+	</activity>
+	<service android:name="me.volhovm.mweather.WeatherLoadService"
+		 android:exported="false"/>
     </application>
 
 </manifest>
