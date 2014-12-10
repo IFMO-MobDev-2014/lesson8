@@ -125,8 +125,9 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
         cast[View, ImageView](getView.findViewById(R.id.background_overlay)),
         mForecast(0).weatherState.getBackground)
       //    cast[View, ImageView](getActivity.findViewById(android.R.id.background)).setImageResource(mForecast(0).weatherState.getBackground))
-      cast[View, TextView](getView.findViewById(R.id.title)).setText(cityName)
-      cast[View, TextView](getView.findViewById(R.id.subtitle)).setText(mForecast(0).weatherState.getDesc.capitalize)
+      setText(getView.findViewById(R.id.title), cityName)
+      setText(getView.findViewById(R.id.subtitle), mForecast(0).weatherState.getDesc.capitalize)
+      setText(getView.findViewById(R.id.upper_temp), mForecast(0).highTemp + " °C")
       if (mListView.getAdapter != null)
         cast[ListAdapter, BaseAdapter](cast[Adapter, HeaderViewListAdapter](mListView.getAdapter).getWrappedAdapter).notifyDataSetChanged()
       else setListViewAdapter(mListView, new BaseAdapter {
@@ -138,28 +139,30 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
           val forecast = mForecast(id)
           if (id == 0) {
             forecastView = mInflater.inflate(R.layout.main_weather_data, p3, false)
-            cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText(getResources.getString(R.string.humidity) + ": " + forecast.humidity + "%")
-            cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText(getResources.getString(R.string.pressure) + ": " + forecast.pressure + " mmhg")
-            cast[View, TextView](forecastView.findViewById(R.id.wind)).setText(getResources.getString(R.string.wind) + ": " + forecast.wind)
+            setText(forecastView.findViewById(R.id.wind), forecast.wind)
+            setText(forecastView.findViewById(R.id.clouds), forecast.clouds + "%")
+            setText(forecastView.findViewById(R.id.humidity), forecast.humidity + "%")
+            setText(forecastView.findViewById(R.id.pressure), forecast.pressure + " mmhg")
           } else {
             forecastView = mInflater.inflate(R.layout.forecast_item, p3, false)
             if (mForecastUsed(id)) {
               forecastView.findViewById(R.id.additional_table).setVisibility(View.VISIBLE)
-              cast[View, TextView](forecastView.findViewById(R.id.humidity)).setText(getResources.getString(R.string.humidity) + ": " + forecast.humidity + "%")
-              cast[View, TextView](forecastView.findViewById(R.id.pressure)).setText(getResources.getString(R.string.pressure) + ": " + forecast.pressure + " mmhg")
-              cast[View, TextView](forecastView.findViewById(R.id.wind)).setText(getResources.getString(R.string.wind) + ": " + forecast.wind)
+              setText(forecastView.findViewById(R.id.wind), forecast.wind)
+              setText(forecastView.findViewById(R.id.clouds), forecast.clouds + "%")
+              setText(forecastView.findViewById(R.id.humidity), forecast.humidity + "%")
+              setText(forecastView.findViewById(R.id.pressure), forecast.pressure + " mmhg")
             } else {
               forecastView.findViewById(R.id.additional_table).setVisibility(View.GONE)
             }
-            cast[View, TextView](forecastView.findViewById(R.id.weatherState)).setText(
+            setText(forecastView.findViewById(R.id.weatherState),
                 //                getResources.getString(R.string.state) + ": "+
                 forecast.weatherState.getDesc)
             cast[View, ImageView](forecastView.findViewById(R.id.image_status)).setImageResource(forecast.weatherState.getIcon)
-            cast[View, TextView](forecastView.findViewById(R.id.date)).setText(new SimpleDateFormat("dd MMM").format(forecast.date))
+            setText(forecastView.findViewById(R.id.date), new SimpleDateFormat("dd MMM").format(forecast.date))
           }
-          cast[View, TextView](forecastView.findViewById(R.id.lower_temp)).setText(forecast.lowTemp + " °C")
+          setText(forecastView.findViewById(R.id.lower_temp), forecast.lowTemp + " °C")
           // TODO: trash, lots of
-          cast[View, TextView](forecastView.findViewById(R.id.upper_temp)).setText(forecast.highTemp + " °C")
+          setText(forecastView.findViewById(R.id.upper_temp), forecast.highTemp + " °C")
           forecastView.setOnClickListener(new View.OnClickListener {
             override def onClick(p1: View): Unit = {
               if (id != 0) {

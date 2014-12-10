@@ -21,28 +21,30 @@
         android:src="@drawable/background_clouds_0" />
 
 
-    <!--<TextView-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:text="1/7"-->
-        <!--android:background="@drawable/circle_date"-->
-        <!--android:padding="5dp"-->
-        <!--style="@style/Header.SubTitleText"-->
-        <!--android:layout_gravity="top|left"-->
-        <!--android:layout_marginLeft="@dimen/android_spaces"-->
-        <!--/>-->
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:id="@+id/upper_temp"
+            android:layout_weight="1"
+            android:padding="@dimen/android_spaces"
+            style="@style/Header.TitleText"
+            android:fontFamily="sans-serif-thin"
+            android:layout_gravity="bottom|center"
+            android:textSize="65dp"
+            android:gravity="center"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_gravity="bottom|right|end"
+        android:layout_gravity="top|center"
         android:layout_marginStart="@dimen/android_spaces_large"
         android:layout_marginEnd="@dimen/android_spaces_large"
         android:layout_marginLeft="@dimen/android_spaces_large"
         android:layout_marginRight="@dimen/android_spaces_large"
-        android:layout_marginBottom="@dimen/android_spaces"
-        android:gravity="right">
+        android:layout_marginTop="?android:actionBarSize"
+        android:gravity="center">
 
         <TextView
             android:id="@+id/title"

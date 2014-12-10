@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+        <FrameLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
+
+            <ImageView
+                    android:id="@+id/background"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/background_clouds_2"/>
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="top|left|start"
+                    android:layout_marginStart="@dimen/android_spaces_large"
+                    android:layout_marginEnd="@dimen/android_spaces_large"
+                    android:layout_marginLeft="@dimen/android_spaces_large"
+                    android:layout_marginRight="@dimen/android_spaces_large"
+                    android:layout_marginTop="@dimen/android_spaces"
+                    android:gravity="right">
+
+                <TextView
+                        android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cityname"
+                        style="@style/Header.TitleText"/>
+
+                <TextView
+                        android:id="@+id/subtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:text="Loading.."
+                        style="@style/Header.SubTitleText"/>
+            </LinearLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+28 °C"
+                    android:layout_gravity="bottom|right"
+                    android:padding="@dimen/android_spaces"
+                    android:id="@+id/upper_temp"
+                    android:layout_weight="1"
+                    style="@style/Header.TitleText"
+                    android:textSize="55dp"
+                    android:gravity="center"/>
+
+    <!--<View-->
+        <!--android:id="@android:id/title"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_gravity="bottom"-->
+        <!--android:layout_height="10dp"-->
+        <!--android:background="@drawable/white_grad" />-->
+
+        </FrameLayout>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/android_spaces_small"
+                android:paddingTop="@dimen/android_spaces"
+                android:paddingBottom="@dimen/android_spaces"
+                android:textIsSelectable="true"
+                android:orientation="vertical"
+                android:gravity="center_vertical|center_horizontal">
+
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/android_spaces"
+                    android:gravity="center_vertical">
+
+
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/android_spaces_small"
+                    android:padding="@dimen/android_spaces"
+                    android:gravity="center"
+                    android:background="@color/grey"
+                    android:layout_marginRight="@dimen/android_spaces_small"
+                    android:baselineAligned="false">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pressure: 762 mm/r"
+                        android:gravity="center_vertical"
+                        style="@style/Content.SubTitleText"
+                        android:id="@+id/pressure"
+                        android:layout_weight="1"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humidity: 38%"
+                        android:gravity="center_vertical"
+                        style="@style/Content.SubTitleText"
+                        android:id="@+id/humidity"
+                        android:layout_weight="1"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wind: 2 m/s, SW"
+                        android:gravity="center_vertical"
+                        style="@style/Content.SubTitleText"
+                        android:id="@+id/wind"
+                        android:layout_weight="1"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/forecast_list"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="3"/>
+</LinearLayout>

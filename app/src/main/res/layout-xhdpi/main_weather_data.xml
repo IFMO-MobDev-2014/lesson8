@@ -11,71 +11,80 @@
               android:orientation="horizontal" android:weightSum="1"
               android:gravity="center_vertical|center_horizontal">
 
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/android_spaces"
-                android:layout_marginRight="@dimen/android_spaces"
-                android:gravity="center_vertical">
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="+28°C"
-                    android:textSize="50dp"
-                    android:padding="@dimen/android_spaces_small"
-                    android:id="@+id/upper_temp"
-                    android:layout_weight="1"
-                    style="@style/Content.TitleText"
-                    android:gravity="center"/>
+    <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/android_spaces"
+            android:background="@color/grey"
+            android:shrinkColumns="*.*">
 
-            <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="+14°C"
-                    android:padding="@dimen/android_spaces_small"
-                    android:background="@color/grey"
-                    android:id="@+id/lower_temp"
-                    android:layout_weight="1"
-                    style="@style/Content.TitleText"
-                    android:gravity="center"/>
-        </LinearLayout>
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
+        <TableRow
+                android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/android_spaces_small"
-                android:paddingLeft="@dimen/android_spaces"
-                android:paddingRight="@dimen/android_spaces"
-                android:background="@color/grey"
-                android:layout_marginRight="@dimen/android_spaces_small"
-                android:baselineAligned="false">
+                android:gravity="center">
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pressure: 762 mm/r"
-                    android:gravity="center_vertical"
-                    style="@style/Content.SubTitleText"
-                    android:id="@+id/pressure"
-                    android:layout_weight="1"/>
+                    android:layout_marginRight="@dimen/android_spaces"
+                    android:text="@string/cloudness_semicolon"
+                    style="@style/Content.SubTitleText"/>
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Humidity: 38%"
-                    android:gravity="center_vertical"
+                    android:text="60%"
                     style="@style/Content.SubTitleText"
-                    android:id="@+id/humidity"
-                    android:layout_weight="1"/>
+                    android:id="@+id/clouds"/>
+        </TableRow>
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center">
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Wind: 2 m/s, SW"
-                    android:gravity="center_vertical"
+                    android:layout_marginRight="@dimen/android_spaces"
+                    android:text="@string/wind_semicolon"
+                    style="@style/Content.SubTitleText"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 m/s, SW"
                     style="@style/Content.SubTitleText"
-                    android:id="@+id/wind"
-                    android:layout_weight="1"/>
-        </LinearLayout>
+                    android:id="@+id/wind"/>
+        </TableRow>
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/android_spaces"
+                    android:text="@string/pressure_semicolon"
+                    style="@style/Content.SubTitleText"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="762 mm/r"
+                    style="@style/Content.SubTitleText"
+                    android:id="@+id/pressure"/>
+        </TableRow>
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/android_spaces"
+                    android:text="@string/humidity_semicolon"
+                    style="@style/Content.SubTitleText"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="38%"
+                    style="@style/Content.SubTitleText"
+                    android:id="@+id/humidity"/>
+        </TableRow>
+    </TableLayout>
 </LinearLayout>

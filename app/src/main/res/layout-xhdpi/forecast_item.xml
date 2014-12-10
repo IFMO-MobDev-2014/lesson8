@@ -63,10 +63,11 @@
                 android:src="@drawable/icon_sun"
                 android:id="@+id/image_status"/>
     </LinearLayout>
-    <TableLayout
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"
+            android:padding="@dimen/android_spaces_small"
             android:id="@+id/additional_table"
             android:layout_marginBottom="@dimen/android_spaces"
             android:gravity="center"
@@ -74,42 +75,68 @@
         <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:padding="@dimen/android_spaces_small"
                 android:background="@color/grey"
                 android:gravity="center">
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
-                    android:text="Cloudy"
+                    android:padding="@dimen/android_spaces_small"
+                    android:text="Wow such cloudy"
                     style="@style/Content.SubTitleText"
                     android:id="@+id/weatherState"/>
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
-                    android:text="Pressure: 755 hPa"
-                    style="@style/Content.SubTitleText"
-                    android:id="@+id/pressure"/>
+            <LinearLayout android:layout_marginLeft="@dimen/android_spaces">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/android_spaces_small"
+                        android:text="@string/pressure_semicolon"
+                        style="@style/Content.SubTitleText"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/android_spaces_small"
+                        android:text="755 hPa"
+                        style="@style/Content.SubTitleText"
+                        android:id="@+id/pressure"/>
+            </LinearLayout>
         </TableRow>
         <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@color/grey"
+                android:padding="@dimen/android_spaces_small"
                 android:gravity="center">
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
-                    android:text="Humidity: 0.34%"
-                    style="@style/Content.SubTitleText"
-                    android:id="@+id/humidity"/>
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
-                    android:text="Wind: 25 m/s NW"
-                    style="@style/Content.SubTitleText"
-                    android:id="@+id/wind"/>
+            <LinearLayout>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/android_spaces_small"
+                        android:text="@string/humidity_semicolon"
+                        style="@style/Content.SubTitleText"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/android_spaces_small"
+                        android:text="34%"
+                        style="@style/Content.SubTitleText"
+                        android:id="@+id/humidity"/>
+            </LinearLayout>
+            <LinearLayout android:layout_marginLeft="@dimen/android_spaces">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/android_spaces_small"
+                        android:text="@string/wind_semicolon"
+                        style="@style/Content.SubTitleText"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/android_spaces_small"
+                        android:text="25 m/s NW"
+                        style="@style/Content.SubTitleText"
+                        android:id="@+id/wind"/>
+            </LinearLayout>
         </TableRow>
     </TableLayout>
 </LinearLayout>

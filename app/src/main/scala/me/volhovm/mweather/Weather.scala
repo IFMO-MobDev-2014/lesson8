@@ -11,6 +11,7 @@ class Weather(val city: String,
               val humidity: Double,
               val pressure: Int, //mmhg
               val wind: String,
+              val clouds: Int,
               val date: Date) {
   private def wrapTemp(i: Int): String = if (i > 0) "+" + i.toString else if (i == 0) " " + i.toString else i.toString
   def lowTemp = wrapTemp(temp._1)
@@ -27,6 +28,7 @@ class Weather(val city: String,
     values.put(WEATHER_HUMIDITY, Int.box((humidity * 100).toInt))
     values.put(WEATHER_PRESSURE, Int.box(pressure))
     values.put(WEATHER_WIND, wind)
+    values.put(WEATHER_CLOUDS, Int.box(clouds))
     values.put(WEATHER_DATE, Int.box((date.getTime / 1000).toInt))
     values
   }

@@ -15,11 +15,11 @@ sealed trait WeatherApi {
 object OpenWeatherMapApi extends WeatherApi {
   override def getForecastForCity(cityname: String, locale: String, timeout: Int): List[Weather] =
     loadWeather(new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" +
-      cityname.replaceAll(" ", "-") + "&mode=json&units=metric&cnt=15&lang=" + locale), timeout)
+      cityname.replaceAll(" ", "-") + "&mode=json&units=metric&cnt=10&lang=" + locale), timeout)
 
   override def getForecastForCoordinates(lat: Double, lon: Double, locale: String, timeout: Int): List[Weather] =
     loadWeather(new URL("http://api.openweathermap.org/data/2.5/forecast/daily?lat=" +
-      lat + "&lon=" + lon + "&mode=json&units=metric&cnt=15&lang=" + locale), timeout)
+      lat + "&lon=" + lon + "&mode=json&units=metric&cnt=10&lang=" + locale), timeout)
 
   private def loadWeather(url: URL, timeout: Int): List[Weather] = {
     Log.d("WeatherLoadService", "Trying to load weather from api")
@@ -53,9 +53,10 @@ object OpenWeatherMapApi extends WeatherApi {
           curr.getJSONObject("temp").getInt("night")),
         new WeatherState(curr.getJSONArray("weather").getJSONObject(0).getInt("id"),
           curr.getJSONArray("weather").getJSONObject(0).getString("description").capitalize),
-        curr.optInt("humidity", 0).toDouble / 100,
-        (curr.optDouble("pressure", 0) / 1.3332239).toInt,
-        curr.optDouble("speed", 0).toInt.toString + "m/s " + degToDir(curr.optDouble("deg", 0)),
+        curr.optInt("humidity", -1).toDouble / 100,
+        (curr.optDouble("pressure", -1) / 1.3332239).toInt,
+        curr.optDouble("speed", -1).toInt.toString + "m/s " + degToDir(curr.optDouble("deg", -1)),
+        curr.optInt("clouds", -1),
         new Date(curr.getInt("dt") * 1000)
       ) :: forecast
     }

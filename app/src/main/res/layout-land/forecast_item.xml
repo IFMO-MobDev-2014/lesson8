@@ -1,11 +1,9 @@
-<LinearLayout
+        <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         style="?android:attr/textAppearanceLarge"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/android_spaces"
-        android:layout_marginRight="@dimen/android_spaces"
         tools:context=".ItemDetailFragment"
         android:orientation="vertical"
         android:weightSum="0"
@@ -15,7 +13,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/android_spaces"
             android:gravity="center"
-            android:weightSum="1"
+            android:weightSum="0"
             android:textIsSelectable="true">
         <TextView
                 android:layout_width="50sp"
@@ -26,91 +24,80 @@
                 android:gravity="center"
                 style="@style/Content.UsualText"
                 android:textColor="@android:color/white"
-                android:textSize="12dp"
+                android:textSize="13dp"
                 android:id="@+id/date"/>
         <LinearLayout
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/android_spaces_small"
-                android:layout_marginRight="@dimen/android_spaces_small"
+                android:layout_marginLeft="@dimen/android_spaces"
+                android:layout_marginRight="@dimen/android_spaces"
                 android:layout_weight="1"
-                android:weightSum="3"
+                android:weightSum="2"
                 android:gravity="center_vertical">
             <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="+28 °C"
                     android:padding="@dimen/android_spaces_small"
                     android:id="@+id/upper_temp"
                     android:layout_weight="1"
-                    style="@style/Content.UsualText"
+                    style="@style/Content.SubTitleText"
                     android:gravity="center"/>
 
             <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="+14 °C"
                     android:padding="@dimen/android_spaces_small"
                     android:background="@color/grey"
                     android:id="@+id/lower_temp"
                     android:layout_weight="1"
-                    style="@style/Content.UsualText"
-                    android:gravity="center"/>
-            <!--test-->
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
-                    android:text="Clouds"
                     style="@style/Content.SubTitleText"
-                    android:id="@+id/weatherState"
-                    android:layout_weight="1"/>
+                    android:gravity="center"/>
         </LinearLayout>
         <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="@dimen/android_spaces_small"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:src="@drawable/icon_sun"
                 android:id="@+id/image_status"/>
     </LinearLayout>
-    <TableLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/grey"
+            android:orientation="vertical"
             android:visibility="visible"
-            android:padding="@dimen/android_spaces_small"
             android:id="@+id/additional_table"
             android:layout_marginBottom="@dimen/android_spaces"
-            android:gravity="center"
-            android:shrinkColumns="*">
-        <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="@color/grey"
-                android:gravity="center">
+            android:gravity="center">
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
+                    android:padding="@dimen/android_spaces_small"
+                    android:text="Cloudy"
+                    style="@style/Content.SubTitleText"
+                    android:id="@+id/weatherState"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/android_spaces_small"
+                    android:text="Pressure: 755 hPa"
+                    style="@style/Content.SubTitleText"
+                    android:id="@+id/pressure"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/android_spaces_small"
                     android:text="Humidity: 0.34%"
                     style="@style/Content.SubTitleText"
                     android:id="@+id/humidity"/>
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
+                    android:padding="@dimen/android_spaces_small"
                     android:text="Wind: 25 m/s NW"
                     style="@style/Content.SubTitleText"
                     android:id="@+id/wind"/>
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/android_spaces"
-                    android:text="Pressure: 755 hPa"
-                    style="@style/Content.SubTitleText"
-                    android:id="@+id/pressure" android:layout_column="2"/>
-        </TableRow>
-    </TableLayout>
+    </LinearLayout>
 </LinearLayout>

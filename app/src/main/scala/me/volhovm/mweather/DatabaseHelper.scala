@@ -8,8 +8,6 @@ import android.database.sqlite.{SQLiteDatabase, SQLiteOpenHelper}
 import android.provider.BaseColumns
 import android.util.Log
 
-import scala.collection.immutable.Nil
-
 object DatabaseHelper extends BaseColumns {
   private val DATABASE_VERSION: Int = 1
   val DATABASE_NAME = "weather.db"
@@ -23,6 +21,7 @@ object DatabaseHelper extends BaseColumns {
   val WEATHER_HUMIDITY = "weather_humidity"
   val WEATHER_PRESSURE = "weather_pressure"
   val WEATHER_WIND = "weather_wind"
+  val WEATHER_CLOUDS = "weather_clouds"
   val WEATHER_DATE = "weather_date"
 
   val CITIES_TABLE_NAME = "cities"
@@ -40,6 +39,7 @@ object DatabaseHelper extends BaseColumns {
     WEATHER_HUMIDITY + " integer, " +
     WEATHER_PRESSURE + " integer, " +
     WEATHER_WIND + " text not null, " +
+    WEATHER_CLOUDS + " integer, " +
     WEATHER_DATE + " integer);"
 
   val CREATE_CITIES_TABLE = "create table " + CITIES_TABLE_NAME + " (" +
@@ -117,6 +117,7 @@ class HelperWrapper(mContentResolver: ContentResolver) {
       cursor.getInt(7).toDouble / 100,
       cursor.getInt(8),
       cursor.getString(9),
-      new Date(1000l * cursor.getInt(10).toLong)
+      cursor.getInt(10),
+      new Date(1000l * cursor.getInt(11).toLong)
     )
 }
