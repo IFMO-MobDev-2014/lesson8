@@ -1,9 +1,9 @@
 buildscript {
     repositories {
-        mavenCentral()
+	mavenCentral()
     }
     dependencies {
-        classpath "jp.leafytree.gradle:gradle-android-scala-plugin:1.3.1"
+	classpath "jp.leafytree.gradle:gradle-android-scala-plugin:1.3.1"
     }
 }
 
@@ -15,35 +15,35 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "me.volhovm.mweather"
-        minSdkVersion 16
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+	applicationId "me.volhovm.mweather"
+	minSdkVersion 16
+	targetSdkVersion 19
+	versionCode 2
+	versionName "1.1"
     }
 
     sourceSets {
-        main {
-            scala {
-                srcDir "src/main/scala"
-            }
-            java {
-                srcDir "src/main/java"
-            }
-        }
+	main {
+	    scala {
+		srcDir "src/main/scala"
+	    }
+	    java {
+		srcDir "src/main/java"
+	    }
+	}
 
-        androidTest {
-            scala {
-                srcDir "src/androidTest/scala"
-            }
-            java {
-                srcDir "src/androidTest/java"
-            }
-        }
+	androidTest {
+	    scala {
+		srcDir "src/androidTest/scala"
+	    }
+	    java {
+		srcDir "src/androidTest/java"
+	    }
+	}
     }
 
     lintOptions {
-        abortOnError false
+	abortOnError false
     }
 }
 
