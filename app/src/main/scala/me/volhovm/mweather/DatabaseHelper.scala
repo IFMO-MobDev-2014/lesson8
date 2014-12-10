@@ -8,6 +8,8 @@ import android.database.sqlite.{SQLiteDatabase, SQLiteOpenHelper}
 import android.provider.BaseColumns
 import android.util.Log
 
+import scala.collection.immutable.Nil
+
 object DatabaseHelper extends BaseColumns {
   private val DATABASE_VERSION: Int = 1
   val DATABASE_NAME = "weather.db"
@@ -45,7 +47,7 @@ object DatabaseHelper extends BaseColumns {
     CITY + " text not null);"
 }
 
-class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, null, null, 1) with BaseColumns {
+class DatabaseHelper(context: Context) extends SQLiteOpenHelper(context, DatabaseHelper.DATABASE_NAME, null, 1) with BaseColumns {
   val mWrapper = new HelperWrapper(context.getContentResolver)
   import me.volhovm.mweather.DatabaseHelper._
 
@@ -63,17 +65,21 @@ class HelperWrapper(mContentResolver: ContentResolver) {
 
   def getCities(): List[String] = {
     Log.d(this.toString, "Getting city list")
-    var cursor: Cursor =
-      mContentResolver.query(WeatherProvider.CITIES_CONTENT_URI, Array(DatabaseHelper.CITY), null, null, null)
-    cursor.moveToFirst()
-    compose(cursor, (curs: Cursor) => curs.getString(0))
+    mContentResolver.synchronized {
+      var cursor: Cursor =
+        mContentResolver.query(WeatherProvider.CITIES_CONTENT_URI, Array(DatabaseHelper.CITY), null, null, null)
+      cursor.moveToFirst()
+      compose(cursor, (curs: Cursor) => curs.getString(0))
+    }
   }
 
   def getWeatherByCity(cityname: String) = {
-    val cursor: Cursor =
-      mContentResolver.query(WeatherProvider.MAIN_CONTENT_URI, null, WEATHER_CITY + "='" + cityname + "'", null, null)
-    cursor.moveToFirst()
-    compose(cursor, cursorToWeather).reverse
+    mContentResolver.synchronized {
+      val cursor: Cursor =
+        mContentResolver.query(WeatherProvider.MAIN_CONTENT_URI, null, WEATHER_CITY + "='" + cityname + "'", null, null)
+      cursor.moveToFirst()
+      compose(cursor, cursorToWeather).reverse
+    }
   }
 
   def deleteWeatherByCity(cityname: String) =
@@ -94,9 +100,9 @@ class HelperWrapper(mContentResolver: ContentResolver) {
   }
 
   private def compose[A](cursor: Cursor, foo: (Cursor) => A): List[A] =
-    if (cursor.isAfterLast) Nil
+    if (cursor.isAfterLast) {cursor.close(); Nil}
     else foo(cursor) :: compose({
-      cursor.moveToNext();
+      cursor.moveToNext()
       cursor
     }, foo)
 

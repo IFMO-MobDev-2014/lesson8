@@ -8,7 +8,7 @@ import android.app._
 import android.content.DialogInterface.OnClickListener
 import android.content.{Context, DialogInterface, Intent}
 import android.location.{Location, LocationListener, LocationManager}
-import android.os.{SystemClock, Bundle, Handler}
+import android.os.{Bundle, Handler}
 import android.support.v13.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
@@ -39,11 +39,11 @@ class WeatherActivity extends Activity with Receiver {
     //    {1.0 250mcc2mnc ru_RU ldltr sw360dp w360dp h567dp 320dpi nrml port finger -keyb/v/h -nav/h s.87 skinPackageSeq.1}
 
     setContentView(R.layout.activity_swipe)
-    mDBHelper = new DatabaseHelper(this)
+    mDBHelper = new DatabaseHelper(getApplicationContext)
     mLocationManager = cast(getSystemService(Context.LOCATION_SERVICE))
     mLocationListener = new SimpleLocationListener
     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener)
-//    mCityNames = mDBHelper.mWrapper.getCities()
+    //    mCityNames = mDBHelper.mWrapper.getCities()
     mCityNames = new HelperWrapper(getContentResolver).getCities()
     if (mCityNames.length == 0) {
       mCityNames = List("Saint Petersburg", "Kerch")
@@ -163,27 +163,8 @@ class WeatherActivity extends Activity with Receiver {
           })
           builder.setPositiveButton("Delete", new OnClickListener {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {
-              if (mCityNames.length > 1) {
-                val curr = mCityNames(position)
-                val currentPos = mViewPager.getCurrentItem
-                val nextPos: Int = currentPos match {
-                  case i if i == mCityNames.length - 1 => mCityNames.length - 2
-                  case a => if (position > a) a else a - 1
-                }
-                mCityNames = mCityNames.diff(List(curr))
-                mSwipeAdapter.notifyDataSetChanged()
-                mViewPager.setCurrentItem(0, false)
-                mSwipeAdapter.destroyItem(mViewPager, position, getContainerFragment(position))
-                mSwipeAdapter.notifyDataSetChanged()
-                mViewPager.setAdapter(null)
-                mViewPager.setAdapter(mSwipeAdapter)
-                mViewPager.setCurrentItem(nextPos, false)
-                mDBHelper.mWrapper.deleteCity(curr)
-                dialog.dismiss()
-              } else {
-                Toast.makeText(WeatherActivity.this, "Can't delete the only weather", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-              }
+              removeCity(position)
+              dialog.dismiss()
             }
           })
           builder.show()
@@ -195,10 +176,34 @@ class WeatherActivity extends Activity with Receiver {
   }
 
   private def addCity(cityname: String) = {
-    mCityNames = mCityNames ::: List(cityname)
-    mSwipeAdapter.notifyDataSetChanged()
-    mViewPager.setCurrentItem(mCityNames.length - 1, !Global.performanceOn)
-    mDBHelper.mWrapper.addCity(cityname)
+    if (!mCityNames.contains(cityname)) {
+      mCityNames = mCityNames ::: List(cityname)
+      mSwipeAdapter.notifyDataSetChanged()
+      mViewPager.setCurrentItem(mCityNames.length - 1, !Global.performanceOn)
+      mDBHelper.mWrapper.addCity(cityname)
+    } else Toast.makeText(WeatherActivity.this, "This city already exist", Toast.LENGTH_SHORT).show()
+  }
+
+  private def removeCity(position: Int) = {
+    if (mCityNames.length > 1) {
+      val curr = mCityNames(position)
+      val currentPos = mViewPager.getCurrentItem
+      val nextPos: Int = currentPos match {
+        case i if i == mCityNames.length - 1 => mCityNames.length - 2
+        case a => if (position > a) a else a - 1
+      }
+      mCityNames = mCityNames.diff(List(curr))
+      mSwipeAdapter.notifyDataSetChanged()
+      mViewPager.setCurrentItem(0, false)
+      mSwipeAdapter.destroyItem(mViewPager, position, getContainerFragment(position))
+      mSwipeAdapter.notifyDataSetChanged()
+      mViewPager.setAdapter(null)
+      mViewPager.setAdapter(mSwipeAdapter)
+      mViewPager.setCurrentItem(nextPos, false)
+      mDBHelper.mWrapper.deleteCity(curr)
+    } else {
+      Toast.makeText(WeatherActivity.this, "Can't delete the only weather", Toast.LENGTH_SHORT).show()
+    }
   }
 
   def getCurrentContainerFragment(): WeatherDetailFragment = {
@@ -223,13 +228,23 @@ class WeatherActivity extends Activity with Receiver {
     case STATUS_FINISHED =>
       resData.getInt(SERVICE_MODE) match {
         case CITY_MODE =>
-          Toast.makeText(this, "Refreshed succesfully", Toast.LENGTH_SHORT).show()
-          val frag = getContainerFragment(resData.getInt(FRAGMENT_ID))
-          frag.setCity(resData.getString(NEW_CITY))
-          mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), resData.getString(NEW_CITY))
-          if (frag.isAdded) {
-            Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
-            frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+          val newCity = resData.getString(NEW_CITY)
+          val oldCity = resData.getString(OLD_CITY)
+          Toast.makeText(this, "Refreshed successfully", Toast.LENGTH_SHORT).show()
+          if (mCityNames.contains(newCity) && oldCity != newCity) {
+            removeCity(mCityNames.indexOf(oldCity))
+            mViewPager.setCurrentItem(mCityNames.indexOf(newCity))
+            Toast.makeText(this, oldCity + " is the same as " + newCity, Toast.LENGTH_SHORT).show()
+          } else {
+            val frag = getContainerFragment(resData.getInt(FRAGMENT_ID))
+            frag.setCity(resData.getString(NEW_CITY))
+            if (newCity != oldCity)
+            mDBHelper.mWrapper.updateCity(oldCity, newCity)
+            mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), newCity)
+            if (frag.isAdded) {
+              Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
+              frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+            }
           }
         case COORD_MODE =>
           val city = resData.getString(NEW_CITY)

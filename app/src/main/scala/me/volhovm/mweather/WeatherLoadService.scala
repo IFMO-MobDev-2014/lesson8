@@ -31,6 +31,7 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
   override def onHandleIntent(intent: Intent): Unit = {
     import me.volhovm.mweather.WeatherLoadService._
     val receiver: ResultReceiver = intent.getParcelableExtra(RECEIVER)
+    val dbHelper = new HelperWrapper(getContentResolver)
     val mode = intent.getIntExtra(SERVICE_MODE, -1)
     Log.d(SERVICE_NAME, "started service with mode #" + mode)
     try {
@@ -38,13 +39,14 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
         case CITY_MODE =>
           val city: String = intent.getStringExtra(CITY)
           if (city == null | city.length < 1) throw new IllegalArgumentException("Wrong city name in intent or null")
-          val w = Global.getCurrentApi.getForecastForCity(city, Locale.getDefault.getLanguage, 15000)
-          if (w.length > 0) {
-            getContentResolver.delete(WeatherProvider.MAIN_CONTENT_URI, DatabaseHelper.WEATHER_CITY + "='" + w(0).city + "'", null)
-            w.foreach((a: Weather) => getContentResolver.insert(WeatherProvider.MAIN_CONTENT_URI, a.getValues))
+          val forecast = Global.getCurrentApi.getForecastForCity(city, Locale.getDefault.getLanguage, 15000)
+          if (forecast.length > 0) {
+            dbHelper.deleteWeatherByCity(forecast(0).city)
+            dbHelper.deleteWeatherByCity(city)
+            forecast.foreach((weather: Weather) => dbHelper.addWeather(weather))
             val bundle: Bundle = new Bundle()
             bundle.putString(OLD_CITY, city)
-            bundle.putString(NEW_CITY, w(0).city)
+            bundle.putString(NEW_CITY, forecast(0).city)
             bundle.putInt(SERVICE_MODE, CITY_MODE)
             bundle.putInt(FRAGMENT_ID, intent.getIntExtra(FRAGMENT_ID, -1))
             receiver.send(STATUS_FINISHED, bundle)
@@ -52,18 +54,17 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
         case COORD_MODE =>
           val latitude = intent.getDoubleExtra(LATITUDE, 0)
           val longitude = intent.getDoubleExtra(LONGITUDE, 0)
-          val w = Global.getCurrentApi.getForecastForCoordinates(latitude, longitude, Locale.getDefault.getLanguage, 15000)
-          if (w.length > 0) {
-            getContentResolver.delete(WeatherProvider.MAIN_CONTENT_URI, DatabaseHelper.WEATHER_CITY + "='" + w(0).city + "'", null)
-            w.foreach((a: Weather) => getContentResolver.insert(WeatherProvider.MAIN_CONTENT_URI, a.getValues))
+          val forecast = Global.getCurrentApi.getForecastForCoordinates(latitude, longitude, Locale.getDefault.getLanguage, 15000)
+          if (forecast.length > 0) {
+            dbHelper.deleteWeatherByCity(forecast(0).city)
+            forecast.foreach((weather: Weather) => dbHelper.addWeather(weather))
             val bundle: Bundle = new Bundle()
             bundle.putInt(SERVICE_MODE, COORD_MODE)
-            bundle.putString(NEW_CITY, w(0).city)
+            bundle.putString(NEW_CITY, forecast(0).city)
             receiver.send(STATUS_FINISHED, bundle)
           }
         case GLOBAL_REFRESH_MODE =>
           Log.i(this.toString, "Global data loading started")
-          val dbHelper = new HelperWrapper(getContentResolver)
           dbHelper
             .getCities()
             .map((city: String) => Global.getCurrentApi.getForecastForCity(city, Locale.getDefault.getLanguage, 20000))
@@ -85,7 +86,7 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
       case a: Throwable =>
         Log.e("WeaterLoadService", "Exception for mode #" + mode + ": " + a.toString)
         val bundle: Bundle = new Bundle()
-        bundle.putString(Intent.EXTRA_TEXT, a.toString)
+        bundle.putString(Intent.EXTRA_TEXT, a.getMessage)
         if (receiver != null) receiver.send(STATUS_ERROR, bundle)
     }
   }

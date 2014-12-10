@@ -58,7 +58,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
     mId = getArguments.getInt(WeatherDetailFragment.FRAGMENT_ID)
     setCity(getArguments.getString(WeatherDetailFragment.CITY_NAME))
     mInflater = cast(activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-    mDatabaseHelper = new DatabaseHelper(getActivity)
+    mDatabaseHelper = new DatabaseHelper(getActivity.getApplicationContext)
     mReciever = new WeatherLoadReceiver(new Handler())
     mReciever.setReceiver(cast[Activity, Receiver](activity))
     setHeaderBackgroundScrollMode(HeaderFragment.HEADER_BACKGROUND_SCROLL_PARALLAX)
@@ -72,7 +72,7 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
       }
     })
     Log.d(this.toString, "Initiating loader in onAttach()")
-    getLoaderManager.initLoader(0, null, this).forceLoad()
+    getLoaderManager.restartLoader(0, null, this).forceLoad()
   }
 
 
@@ -88,7 +88,6 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
     else mListView.setVisibility(View.INVISIBLE)
     mListView
   }
-
   override def onCreateContentOverlayView(inflater: LayoutInflater, p2: ViewGroup): View = {
     val progressBar: ProgressBar = new ProgressBar(getActivity)
     mContentOverlay = new FrameLayout(getActivity)
@@ -217,12 +216,15 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
 
   def onCreateLoader(id: Int, bundle: Bundle): Loader[List[Weather]] = new AsyncTaskLoader[List[Weather]](getActivity) {
     override def loadInBackground(): List[Weather] = {
-      mDatabaseHelper.mWrapper.getWeatherByCity(cityName)
+      Log.d("Loader for " + cityName, "Trying to get data from db")
+      synchronized[List[Weather]](mDatabaseHelper.mWrapper.getWeatherByCity(cityName))
     }
   }
 
-  def onLoadFinished(loader: Loader[List[Weather]], forecast: List[Weather]): Unit =
+  def onLoadFinished(loader: Loader[List[Weather]], forecast: List[Weather]): Unit = {
+    Log.d("Loader for " + cityName, "Loader finished, got forecast, length: " + forecast.length)
     if (forecast.length > 0) setForecast(forecast) else reloadContents()
+  }
 
   // TODO: Implement onLoaderReset
   def onLoaderReset(loader: Loader[List[Weather]]): Unit = {}

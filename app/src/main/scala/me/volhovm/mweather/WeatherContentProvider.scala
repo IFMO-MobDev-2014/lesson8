@@ -2,13 +2,13 @@ package me.volhovm.mweather
 
 import android.content.{ContentProvider, ContentValues, UriMatcher}
 import android.database.Cursor
-import android.database.sqlite.{SQLiteDatabase, SQLiteQueryBuilder}
+import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.provider.BaseColumns
 import android.text.TextUtils
 
 object WeatherProvider {
-  val AUTHORITY: String = "me.volhovm.mweather.WeatherProvider"
+  val AUTHORITY: String = "me.volhovm.mweather.provider"
   //  val TABLE_NAME: String = "weather"
   val MAIN_CONTENT_URI: Uri = Uri.parse("content://" + AUTHORITY + "/" + DatabaseHelper.WEATHER_TABLE_NAME)
   val CITIES_CONTENT_URI: Uri = Uri.parse("content://" + AUTHORITY + "/" + DatabaseHelper.CITIES_TABLE_NAME)
@@ -24,11 +24,9 @@ object WeatherProvider {
 }
 
 class WeatherProvider extends ContentProvider {
-
   import me.volhovm.mweather.WeatherProvider._
 
   private var mDbHelper: DatabaseHelper = null
-  private var mDataBase: SQLiteDatabase = null
 
   override def onCreate(): Boolean = {
     mDbHelper = new DatabaseHelper(getContext)
