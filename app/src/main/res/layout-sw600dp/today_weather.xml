@@ -4,8 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:padding="@dimen/default_padding"
+    android:background="@android:color/white"
     tools:context=".CityDetailFragment">
     <TextView
         android:textSize="30sp"
@@ -27,9 +27,4 @@
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/view_forecast_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/week_forecast_btn"/>
 </LinearLayout>

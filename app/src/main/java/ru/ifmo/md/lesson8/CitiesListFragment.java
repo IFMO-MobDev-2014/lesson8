@@ -1,24 +1,35 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 
 import ru.ifmo.md.lesson8.adapters.CitiesAdapter;
 import ru.ifmo.md.lesson8.db.CitiesTable;
 import ru.ifmo.md.lesson8.db.WeatherContentProvider;
+import ru.ifmo.md.lesson8.service.ForecastService;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -29,8 +40,9 @@ import ru.ifmo.md.lesson8.db.WeatherContentProvider;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class CitiesListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CitiesListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, ListView.OnItemLongClickListener {
 
+    private CitiesListFragment self = this;
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
@@ -82,6 +94,19 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
     public CitiesListFragment() {
     }
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!isAdded()) {
+                return;
+            }
+            int resCode = intent.getIntExtra(ForecastService.STATUS, -1);
+            if(resCode == ForecastService.STATUS_OK) {
+                getLoaderManager().restartLoader(0, null, self);
+            }
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +118,11 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
                 new int[] {android.R.id.text1}, 0);
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
+
+        IntentFilter inf = new IntentFilter();
+        inf.addAction(ForecastService.ACTION_GET_LOCATION_WOEID);
+        inf.addAction(ForecastService.ACTION_UPDATE_CITIES_LIST);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReceiver, inf);
     }
 
     @Override
@@ -115,6 +145,7 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
         currentLocBtn.setOnClickListener((MainActivity) getActivity());
         newCityBtn.setOnClickListener((MainActivity) getActivity());
 
+        getListView().setOnItemLongClickListener(this);
         setEmptyText(getResources().getString(R.string.cities_list_empty_text));
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
@@ -156,6 +187,36 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
         Bundle data = new Bundle();
         data.putLong(MainActivity.WOEID, woeid);
         mCallbacks.onItemSelected(cityId, data);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor c = ((SimpleCursorAdapter) parent.getAdapter()).getCursor();
+        c.moveToPosition(position);
+        final String cityId = c.getString(c.getColumnIndexOrThrow(CitiesTable._ID));
+        final String name = c.getString(c.getColumnIndexOrThrow(CitiesTable.COLUMN_NAME_NAME));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle("Delete the city")
+                .setMessage("Delete city " + name + "?")
+                .setNegativeButton(R.string.cancel_btn, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setPositiveButton(R.string.yes_btn, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        self.getActivity().getContentResolver().delete(WeatherContentProvider.CITIES_CONTENT_URL,
+                                CitiesTable._ID + "=?",
+                                new String[] {cityId});
+                        self.getLoaderManager().restartLoader(0, null, self);
+                        dialog.dismiss();
+                    }
+                });
+        builder.create().show();
+        return true;
     }
 
     @Override

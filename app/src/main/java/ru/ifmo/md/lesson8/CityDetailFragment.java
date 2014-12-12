@@ -1,6 +1,9 @@
 package ru.ifmo.md.lesson8;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 import ru.ifmo.md.lesson8.adapters.ForecastAdapter;
 import ru.ifmo.md.lesson8.db.CitiesTable;
 import ru.ifmo.md.lesson8.db.WeatherContentProvider;
+import ru.ifmo.md.lesson8.service.CitySearchTask;
 import ru.ifmo.md.lesson8.service.ForecastService;
 import ru.ifmo.md.lesson8.service.Receiver;
 import ru.ifmo.md.lesson8.service.SupportReceiver;
@@ -32,11 +37,11 @@ import ru.ifmo.md.lesson8.service.SupportReceiver;
  */
 public class CityDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener,
-        Receiver {
+        View.OnClickListener {
 
     public static final int LOADER_ID = 2;
 
+    private CityDetailFragment self = this;
     private String cityId;
     private long woeid;
 
@@ -44,7 +49,23 @@ public class CityDetailFragment extends Fragment implements
     private TextView weatherDesc;
     private TextView temperature;
     private ImageView weatherImg;
-    private Button forecastBtn;
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!isAdded()) {
+                return;
+            }
+            int resCode = intent.getIntExtra(ForecastService.STATUS, -1);
+            switch(intent.getAction()) {
+                case ForecastService.ACTION_FORECASTS_FETCH:
+                    if(resCode == ForecastService.STATUS_OK) {
+                        getLoaderManager().restartLoader(LOADER_ID, null, self);
+                    }
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +79,8 @@ public class CityDetailFragment extends Fragment implements
             woeid = getArguments().getLong(MainActivity.WOEID);
             args.putString(MainActivity.CITY_ID, cityId);
             getLoaderManager().initLoader(LOADER_ID, args, this);
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReceiver,
+                    new IntentFilter(ForecastService.ACTION_FORECASTS_FETCH));
         }
     }
 
@@ -74,7 +97,7 @@ public class CityDetailFragment extends Fragment implements
         weatherDesc = (TextView) view.findViewById(R.id.weather_desc);
         temperature = (TextView) view.findViewById(R.id.temperature);
         weatherImg = (ImageView) view.findViewById(R.id.weather_icon);
-        forecastBtn = (Button) view.findViewById(R.id.view_forecast_button);
+        Button forecastBtn = (Button) view.findViewById(R.id.view_forecast_button);
 
         if(forecastBtn != null) {
             forecastBtn.setOnClickListener(this);
@@ -141,23 +164,9 @@ public class CityDetailFragment extends Fragment implements
         switch(item.getItemId()) {
             case R.id.menu_refresh:
                 Toast.makeText(getActivity(), getResources().getString(R.string.feed_refresh_toast), Toast.LENGTH_LONG).show();
-                ForecastService.fetchForecasts(getActivity(), cityId, woeid, new SupportReceiver(new Handler(), this));
+                ForecastService.fetchForecasts(getActivity(), cityId, woeid);
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onReceiveResult(int resCode, Bundle resData) {
-        switch (resCode) {
-            case ForecastService.STATUS_ERROR:
-                Toast.makeText(getActivity(), resData.getString(Intent.EXTRA_TEXT), Toast.LENGTH_SHORT).show();
-                break;
-            case ForecastService.STATUS_OK:
-                if(isAdded()) {
-                    getLoaderManager().restartLoader(LOADER_ID, null, this);
-                }
-                break;
-        }
     }
 }

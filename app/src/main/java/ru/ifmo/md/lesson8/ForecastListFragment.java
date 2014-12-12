@@ -1,12 +1,16 @@
 package ru.ifmo.md.lesson8;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +23,7 @@ import android.widget.Toast;
 import ru.ifmo.md.lesson8.adapters.ForecastAdapter;
 import ru.ifmo.md.lesson8.db.ForecastsTable;
 import ru.ifmo.md.lesson8.db.WeatherContentProvider;
+import ru.ifmo.md.lesson8.service.ForecastParser;
 import ru.ifmo.md.lesson8.service.ForecastService;
 import ru.ifmo.md.lesson8.service.Receiver;
 import ru.ifmo.md.lesson8.service.SupportReceiver;
@@ -29,8 +34,9 @@ import ru.ifmo.md.lesson8.service.SupportReceiver;
  */
 public class ForecastListFragment extends SwipeRefreshListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
-        Receiver,
         SwipeRefreshLayout.OnRefreshListener {
+
+    private ForecastListFragment self = this;
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -46,6 +52,23 @@ public class ForecastListFragment extends SwipeRefreshListFragment implements
     private long woeid;
     private String curCityName;
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!isAdded()) {
+                return;
+            }
+            int resCode = intent.getIntExtra(ForecastService.STATUS, -1);
+            switch(intent.getAction()) {
+                case ForecastService.ACTION_FORECASTS_FETCH:
+                    if(resCode == ForecastService.STATUS_OK) {
+                        getLoaderManager().restartLoader(LOADER_ID, null, self);
+                    }
+                    break;
+            }
+        }
+    };
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -56,7 +79,7 @@ public class ForecastListFragment extends SwipeRefreshListFragment implements
     @Override
     public void onRefresh() {
         Toast.makeText(getActivity(), getResources().getString(R.string.feed_refresh_toast), Toast.LENGTH_LONG).show();
-        ForecastService.fetchForecasts(getActivity(), cityId, woeid, new SupportReceiver(new Handler(), this));
+        ForecastService.fetchForecasts(getActivity(), cityId, woeid);
     }
 
     @Override
@@ -73,6 +96,8 @@ public class ForecastListFragment extends SwipeRefreshListFragment implements
             woeid = getArguments().getLong(MainActivity.WOEID);
             args.putString(MainActivity.CITY_ID, cityId);
             getLoaderManager().initLoader(LOADER_ID, args, this);
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReceiver,
+                    new IntentFilter(ForecastService.ACTION_FORECASTS_FETCH));
         }
     }
 
@@ -114,22 +139,6 @@ public class ForecastListFragment extends SwipeRefreshListFragment implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
-    }
-
-    @Override
-    public void onReceiveResult(int resCode, Bundle resData) {
-        switch (resCode) {
-            case ForecastService.STATUS_ERROR:
-                Toast.makeText(getActivity(), resData.getString(Intent.EXTRA_TEXT), Toast.LENGTH_SHORT).show();
-                break;
-            case ForecastService.STATUS_OK:
-                if(isAdded()) {
-                    Bundle args = new Bundle();
-                    args.putString(MainActivity.CITY_ID, cityId);
-                    getLoaderManager().restartLoader(LOADER_ID, args, this);
-                }
-                break;
-        }
     }
 
     @Override

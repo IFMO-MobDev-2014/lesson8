@@ -8,8 +8,8 @@
     <string name="forecasts_loading_text">Getting the forecasts…</string>
     <string name="forecasts_empty_text">No forecasts are available.\nPull down to refresh.</string>
     <string name="forecasts_invalid_text">No city was specified.</string>
-    <string name="fetching_error">Error while fetching forecasts</string>
-    <string name="parsing_error">Invalid forecast data; cannot parse</string>
+    <string name="fetching_error">Error while fetching data</string>
+    <string name="parsing_error">Invalid XML data; cannot parse</string>
     <string name="feed_refresh_toast">Refreshing the forecast…</string>
     <string name="long_dash"> — </string>
     <string name="week_forecast_btn">View week forecast...</string>
@@ -20,4 +20,11 @@
     <string name="current_location">Current location</string>
     <string name="current_loc_retrieving">Retrieving current location...</string>
     <string name="loading_wait">Wait a bit</string>
+    <string name="title_activity_add_city">Add a new city</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="city_search_field_hint">Start typing the city name...</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="yes_btn">Yes</string>
+
 </resources>
