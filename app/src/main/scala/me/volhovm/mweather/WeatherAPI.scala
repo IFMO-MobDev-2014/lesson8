@@ -57,7 +57,7 @@ object OpenWeatherMapApi extends WeatherApi {
         (curr.optDouble("pressure", -1) / 1.3332239).toInt,
         curr.optDouble("speed", -1).toInt.toString + "m/s " + degToDir(curr.optDouble("deg", -1)),
         curr.optInt("clouds", -1),
-        new Date(curr.getInt("dt") * 1000)
+        new Date(curr.getInt("dt").toLong * 1000l)
       ) :: forecast
     }
     forecast.reverse

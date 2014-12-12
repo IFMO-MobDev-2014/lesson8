@@ -38,20 +38,9 @@ object WeatherDetailFragment {
   }
 }
 
-class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Weather]] {
-  private var mId: Int = -1
-  private var mDatabaseHelper: DatabaseHelper = null
-  private var mForecast: List[Weather] = null
-  private var mForecastUsed: Array[Boolean] = null
-  private var mListView: ListView = null
-  private var mLoaded: Boolean = false
-  private var mReciever: WeatherLoadReceiver = null
+class WeatherDetailFragment extends HeaderFragment with WeatherFragment {
   private var mInflater: LayoutInflater = null
   private var mContentOverlay: FrameLayout = null
-
-  //FIXME: Initialize that
-  var cityName: String = null
-  def setCity(str: String) = cityName = str
 
   override def onAttach(activity: Activity): Unit = {
     super.onAttach(activity)
@@ -203,32 +192,5 @@ class WeatherDetailFragment extends HeaderFragment with LoaderCallbacks[List[Wea
     animation.start()
   }
 
-  def reloadContents() = {
-    Log.d(this.toString, "Reloading data")
-    import me.volhovm.mweather.WeatherLoadService._
-    val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getActivity, classOf[WeatherLoadService])
-    Toast.makeText(getActivity, "Refreshing", Toast.LENGTH_SHORT).show()
-    intent.putExtra(SERVICE_MODE, CITY_MODE)
-    intent.putExtra(FRAGMENT_ID, mId)
-    intent.putExtra(CITY, cityName)
-    intent.putExtra(RECEIVER, mReciever)
-    getActivity.startService(intent)
-  }
-
   override def toString: String = "WeatherDetailFragment #" + mId + " named " + cityName
-
-  def onCreateLoader(id: Int, bundle: Bundle): Loader[List[Weather]] = new AsyncTaskLoader[List[Weather]](getActivity) {
-    override def loadInBackground(): List[Weather] = {
-      Log.d("Loader for " + cityName, "Trying to get data from db")
-      synchronized[List[Weather]](mDatabaseHelper.mWrapper.getWeatherByCity(cityName))
-    }
-  }
-
-  def onLoadFinished(loader: Loader[List[Weather]], forecast: List[Weather]): Unit = {
-    Log.d("Loader for " + cityName, "Loader finished, got forecast, length: " + forecast.length)
-    if (forecast.length > 0) setForecast(forecast) else reloadContents()
-  }
-
-  // TODO: Implement onLoaderReset
-  def onLoaderReset(loader: Loader[List[Weather]]): Unit = {}
 }

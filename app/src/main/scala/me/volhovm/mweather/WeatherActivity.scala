@@ -8,7 +8,7 @@ import android.app._
 import android.content.DialogInterface.OnClickListener
 import android.content.{Context, DialogInterface, Intent}
 import android.location.{Location, LocationListener, LocationManager}
-import android.os.{Bundle, Handler}
+import android.os.{SystemClock, Bundle, Handler}
 import android.support.v13.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
@@ -62,9 +62,10 @@ class WeatherActivity extends Activity with Receiver {
     mViewPager.setAdapter(mSwipeAdapter)
     val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext, classOf[WeatherLoadService])
     intent.putExtra(WeatherLoadService.SERVICE_MODE, WeatherLoadService.GLOBAL_REFRESH_MODE)
-    cast[Object, AlarmManager](getSystemService(Context.ALARM_SERVICE)).setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-      AlarmManager.INTERVAL_FIFTEEN_MINUTES, AlarmManager.INTERVAL_HALF_HOUR,
-      PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT))
+    cast[Object, AlarmManager](getSystemService(Context.ALARM_SERVICE)).setInexactRepeating(
+      AlarmManager.ELAPSED_REALTIME,
+      SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES, AlarmManager.INTERVAL_HALF_HOUR,
+      PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
   }
 
   class SwipeAdapter(manager: FragmentManager) extends FragmentStatePagerAdapter(manager) {

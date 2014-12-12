@@ -89,4 +89,5 @@
                     style="@style/Content.SubTitleText"
                     android:id="@+id/humidity"/>
         </TableRow>
-    </TableLayout></LinearLayout>
+    </TableLayout>
+</LinearLayout>

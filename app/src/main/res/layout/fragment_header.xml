@@ -28,10 +28,9 @@
             android:id="@+id/upper_temp"
             android:layout_weight="1"
             android:padding="@dimen/android_spaces"
-            style="@style/Header.TitleText"
+            style="@style/Header.BigThinText"
             android:fontFamily="sans-serif-thin"
             android:layout_gravity="bottom|center"
-            android:textSize="65dp"
             android:gravity="center"/>
 
     <LinearLayout

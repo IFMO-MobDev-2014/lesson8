@@ -73,20 +73,13 @@ class WeatherLoadService extends IntentService("WeatherLoadService") {
               Log.i(this.toString, "Global: got forecast for " + forecast(0).city.toString)
               dbHelper.deleteWeatherByCity(forecast(0).city)
               forecast.foreach((weather: Weather) => dbHelper.addWeather(weather))
-
-//              val a: AlarmManager = cast(getSystemService(Context.ALARM_SERVICE))
-//              val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext, classOf[WeatherLoadService])
-//              intent.putExtra(SERVICE_MODE, GLOBAL_REFRESH_MODE)
-//              a.set(AlarmManager., SystemClock.elapsedRealtime() + 10 * 1000,
-//                FIXME: Service code ???
-//                PendingIntent.getService(getApplicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
             })
       }
     } catch {
       case a: Throwable =>
         Log.e("WeaterLoadService", "Exception for mode #" + mode + ": " + a.toString)
         val bundle: Bundle = new Bundle()
-        bundle.putString(Intent.EXTRA_TEXT, a.getMessage)
+        bundle.putString(Intent.EXTRA_TEXT, a.toString)
         if (receiver != null) receiver.send(STATUS_ERROR, bundle)
     }
   }
