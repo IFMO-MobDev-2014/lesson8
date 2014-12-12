@@ -7,4 +7,9 @@
     <style name="DialogTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
     </style>
 
+    <style name="AppTheme.Button" parent="Widget.AppCompat.Light.ActionButton">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/button_color_default</item>
+    </style>
+
 </resources>
