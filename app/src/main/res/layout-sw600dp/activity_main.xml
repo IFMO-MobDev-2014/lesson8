@@ -3,7 +3,7 @@
     android:layout_height="match_parent" android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp" android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal" android:orientation="horizontal"
-    android:showDividers="middle" tools:context=".ItemListActivity">
+    android:showDividers="middle" tools:context=".MainActivity">
 
     <!--
     This layout is a two-pane layout for the Items
@@ -11,11 +11,13 @@
     
     -->
 
-    <fragment android:id="@+id/item_list" android:name="ru.ifmo.md.lesson8.ItemListFragment"
+    <fragment android:id="@+id/cities_list" android:name="ru.ifmo.md.lesson8.CitiesListFragment"
         android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
         tools:layout="@android:layout/list_content" />
 
-    <FrameLayout android:id="@+id/item_detail_container" android:layout_width="0dp"
-        android:layout_height="match_parent" android:layout_weight="3" />
+    <FrameLayout android:id="@+id/today_weather_frame" android:layout_width="0dp"
+        android:layout_height="match_parent" android:layout_weight="1" />
+    <FrameLayout android:id="@+id/forecast_frame" android:layout_width="0dp"
+        android:layout_height="match_parent" android:layout_weight="1" />
 
 </LinearLayout>
