@@ -62,16 +62,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     View setDay(View v, Days d, int r) {
-        ((TextView) v.findViewById(r)).setText(d.date + "\n" +
-                "from " + d.low + " to " + d.high + "\n" +
-                d.comment);
-        for (int i = 0; i < DummyContent.images.size(); i++) {
-            String name = DummyContent.images.get(i).getWeather();
-            int image = DummyContent.images.get(i).getImage();
-            if (d.comment.contains(name)) {
-                ((TextView) v.findViewById(r)).setBackgroundResource(image);
-            }
-        }
+        ((TextView) v.findViewById(r)).setText(d.date + "\n" + d.low + " to " + d.high + "\n" + d.comment);
         return v;
     }
 
@@ -92,6 +83,8 @@ public class ItemDetailFragment extends Fragment {
                 ((LinearLayout) v.findViewById(R.id.item_detail)).setBackgroundResource(image);
             }
         }
+        ((LinearLayout) v.findViewById(R.id.days)).setBackgroundResource(R.drawable.background);
+        ((Button) v.findViewById(R.id.update)).setBackgroundResource(R.drawable.background);
         return v;
     }
 
