@@ -24,7 +24,7 @@ class WeatherActivity extends Activity with Receiver {
   private var mCityNames: List[String] = null
   private var mFadingActionBarHelper: FadingActionBarHelper = null
   private var mViewPager: ViewPager = null
-  private var mSwipeAdapter: SwipeAdapter = null
+  private var mSwipeAdapter: SwipeAdapter[WeatherFragment] = null
   private var mDBHelper: DatabaseHelper = null
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
@@ -39,6 +39,7 @@ class WeatherActivity extends Activity with Receiver {
     //    {1.0 250mcc2mnc ru_RU ldltr sw360dp w360dp h567dp 320dpi nrml port finger -keyb/v/h -nav/h s.87 skinPackageSeq.1}
 
     setContentView(R.layout.activity_swipe)
+    getFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     mDBHelper = new DatabaseHelper(getApplicationContext)
     mLocationManager = cast(getSystemService(Context.LOCATION_SERVICE))
     mLocationListener = new SimpleLocationListener
@@ -49,7 +50,13 @@ class WeatherActivity extends Activity with Receiver {
       mCityNames = List("Saint Petersburg", "London")
       mCityNames.foreach((a: String) => mDBHelper.mWrapper.addCity(a))
     }
-    mSwipeAdapter = new SwipeAdapter(getFragmentManager)
+    if (getResources.getBoolean(R.bool.dual_pane))
+      mSwipeAdapter = new SwipeAdapter[WeatherTwoPanelFragment](getFragmentManager, {() => new WeatherTwoPanelFragment()})
+    else {
+      mSwipeAdapter = new SwipeAdapter[WeatherDetailFragment](getFragmentManager, { () => new WeatherDetailFragment()})
+    }
+    mFadingActionBarHelper = new FadingActionBarHelper(getActionBar, getResources.getDrawable(R.drawable.actionbar_bg))
+    mViewPager = null
     mViewPager = cast(findViewById(R.id.pager))
     if (!Global.performanceOn) mViewPager.setOffscreenPageLimit(5) //10?
     mViewPager.setOnPageChangeListener(new OnPageChangeListener {
@@ -58,7 +65,6 @@ class WeatherActivity extends Activity with Receiver {
       override def onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int): Unit = {}
       override def onPageSelected(position: Int): Unit = {}
     })
-    mFadingActionBarHelper = new FadingActionBarHelper(getActionBar, getResources.getDrawable(R.drawable.actionbar_bg))
     mViewPager.setAdapter(mSwipeAdapter)
     val intent: Intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext, classOf[WeatherLoadService])
     intent.putExtra(WeatherLoadService.SERVICE_MODE, WeatherLoadService.GLOBAL_REFRESH_MODE)
@@ -68,12 +74,17 @@ class WeatherActivity extends Activity with Receiver {
       PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
   }
 
-  class SwipeAdapter(manager: FragmentManager) extends FragmentStatePagerAdapter(manager) {
-    private val mFragmentMap: util.HashMap[Int, WeakReference[WeatherDetailFragment]] = new util.HashMap[Int, WeakReference[WeatherDetailFragment]]()
+  override def onStop(): Unit = {
+    super.onStop()
+  }
+
+  override def onSaveInstanceState(outState: Bundle): Unit = ()
+
+  class SwipeAdapter[+A <: WeatherFragment](manager: FragmentManager, fab: () => A) extends FragmentStatePagerAdapter(manager) {
+    private val mFragmentMap: util.HashMap[Int, WeakReference[WeatherFragment]] = new util.HashMap[Int, WeakReference[WeatherFragment]]()
+
     override def getItem(position: Int): Fragment = {
-      val ret = WeatherDetailFragment.newInstance(mCityNames(position), position)
-      mFragmentMap.put(position, new WeakReference[WeatherDetailFragment](ret))
-      ret
+      WeatherFragment.newInstance(fab, mCityNames(position), position)
     }
     override def getCount: Int = mCityNames.length
 
@@ -81,6 +92,13 @@ class WeatherActivity extends Activity with Receiver {
       super.destroyItem(container, position, `object`)
       mFragmentMap.remove(position)
     }
+
+    override def instantiateItem(container: ViewGroup, position: Int): AnyRef = {
+      val ret: A = cast(super.instantiateItem(container, position))
+      mFragmentMap.put(position, cast(new WeakReference[A](ret)))
+      ret
+    }
+
     def findRef(id: Int): Fragment = mFragmentMap.get(id).get()
   }
 
@@ -100,7 +118,7 @@ class WeatherActivity extends Activity with Receiver {
 
   override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
     case R.id.action_refresh =>
-      val frg = getCurrentContainerFragment()
+      val frg = getCurrentContainerFragment
       frg.reloadContents()
       super.onOptionsItemSelected(item)
     case R.id.action_cities_list =>
@@ -207,14 +225,14 @@ class WeatherActivity extends Activity with Receiver {
     }
   }
 
-  def getCurrentContainerFragment(): WeatherDetailFragment = {
-    val out = cast[AnyRef, WeatherDetailFragment](mSwipeAdapter.findRef(mViewPager.getCurrentItem))
+  def getCurrentContainerFragment: WeatherFragment = {
+    val out = cast[AnyRef, WeatherFragment](mSwipeAdapter.findRef(mViewPager.getCurrentItem))
     Log.d("WeatherActivity", "getContainerFragment: " + out.cityName + " on position " + mViewPager.getCurrentItem)
     out
   }
 
-  def getContainerFragment(id: Int): WeatherDetailFragment = {
-    val out = cast[AnyRef, WeatherDetailFragment](mSwipeAdapter.findRef(id))
+  def getContainerFragment(id: Int): WeatherFragment = {
+    val out = cast[AnyRef, WeatherFragment](mSwipeAdapter.findRef(id))
     Log.d("WeatherActivity", "getContainerFragment: " + out.cityName + " on position " + id)
     out
   }
@@ -238,13 +256,15 @@ class WeatherActivity extends Activity with Receiver {
             Toast.makeText(this, oldCity + " is the same as " + newCity, Toast.LENGTH_SHORT).show()
           } else {
             val frag = getContainerFragment(resData.getInt(FRAGMENT_ID))
-            frag.setCity(resData.getString(NEW_CITY))
-            if (newCity != oldCity)
-            mDBHelper.mWrapper.updateCity(oldCity, newCity)
-            mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), newCity)
-            if (frag.isAdded) {
-              Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
-              frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+            if (frag != null) {
+              frag.setCity(resData.getString(NEW_CITY))
+              if (newCity != oldCity)
+                mDBHelper.mWrapper.updateCity(oldCity, newCity)
+              mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), newCity)
+              if (frag.isAdded) {
+                Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
+                frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+              }
             }
           }
         case COORD_MODE =>

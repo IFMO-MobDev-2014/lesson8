@@ -39,7 +39,6 @@ object WeatherDetailFragment {
 }
 
 class WeatherDetailFragment extends HeaderFragment with WeatherFragment {
-  private var mInflater: LayoutInflater = null
   private var mContentOverlay: FrameLayout = null
 
   override def onAttach(activity: Activity): Unit = {

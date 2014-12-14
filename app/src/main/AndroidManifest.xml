@@ -19,8 +19,7 @@
 		android:name="me.volhovm.mweather.WeatherProvider"
 		android:authorities="me.volhovm.mweather.provider"/>
 	<activity
-		android:name="me.volhovm.mweather.WeatherActivity"
-		android:screenOrientation="portrait">
+		android:name="me.volhovm.mweather.WeatherActivity">
 	    <intent-filter>
 		<action android:name="android.intent.action.MAIN"/>
 		<category android:name="android.intent.category.LAUNCHER"/>

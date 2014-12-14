@@ -1,21 +1,24 @@
 package me.volhovm.mweather
 
+import java.lang.reflect.Constructor
+
 import android.app.Fragment
 import android.app.LoaderManager.LoaderCallbacks
 import android.content.{Intent, AsyncTaskLoader, Loader}
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.{Toast, ListView}
 
 
 object WeatherFragment {
   val CITY_NAME = "city_name"
   val FRAGMENT_ID = "fragment_id"
-  def newInstance(cityname: String, id: Int): WeatherDetailFragment = {
+  def newInstance[A <: WeatherFragment](constr: () => A, cityname: String, id: Int): A = {
     val bundle: Bundle = new Bundle()
     bundle.putString(CITY_NAME, cityname)
     bundle.putInt(FRAGMENT_ID, id)
-    val fragment: WeatherDetailFragment = new WeatherDetailFragment
+    val fragment: A = constr()
     fragment.setArguments(bundle)
     fragment
   }
@@ -28,6 +31,7 @@ trait WeatherFragment extends Fragment  with LoaderCallbacks[List[Weather]] {
   protected var mForecastUsed: Array[Boolean] = null
   protected var mListView: ListView = null
   protected var mLoaded: Boolean = false
+  protected var mInflater: LayoutInflater = null
   protected var mReciever: WeatherLoadReceiver = null
 
   var cityName: String = null
