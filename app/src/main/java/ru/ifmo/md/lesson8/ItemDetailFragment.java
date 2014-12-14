@@ -76,13 +76,16 @@ public class ItemDetailFragment extends Fragment {
                 + "\n" + "Sunset: " + result.getString(result.getColumnIndex(MySQLite.SUNSET)));
         ((TextView) v.findViewById(R.id.city)).setText(result.getString(result.getColumnIndex(MySQLite.CITY)));
         ((TextView) v.findViewById(R.id.date)).setText(result.getString(result.getColumnIndex(MySQLite.DAY)));
+        boolean findImage = false;
         for (int i = 0; i < DummyContent.images.size(); i++) {
             String name = DummyContent.images.get(i).getWeather();
             int image = DummyContent.images.get(i).getImage();
             if (result.getString(result.getColumnIndex(MySQLite.COMMENT)).contains(name)) {
                 ((LinearLayout) v.findViewById(R.id.item_detail)).setBackgroundResource(image);
+                findImage = true;
             }
         }
+        if (!findImage) ((LinearLayout) v.findViewById(R.id.item_detail)).setBackgroundResource(R.drawable.background);
         ((LinearLayout) v.findViewById(R.id.days)).setBackgroundResource(R.drawable.background);
         ((Button) v.findViewById(R.id.update)).setBackgroundResource(R.drawable.background);
         return v;
