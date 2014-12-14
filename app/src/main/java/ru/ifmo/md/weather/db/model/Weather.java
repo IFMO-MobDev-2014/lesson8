@@ -6,24 +6,24 @@ package ru.ifmo.md.weather.db.model;
 public class Weather {
 
     private String receivingTime;
-    private double temp;
+    private int temp;
     private double humidity;
-    private double tempMin;
-    private double tempMax;
+    private int tempMin;
+    private int tempMax;
     private double pressure;
     private double windSpeed;
     private String description;
     private String iconName;
     private String cityName;
-    private int cityId;
+    private long cityId;
 
     public Weather() {
         cityId = 0;
     }
 
-    public Weather(String receivingTime, double temp, double humidity, double tempMin,
-                   double tempMax, double pressure, double windSpeed, String cityName,
-                   String description, String iconName, int cityId) {
+    public Weather(String receivingTime, int temp, double humidity, int tempMin,
+                   int tempMax, double pressure, double windSpeed, String cityName,
+                   String description, String iconName, long cityId) {
         this.receivingTime = receivingTime;
         this.temp = temp;
         this.humidity = humidity;
@@ -37,14 +37,6 @@ public class Weather {
         this.cityId = cityId;
     }
 
-    public int getCityId() {
-        return cityId;
-    }
-
-    public void setCityId(int cityId) {
-        this.cityId = cityId;
-    }
-
     public String getReceivingTime() {
         return receivingTime;
     }
@@ -53,11 +45,11 @@ public class Weather {
         this.receivingTime = receivingTime;
     }
 
-    public double getTemp() {
+    public int getTemp() {
         return temp;
     }
 
-    public void setTemp(double temp) {
+    public void setTemp(int temp) {
         this.temp = temp;
     }
 
@@ -69,19 +61,19 @@ public class Weather {
         this.humidity = humidity;
     }
 
-    public double getTempMin() {
+    public int getTempMin() {
         return tempMin;
     }
 
-    public void setTempMin(double tempMin) {
+    public void setTempMin(int tempMin) {
         this.tempMin = tempMin;
     }
 
-    public double getTempMax() {
+    public int getTempMax() {
         return tempMax;
     }
 
-    public void setTempMax(double tempMax) {
+    public void setTempMax(int tempMax) {
         this.tempMax = tempMax;
     }
 
@@ -101,14 +93,6 @@ public class Weather {
         this.windSpeed = windSpeed;
     }
 
-    public String getCityName() {
-        return cityName;
-    }
-
-    public void setCityName(String cityName) {
-        this.cityName = cityName;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -123,6 +107,22 @@ public class Weather {
 
     public void setIconName(String iconName) {
         this.iconName = iconName;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public long getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(long cityId) {
+        this.cityId = cityId;
     }
 
     @Override

@@ -3,17 +3,13 @@ package ru.ifmo.md.weather;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Kirill on 01.12.2014.
@@ -30,8 +26,10 @@ public class WeatherDownloader {
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            Log.i("isOnline:", "WE ARE ONLINE!!!");
             return true;
         }
+        Log.i("isOnline:", "WE ARE OFFLINE!!!");
         return false;
     }
 
@@ -65,6 +63,7 @@ public class WeatherDownloader {
     }
 
     public static String loadWeatherForNow(String name) {
+        Log.i("run", "loadWeatherForNow");
         return load(createWeatherUrlFromName(name));
     }
 

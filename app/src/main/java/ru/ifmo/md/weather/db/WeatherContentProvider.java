@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import ru.ifmo.md.weather.db.model.CityTable;
+import ru.ifmo.md.weather.db.model.Weather;
 import ru.ifmo.md.weather.db.model.WeatherTable;
 
 /**
@@ -17,8 +18,8 @@ import ru.ifmo.md.weather.db.model.WeatherTable;
  */
 public class WeatherContentProvider extends ContentProvider {
 
-    private static final String CITIES_TABLE = "Cities";
-    private static final String WEATHER_TABLE = "Weather";
+    private static final String CITIES_TABLE = CityTable.TABLE_NAME;
+    private static final String WEATHER_TABLE = WeatherTable.TABLE_NAME;
 
     private DBHelper helper;
 
@@ -27,7 +28,7 @@ public class WeatherContentProvider extends ContentProvider {
     private static final int ALL_WEATHER = 3;
     private static final int CITIES = 4;
     
-    private static final String AUTHORITY = "ru.ifmo.mobdev.rss";
+    private static final String AUTHORITY = "ru.ifmo.md.weather";
     private static final String PATH_CITIES = "Cities";
     private static final String PATH_WEATHER = "Weather";
     public static final Uri CONTENT_URI_WEATHER =
@@ -36,10 +37,10 @@ public class WeatherContentProvider extends ContentProvider {
             Uri.parse("content://" + AUTHORITY + "/" + PATH_CITIES);
     private static UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
-        uriMatcher.addURI(AUTHORITY, PATH_WEATHER, CITIES);
-        uriMatcher.addURI(AUTHORITY, PATH_CITIES, ALL_WEATHER);
-        uriMatcher.addURI(AUTHORITY, PATH_CITIES + "/#", SINGLE_WEATHER);
-        uriMatcher.addURI(AUTHORITY, PATH_WEATHER + "/#", SINGLE_CITY);
+        uriMatcher.addURI(AUTHORITY, PATH_WEATHER, ALL_WEATHER);
+        uriMatcher.addURI(AUTHORITY, PATH_CITIES, CITIES);
+        uriMatcher.addURI(AUTHORITY, PATH_CITIES + "/#", SINGLE_CITY);
+        uriMatcher.addURI(AUTHORITY, PATH_WEATHER + "/#", SINGLE_WEATHER);
     }
     public boolean onCreate() {
         helper = new DBHelper(getContext());
@@ -62,16 +63,18 @@ public class WeatherContentProvider extends ContentProvider {
                 break;
             case SINGLE_WEATHER:
                 queryBuilder.setTables(WEATHER_TABLE);
-                queryBuilder.appendWhere("feed_id" + "=" + uri.getLastPathSegment());
+                queryBuilder.appendWhere(WeatherTable._ID + "=" + uri.getLastPathSegment());
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
         }
         return queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
     }
+
     @Override
     public String getType(Uri uri) {
         return null;
     }
+
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -80,8 +83,15 @@ public class WeatherContentProvider extends ContentProvider {
             case CITIES:
                 id = db.insert(CityTable.TABLE_NAME, null, contentValues);
                 break;
+            case SINGLE_CITY:
+                contentValues.put(CityTable._ID, uri.getLastPathSegment());
+                id = db.insert(CityTable.TABLE_NAME, null, contentValues);
+                break;
+            case ALL_WEATHER:
+                id = db.insert(WeatherTable.TABLE_NAME, null, contentValues);
+                break;
             case SINGLE_WEATHER:
-                contentValues.put(WeatherTable.CITY_ID_COLUMN, uri.getLastPathSegment());
+                contentValues.put(WeatherTable._ID, uri.getLastPathSegment());
                 id = db.insert(WeatherTable.TABLE_NAME, null, contentValues);
                 break;
             default:
@@ -94,6 +104,7 @@ public class WeatherContentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = helper.getWritableDatabase();
         int removed;
+        String id = "";
         switch (uriMatcher.match(uri)) {
             case ALL_WEATHER:
                 removed = db.delete(WeatherTable.TABLE_NAME, selection, selectionArgs);
@@ -102,7 +113,7 @@ public class WeatherContentProvider extends ContentProvider {
                 removed = db.delete(CityTable.TABLE_NAME, selection, selectionArgs);
                 break;
             case SINGLE_CITY:
-                String id = uri.getLastPathSegment();
+                id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
                     removed = db.delete(CityTable.TABLE_NAME, CityTable._ID + "=" + id, selectionArgs);
                 } else {
@@ -110,11 +121,11 @@ public class WeatherContentProvider extends ContentProvider {
                 }
                 break;
             case SINGLE_WEATHER:
-                String feedId = uri.getLastPathSegment();
+                id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    removed = db.delete(WeatherTable.TABLE_NAME, WeatherTable.CITY_ID_COLUMN + "=" + feedId, selectionArgs);
+                    removed = db.delete(WeatherTable.TABLE_NAME, WeatherTable._ID + "=" + id, selectionArgs);
                 } else {
-                    removed = db.delete(WeatherTable.TABLE_NAME, WeatherTable.CITY_ID_COLUMN + "=" + feedId + " and " + selection, selectionArgs);
+                    removed = db.delete(WeatherTable.TABLE_NAME, WeatherTable._ID + "=" + id + " and " + selection, selectionArgs);
                 }
                 break;
             default:
@@ -126,13 +137,21 @@ public class WeatherContentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
         SQLiteDatabase db = helper.getWritableDatabase();
+
+        Cursor ti = db.rawQuery("PRAGMA table_info(" + CityTable.TABLE_NAME + ")", null);
+        if ( ti.moveToFirst() ) {
+            do {
+                System.out.println("col: " + ti.getString(1));
+            } while (ti.moveToNext());
+        }
         int updated;
+        String id = "";
         switch (uriMatcher.match(uri)) {
             case CITIES:
                 updated = db.update(CityTable.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             case SINGLE_CITY:
-                String id = uri.getLastPathSegment();
+                id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
                     updated = db.update(CityTable.TABLE_NAME, contentValues, CityTable._ID + "=" + id, selectionArgs);
                 } else {
@@ -140,11 +159,11 @@ public class WeatherContentProvider extends ContentProvider {
                 }
                 break;
             case SINGLE_WEATHER:
-                String feedId = uri.getLastPathSegment();
+                id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    updated = db.update(WeatherTable.TABLE_NAME, contentValues, WeatherTable.CITY_ID_COLUMN + "=" + feedId, selectionArgs);
+                    updated = db.update(WeatherTable.TABLE_NAME, contentValues, WeatherTable._ID + "=" + id, selectionArgs);
                 } else {
-                    updated = db.update(WeatherTable.TABLE_NAME, contentValues, WeatherTable.CITY_ID_COLUMN + "=" + feedId + " and " + selection, selectionArgs);
+                    updated = db.update(WeatherTable.TABLE_NAME, contentValues, WeatherTable._ID + "=" + id + " and " + selection, selectionArgs);
                 }
                 break;
             default:
@@ -153,4 +172,5 @@ public class WeatherContentProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return updated;
     }
+
 }

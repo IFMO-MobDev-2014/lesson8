@@ -5,17 +5,23 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
-import android.widget.Toast;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
-import ru.ifmo.md.weather.db.*;
-import ru.ifmo.md.weather.db.model.*;
+import ru.ifmo.md.weather.db.WeatherContentProvider;
+import ru.ifmo.md.weather.db.model.City;
+import ru.ifmo.md.weather.db.model.CityTable;
+import ru.ifmo.md.weather.db.model.Weather;
+import ru.ifmo.md.weather.db.model.WeatherTable;
 
 
 /**
@@ -25,8 +31,9 @@ public class LoadWeatherService extends IntentService {
 
     public static final String REQUEST_TYPE = "type";
     public static final String COUNTRY_INDEX = "index";
-    public static final int FORECAST_REQUEST = 1;
-    public static final int WEATHER_REQUEST = 0;
+    public static final int FORECAST_REQUEST = 0;
+    public static final int WEATHER_REQUEST = 1;
+    public static final int UPDATE_ALL_REQUEST = 2;
     public static final String URLS = "urls";
     public static final String RESULT = "result";
     public static final String ERROR_MSG = "errorMessage";
@@ -41,113 +48,159 @@ public class LoadWeatherService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
+            Log.i("start ", "onHandleIntent");
             int type = intent.getIntExtra(REQUEST_TYPE, -1);
             //countryIndex = intent.getIntExtra(COUNTRY_INDEX, -1);
-            ArrayList<String> cities = intent.getStringArrayListExtra(URLS);
-            if (WeatherDownloader.isOnline(this)) {
-                if (type == FORECAST_REQUEST) {
-
-                } else if (type == WEATHER_REQUEST) {
-
+            HashMap<Long, String> cities = getCitiesFromContentProvider();
+            System.out.println("Cities:");
+            for (Entry<Long, String> i : cities.entrySet()) {
+                System.out.println(i.getKey() + " : " + i.getValue());
+            }
+            boolean isOnLine = WeatherDownloader.isOnline(this);
+            Log.i("isOnLine:", Boolean.toString(isOnLine));
+            System.out.println("isOnLine:" + Boolean.toString(isOnLine));
+            if (isOnLine) {
+                if (type == WEATHER_REQUEST) {
+                    HashMap<Long, City> loadedWeather = loadWeather(cities);
+                    updateWeather(loadedWeather);
+                } else if (type == FORECAST_REQUEST) {
+                    ArrayList<Weather> loadedForecast = loadForecast(cities);
+                    updateForecast(loadedForecast);
+                } else if (type == UPDATE_ALL_REQUEST) {
+                    HashMap<Long, City> loadedWeather = loadWeather(cities);
+                    updateWeather(loadedWeather);
+                    ArrayList<Weather> loadedForecast = loadForecast(cities);
+                    updateForecast(loadedForecast);
                 }
             } else {
                 publishResults("Internet connection error", 0);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             publishResults(e.getMessage(), 0);
         }
+        publishResults("Download finished", 1);
     }
 
-    private boolean loadForecast(ArrayList<City> cities) {
-
-        for (int i = 0; i < cities.size(); i++) {
-            City currentCity = cities.get(i);
-            String cityName = currentCity.getName();
+    private ArrayList<Weather> loadForecast(HashMap<Long, String> cities) {
+        ArrayList<Weather> forecast = new ArrayList<>();
+        for(Entry<Long, String> entry : cities.entrySet()) {
+            Long cityId = entry.getKey();
+            String cityName = entry.getValue();
             String data = WeatherDownloader.loadForecastForFiveDays(cityName);
             try {
                 JSONObject root = new JSONObject(data);
                 int code = root.getInt("cod");
                 if (code != 200) {
                     publishResults("Download error", 0);
-                    return false;
+                    return null;
                 } else {
                     int cnt = root.getInt("cnt");
                     JSONArray array = root.getJSONArray("list");
-                    ArrayList<Weather> forecast = new ArrayList<Weather>();
                     for (int j = 0; j < cnt; j++) {
                         JSONObject obj = array.getJSONObject(j);
-                        forecast.add(getWeatherFromJSON(obj));
+                        Weather curr = getWeatherFromJSON(obj);
+                        curr.setCityId(cityId);
+                        forecast.add(curr);
                     }
-                    System.out.println("get :" + forecast.size() + " forecasts");
-
-                    for (Weather w : forecast) {
-                        ContentValues values = addWeatherValues(w);
-                        Uri id = getContentResolver().insert(WeatherContentProvider.CONTENT_URI_WEATHER, values);
-                    }
-                    System.out.println("load done");
-                    publishResults("", 1);
+                    Log.i("get : ", forecast.size() + " forecasts");
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
                 System.out.println("JSON error");
                 publishResults("JSON parsing error", 0);
-                return false;
+                return null;
             }
-
         }
-        return true;
+        return forecast;
     }
 
-    private boolean loadWeather(ArrayList<City> cities) {
+    private Long updateForecast(ArrayList<Weather> forecast) {
+        ContentResolver cr = getContentResolver();
+        Uri uri = Uri.parse(WeatherContentProvider.CONTENT_URI_WEATHER + "");
+        int r = cr.delete(uri, null, null);
+        Log.i("", "from table Weather, delete " + r + " lines");
+        for (Weather w : forecast) {
+            cr.insert(WeatherContentProvider.CONTENT_URI_WEATHER, getWeatherValues(w));
+        }
 
-        for (int i = 0; i < cities.size(); i++) {
-            City currentCity = cities.get(i);
-            String cityName = currentCity.getName();
+        return 1L;//Long.parseLong(uri.getLastPathSegment());
+    }
+
+    private HashMap<Long, City> loadWeather(HashMap<Long, String> cities) {
+        HashMap<Long, City> rv = new HashMap<Long, City>();
+
+        for(Entry<Long, String> entry : cities.entrySet()) {
+            Long cityId = entry.getKey();
+            String cityName = entry.getValue();
             String data = WeatherDownloader.loadWeatherForNow(cityName);
+            Log.i("data", data);
             try {
                 JSONObject root = new JSONObject(data);
                 int code = root.getInt("cod");
                 if (code != 200) {
                     publishResults("Download error", 0);
-                    return false;
+                    return null;
                 }
-                int cnt = root.getInt("count");
-                JSONArray array = root.getJSONArray("list");
+
+                /*JSONArray array = root.getJSONArray("list");
                 if (array.length() != 1) {
                     publishResults("Parsing Error(more than one result found", 0);
-                    return false;
-                }
-                Weather weather = getWeatherFromJSON(array.getJSONObject(0));
-                currentCity.setId(array.getJSONObject(0).getString("id"));
+                    return null;
+                }*/
+                Weather weather = getWeatherFromJSON(root);
+
+                City currentCity = new City();
+                currentCity.setName(cityName);
+                currentCity.setId(root.getString("id"));
                 currentCity.setWeatherNow(weather);
-                cities.set(i,currentCity);
-                ContentValues values = addWeatherValues(weather);
-                values.put(CityTable.COUNTRY_COLUMN, currentCity.getCountry());
-                values.put(CityTable.LAT_COLUMN, currentCity.getLat());
-                values.put(CityTable.LON_COLUMN, currentCity.getLon());
-                values.put(CityTable.NAME_COLUMN, currentCity.getName());
-                values.put(CityTable.ID_COLUMN, currentCity.getId());
 
-                Uri uri = Uri.parse(WeatherContentProvider.CONTENT_URI_CITIES + "/" + currentCity.getDbId());
-                int r = getContentResolver().delete(uri, null, null);
-                System.out.println("delete "+r+ " lines");
-                Uri id = getContentResolver().insert(WeatherContentProvider.CONTENT_URI_CITIES, values);
-
-
+                rv.put(cityId, currentCity);
             } catch (JSONException e) {
                 e.printStackTrace();
                 System.out.println("JSON error");
                 publishResults("JSON parsing error", 0);
-                return false;
+                return null;
             }
 
         }
-        return true;
+        return rv;
     }
 
-    private ContentValues addWeatherValues(Weather weather) {
+    private Long updateWeather(HashMap<Long, City> cities) {
+        Uri uri = null;
+        Log.i("updateWeather", "start");
+        ContentResolver cr = getContentResolver();
+        //Cursor cursor = cr.query(WeatherContentProvider.CONTENT_URI_CITIES, null, null, null, null);
+        for(Entry<Long, City> entry : cities.entrySet()) {
+            City currCity = entry.getValue();
+            long cityId = entry.getKey();
+            Log.i("city:", currCity.toString());
+            uri = Uri.parse(WeatherContentProvider.CONTENT_URI_CITIES + "/" + cityId);
+            getContentResolver().update(uri, getCityValues(currCity), null, null);
+        }
+        if (uri == null)
+            return 0L;
+        else
+            return Long.parseLong(uri.getLastPathSegment());
+    }
+
+    private HashMap<Long, String> getCitiesFromContentProvider() {
+        HashMap<Long, String> rv = new HashMap<Long, String>();
+        Uri uri = Uri.parse(WeatherContentProvider.CONTENT_URI_CITIES + "");
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndex(CityTable._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CityTable.NAME_COLUMN));
+            rv.put(id, name);
+        }
+        return rv;
+    }
+
+    private ContentValues getWeatherValues(Weather weather) {
         ContentValues values = new ContentValues();
         values.put(WeatherTable.CITY_NAME_COLUMN, weather.getCityName());
+        values.put(WeatherTable.WEATHER_TIME_COLUMN, weather.getReceivingTime());
         values.put(WeatherTable.TEMP_COLUMN, weather.getTemp());
         values.put(WeatherTable.TEMP_MIN_COLUMN, weather.getTempMin());
         values.put(WeatherTable.TEMP_MAX_COLUMN, weather.getTempMax());
@@ -156,7 +209,17 @@ public class LoadWeatherService extends IntentService {
         values.put(WeatherTable.WIND_SPEED_COLUMN, weather.getWindSpeed());
         values.put(WeatherTable.ICON_NAME_COLUMN, weather.getIconName());
         values.put(WeatherTable.DESCRIPTION_COLUMN, weather.getDescription());
-        values.put(WeatherTable.CITY_ID_COLUMN, 0);
+        values.put(WeatherTable.CITY_ID_COLUMN, weather.getCityId());
+        return values;
+    }
+
+    private ContentValues getCityValues(City city) {
+        ContentValues values = getWeatherValues(city.getWeatherNow());
+        values.put(CityTable.NAME_COLUMN, city.getName());
+        values.put(CityTable.ID_COLUMN, city.getId());
+        values.put(CityTable.COUNTRY_COLUMN, city.getCountry());
+        values.put(CityTable.LAT_COLUMN, city.getLat());
+        values.put(CityTable.LON_COLUMN, city.getLon());
         return values;
     }
 
@@ -164,22 +227,23 @@ public class LoadWeatherService extends IntentService {
         Weather rv = new Weather();
         JSONObject main = JSONObj.getJSONObject("main");
         rv.setReceivingTime(Integer.toString(JSONObj.getInt("dt")));
-        rv.setTemp(main.getDouble("temp"));
-        rv.setTempMin(main.getDouble("temp_min"));
-        rv.setTempMax(main.getDouble("temp_max"));
+        rv.setTemp(main.getInt("temp"));
+        rv.setTempMin(main.getInt("temp_min"));
+        rv.setTempMax(main.getInt("temp_max"));
         rv.setPressure(main.getDouble("pressure"));
         rv.setHumidity(main.getDouble("humidity"));
         JSONObject wind = JSONObj.getJSONObject("wind");
         rv.setWindSpeed(wind.getDouble("speed"));
-        JSONObject humanInf = JSONObj.getJSONObject("weather");
+        JSONArray humanWeatherArray = JSONObj.getJSONArray("weather");
+        JSONObject humanInf =  humanWeatherArray.getJSONObject(0);
         rv.setIconName(humanInf.getString("icon"));
         rv.setDescription(humanInf.getString("description"));
         return rv;
     }
 
     private void publishResults(String errorMsg, int result) {
-        Toast.makeText(this, "finish downloading", Toast.LENGTH_SHORT).show();
-        System.out.println("finish downloading");
+        //Toast.makeText(this, "finish downloading", Toast.LENGTH_SHORT).show();
+        Log.i("finish downloading, result:", errorMsg);
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra(RESULT, result);
         intent.putExtra(ERROR_MSG, errorMsg);

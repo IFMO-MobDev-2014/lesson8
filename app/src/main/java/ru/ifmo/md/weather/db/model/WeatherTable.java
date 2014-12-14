@@ -15,6 +15,7 @@ public class WeatherTable implements BaseColumns{
     public static final String TEMP_MAX_COLUMN = "tempMax";
     public static final String PRESSURE_COLUMN = "pressure";
     public static final String WIND_SPEED_COLUMN = "windSpeed";
+    public static final String WEATHER_TIME_COLUMN = "weatherTime";
     public static final String ICON_NAME_COLUMN = "iconName";
     public static final String DESCRIPTION_COLUMN = "description";
     public static final String CITY_NAME_COLUMN = "cityName";
@@ -23,15 +24,16 @@ public class WeatherTable implements BaseColumns{
     private static String DB_CREATE =
             "CREATE TABLE if not exists " + TABLE_NAME + " ( " +
                     BaseColumns._ID + " integer PRIMARY KEY autoincrement, " +
-                    TEMP_COLUMN + " REAL, " +
+                    TEMP_COLUMN + " integer, " +
                     HUMIDITY_COLUMN + " REAL, " +
-                    TEMP_MIN_COLUMN + " REAL, " +
-                    TEMP_MAX_COLUMN + " REAL " +
-                    PRESSURE_COLUMN + " REAL " +
-                    WIND_SPEED_COLUMN + " REAL " +
-                    CITY_NAME_COLUMN + " TEXT not NULL " +
-                    ICON_NAME_COLUMN + " TEXT not NULL " +
-                    DESCRIPTION_COLUMN + " TEXT not NULL " +
+                    TEMP_MIN_COLUMN + " integer, " +
+                    TEMP_MAX_COLUMN + " integer, " +
+                    PRESSURE_COLUMN + " REAL, " +
+                    WIND_SPEED_COLUMN + " REAL, " +
+                    WEATHER_TIME_COLUMN + " TEXT , " +
+                    CITY_NAME_COLUMN + " TEXT , " +
+                    ICON_NAME_COLUMN + " TEXT , " +
+                    DESCRIPTION_COLUMN + " TEXT , " +
                     CITY_ID_COLUMN + " INTEGER REFERENCES CityTable(_ID) ON DELETE CASCADE); ";
 
     public static void onCreate(SQLiteDatabase db) {

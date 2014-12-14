@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_refresh"
+        android:title="@string/action_refresh"
+        android:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_add"
+        android:title="@string/action_add"
+        android:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_clear_weather"
+        android:title="@string/action_clear_weather"
+        android:showAsAction="ifRoom"/>
+
+</menu>
