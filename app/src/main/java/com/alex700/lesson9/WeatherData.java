@@ -40,6 +40,14 @@ public class WeatherData {
         return t;
     }
 
+    public String getTString() {
+        if (t > 0) {
+            return "+" + t + "°C";
+        } else {
+            return t + "°C";
+        }
+    }
+
     public int getWindSpeed() {
         return windSpeed;
     }

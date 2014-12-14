@@ -4,6 +4,14 @@
     android:background="#ff8212ff"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="date"
+        android:gravity="center"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:textColor="@android:color/white"
+        android:id="@+id/date_main" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -42,7 +50,7 @@
                 android:layout_height="0dp"
                 android:text="-10°C"
                 android:id="@+id/temperature_main"
-                android:layout_weight="3"
+                android:layout_weight="2"
                 android:textColor="#ffffffff"
                 android:textSize="@dimen/abc_text_size_display_3_material"
                 android:gravity="center" />

@@ -62,6 +62,79 @@ public class WeatherFetcher {
         return weatherData;
     }
 
+    public static String getCityNameFromJson(String cityJson) throws JSONException {
+        JSONObject json = (new JSONObject(cityJson)).getJSONArray("list").getJSONObject(0);
+        return json.getString("name");
+    }
+
+
+    public static String fetchCity(double latitude, double longitude, String apiKey) {
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String forecastJSONStr = null;
+        try {
+            final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/find?";
+            final String LONGITUDE_PARAM = "lon";
+            final String LATITUDE_PARAM = "lat";
+            final String COUNT_PARAM = "cnt";
+            final String ID_PARAM = "APPID";
+
+            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                    .appendQueryParameter(LONGITUDE_PARAM, String.valueOf(longitude))
+                    .appendQueryParameter(LATITUDE_PARAM, String.valueOf(latitude))
+                    .appendQueryParameter(COUNT_PARAM, "1")
+                    .appendQueryParameter(ID_PARAM, apiKey)
+                    .build();
+            URL url = new URL(builtUri.toString());
+
+            Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuilder buffer = new StringBuilder();
+            if (inputStream == null) {
+                return null;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line).append("\n");
+            }
+
+            if (buffer.length() == 0) {
+                return null;
+            }
+            forecastJSONStr = buffer.toString();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error", e);
+            forecastJSONStr = null;
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+            }
+        }
+        Log.d("fetcher", forecastJSONStr);
+        try {
+            return getCityNameFromJson(forecastJSONStr);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static WeatherData[] fetch(City city, int numDays, String apiKey) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;

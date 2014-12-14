@@ -15,7 +15,7 @@ import android.util.Log;
 public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
     public static final String DB_NAME = "weather.db";
-    public static final int DB_VERSION = 4;
+    public static final int DB_VERSION = 5;
 
     public static final String CITY_TABLE_NAME = "cities";
     public static final String CITY_ID = _ID;

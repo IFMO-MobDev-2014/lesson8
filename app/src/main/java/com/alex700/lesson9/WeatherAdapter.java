@@ -71,9 +71,18 @@ public class WeatherAdapter extends BaseAdapter {
         String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
         textView.setText(day + " of " + month + ", " + dayOfWeek);
         textView.setTextColor(Color.WHITE);
+
         textView = (TextView) v.findViewById(R.id.small_weather_temperature);
-        textView.setTextColor(Color.WHITE);
-        textView.setText(""+current.getT());
+        textView.setText("temperature = " + current.getTString());
+
+        textView = (TextView) v.findViewById(R.id.small_weather_humidity);
+        textView.setText("humidity = " + (current.getHumidity()==0?"-":current.getHumidity() + "%"));
+
+        textView = (TextView) v.findViewById(R.id.small_weather_wind_speed);
+        textView.setText("wind speed = " + current.getWindSpeed() + "m/s");
+
+        textView = (TextView) v.findViewById(R.id.small_weather_pressure);
+        textView.setText("pressure = " + current.getPressure() + "mb");
 
         try {
             ((ImageView) v.findViewById(R.id.small_weather_image)).setImageBitmap(BitmapFactory.decodeStream(manager.open(current.getWeatherInfo().getIconName())));

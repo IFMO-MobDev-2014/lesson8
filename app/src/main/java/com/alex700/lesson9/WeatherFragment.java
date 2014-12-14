@@ -1,22 +1,26 @@
 package com.alex700.lesson9;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.app.Fragment;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -25,16 +29,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link WeatherFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link WeatherFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class WeatherFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String CITY_NUMBER = "city_number";
     private static final String CITY_NAME = "city_name";
@@ -49,6 +50,10 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
 
     private OnFragmentInteractionListener mListener;
 
+    public WeatherFragment() {
+        // Required empty public constructor
+    }
+
     public static WeatherFragment newInstance(int cityNumber, String cityName, int cityId) {
         WeatherFragment fragment = new WeatherFragment();
         Bundle args = new Bundle();
@@ -57,10 +62,6 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
         args.putInt(CITY_ID, cityId);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public WeatherFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -74,6 +75,7 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
 
         ((MainActivity) getActivity()).onSectionAttached(cityNumber);
         ((MainActivity) getActivity()).restoreActionBar();
+        setHasOptionsMenu(true);
         Log.d("on create", "start");
         service = new WeatherLoaderService();
         handler = new Handler() {
@@ -95,8 +97,15 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
             }
         };
         service.setHandler(handler);
+        getLoaderManager().restartLoader(2221, null, this);
         Log.d("on create", "load");
-        WeatherLoaderService.loadCity(getActivity(), cityName);
+        if (checkInternet()) {
+            WeatherLoaderService.loadCity(getActivity(), cityName);
+        } else {
+            Toast.makeText(getActivity(), "no internet", Toast.LENGTH_SHORT).show();
+        }
+        Date date = new Date();
+        new SimpleDateFormat("EEE, d m").format(date);
     }
 
     @Override
@@ -108,9 +117,28 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
         return view;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("FRAGMENT", "menu");
+        if (item.getItemId() == R.id.action_refresh) {
+               Log.d("FRAGMENT", "refresh");
+            Log.d("CHECK_INTERNET",""+(checkInternet()));
+            if (checkInternet()) {
+                WeatherLoaderService.loadCity(getActivity(), cityName);
+            } else {
+                Toast.makeText(getActivity(), "no internet", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
+        return true;
+    }
 
-
-
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d("MENU", "create");
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.weather_fragment_menu, menu);
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -130,13 +158,22 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
+    //********CHECK-INTERNET*********
 
+    private boolean checkInternet() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
+    //*******************************
 
     //************LOADER*************
     @Override
@@ -170,12 +207,22 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
         adapter.notifyDataSetChanged();
     }
 
-    public void setCurrentWeather(WeatherData wd) {
+    String dateToString(Calendar c) {
+        String day = String.valueOf(c.get(Calendar.DAY_OF_MONTH));
+        String month = c.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
+        String dayOfWeek = c.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
+        return day + " of " + month + ", " + dayOfWeek;
+    }
 
-        ((TextView) getActivity().findViewById(R.id.temperature_main)).setText(wd.getT() + " °C");
+    public void setCurrentWeather(WeatherData wd) {
+        Calendar c = new GregorianCalendar();
+        c.setTimeZone(TimeZone.getDefault());
+        c.setTimeInMillis(wd.getDate());
+        ((TextView) getActivity().findViewById(R.id.date_main)).setText(dateToString(c));
+        ((TextView) getActivity().findViewById(R.id.temperature_main)).setText(wd.getTString());
         ((TextView) getActivity().findViewById(R.id.temperature_min_max)).setText(wd.gettMin() + " / " + wd.gettMax() + " °C");
         ((TextView) getActivity().findViewById(R.id.wind_speed)).setText(wd.getWindSpeed() + " m/s");
-        ((TextView) getActivity().findViewById(R.id.humidity)).setText(wd.getHumidity() + " %");
+        ((TextView) getActivity().findViewById(R.id.humidity)).setText(wd.getHumidity() == 0 ? "-" : wd.getHumidity() + " %");
         ((TextView) getActivity().findViewById(R.id.pressure)).setText(wd.getPressure() + " mb");
         AssetManager manager = getActivity().getAssets();
         Bitmap icon = null;
@@ -192,7 +239,6 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
     //************LOADER*************
-
 
 
     /**
