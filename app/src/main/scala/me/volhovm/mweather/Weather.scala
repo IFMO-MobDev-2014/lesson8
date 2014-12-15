@@ -14,8 +14,8 @@ class Weather(val city: String,
               val clouds: Int,
               val date: Date) {
   private def wrapTemp(i: Int): String = if (i > 0) "+" + i.toString else if (i == 0) " " + i.toString else i.toString
-  def lowTemp = wrapTemp(temp._1)
-  def highTemp = wrapTemp(temp._2)
+  def highTemp = wrapTemp(temp._1)
+  def lowTemp = wrapTemp(temp._2)
   def getValues = {
     import me.volhovm.mweather.DatabaseHelper._
     val values: ContentValues = new ContentValues()
