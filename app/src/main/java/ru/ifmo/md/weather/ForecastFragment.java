@@ -33,6 +33,7 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
     private Activity activity;
 
     private long id = -1;
+    private String forecastCityName;
 
     public ForecastFragment() {
         super();
@@ -72,21 +73,11 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
         }
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        Log.i("ForecastFragment", "onAttach()");
-        super.onAttach(activity);
-        //this.activity = activity;
-    }
+
     @Override
     public void onActivityCreated(Bundle bundle) {
         Log.i("ForecastFragment", "onActivityCreated()");
         super.onActivityCreated(bundle);
-        //activity = getActivity();
-        /*if (activity != null)
-            Log.i("", "activity != null");
-        else
-            Log.i("", "activity is null :(");*/
     }
 
     @Override
@@ -96,13 +87,10 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
         getLoaderManager().initLoader(0, null, this);
         forecastCursorAdapter = new ForecastCursorAdapter(this.getActivity(), null, 0);
         id = -1;
-        if (icicle != null)
-            icicle.getLong(CITY_ID, -1L);
+        if (icicle != null) {
+            id = icicle.getLong(CITY_ID, -1L);
+        }
 
-        /*Cursor c = weatherCursorAdapter.getCursor();
-        while (c.moveToNext()) {
-
-        }*/
         forecastCursorAdapter.notifyDataSetChanged();
     }
 

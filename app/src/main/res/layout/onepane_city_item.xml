@@ -12,7 +12,25 @@
         android:paddingTop="30dp"
         android:textSize="20dp" />
 
+
+    <ImageView
+        android:id="@+id/city_weather_icon"
+        android:layout_width="100dp"
+        android:layout_alignParentRight="true"
+        android:paddingRight="20dp"
+        android:layout_height="match_parent"/>
+
+
+
     <TextView
+        android:id="@+id/city_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingTop="30dp"
+        android:layout_toLeftOf="@id/city_weather_icon"
+        android:textSize="35dp" />
+
+    <!--<TextView
         android:id="@+id/city_temp"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -25,7 +43,7 @@
         android:id="@+id/city_weather_icon"
         android:layout_width="100dp"
         android:layout_height="match_parent"
-        android:layout_toLeftOf="@+id/city_temp" />
+        android:layout_toLeftOf="@+id/city_temp" />-->
 
 </RelativeLayout>
 

@@ -15,4 +15,8 @@
         android:title="@string/action_clear_weather"
         android:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:showAsAction="ifRoom"/>
+
 </menu>

@@ -31,7 +31,8 @@ import ru.ifmo.md.weather.db.WeatherContentProvider;
 /**
  * Created by Kirill on 08.12.2014.
  */
-public class CitiesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnItemClickListener {
+public class CitiesFragment extends ListFragment
+        implements LoaderManager.LoaderCallbacks<Cursor>, OnItemClickListener {
 
     private CityCursorAdapter cityCursorAdapter;
 
@@ -79,7 +80,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        getLoaderManager().initLoader(0 ,null, this);
+        getLoaderManager().initLoader(0, null, this);
         cityCursorAdapter = new CityCursorAdapter(this.getActivity(), null, 0);
     }
 
@@ -105,7 +106,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Uri uri = Uri.withAppendedPath(WeatherContentProvider.CONTENT_URI_CITIES, id+"");
+                Uri uri = Uri.withAppendedPath(WeatherContentProvider.CONTENT_URI_CITIES, id + "");
                 getActivity().getContentResolver().delete(uri, null, null);
                 updateCursor();
                 return true;
@@ -127,7 +128,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader cursorLoader = new CursorLoader(this.getActivity(),
-                    WeatherContentProvider.CONTENT_URI_CITIES, null, null, null, null);
+                WeatherContentProvider.CONTENT_URI_CITIES, null, null, null, null);
         return cursorLoader;
     }
 

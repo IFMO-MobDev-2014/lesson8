@@ -25,12 +25,7 @@ public class WeatherDownloader {
         ConnectivityManager cm =
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-            Log.i("isOnline:", "WE ARE ONLINE!!!");
-            return true;
-        }
-        Log.i("isOnline:", "WE ARE OFFLINE!!!");
-        return false;
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     public static String load(String urlString) {

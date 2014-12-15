@@ -5,8 +5,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -30,6 +32,7 @@ import ru.ifmo.md.weather.db.model.WeatherTable;
 public class LoadWeatherService extends IntentService {
 
     public static final String REQUEST_TYPE = "type";
+    public static final String FORCE_UPDATE = "forceUpdate";
     public static final String COUNTRY_INDEX = "index";
     public static final int FORECAST_REQUEST = 0;
     public static final int WEATHER_REQUEST = 1;
@@ -50,7 +53,21 @@ public class LoadWeatherService extends IntentService {
         try {
             Log.i("start ", "onHandleIntent");
             int type = intent.getIntExtra(REQUEST_TYPE, -1);
-            //countryIndex = intent.getIntExtra(COUNTRY_INDEX, -1);
+            boolean force = intent.getBooleanExtra(FORCE_UPDATE, false);
+            Log.i("force", force+"");
+            SharedPreferences settingsPref = PreferenceManager.getDefaultSharedPreferences(this);
+            if (!force) {
+                long lastUpdate = Long.parseLong(settingsPref.getString(getResources().getString(R.string.settings_last_update), "0"));
+                long interval = Long.parseLong(settingsPref.getString(getResources().getString(R.string.settings_update_interval), "1800"));
+                long now = System.currentTimeMillis() / 1000L;
+                Log.i("lastUpdate", lastUpdate+"");
+                Log.i("interval", interval+"");
+                Log.i("now", now+"");
+                if (now - lastUpdate < interval) {
+                    publishResults("Weather is up to date", 1);
+                    return ;
+                }
+            }
             HashMap<Long, String> cities = getCitiesFromContentProvider();
             System.out.println("Cities:");
             for (Entry<Long, String> i : cities.entrySet()) {
@@ -58,7 +75,6 @@ public class LoadWeatherService extends IntentService {
             }
             boolean isOnLine = WeatherDownloader.isOnline(this);
             Log.i("isOnLine:", Boolean.toString(isOnLine));
-            System.out.println("isOnLine:" + Boolean.toString(isOnLine));
             if (isOnLine) {
                 if (type == WEATHER_REQUEST) {
                     HashMap<Long, City> loadedWeather = loadWeather(cities);
@@ -71,6 +87,11 @@ public class LoadWeatherService extends IntentService {
                     updateWeather(loadedWeather);
                     ArrayList<Weather> loadedForecast = loadForecast(cities);
                     updateForecast(loadedForecast);
+
+                    String time = String.valueOf((System.currentTimeMillis()/1000L));
+                    SharedPreferences.Editor editor = settingsPref.edit();
+                    editor.putString(getResources().getString(R.string.settings_last_update), time);
+                    editor.apply();
                 }
             } else {
                 publishResults("Internet connection error", 0);
@@ -107,7 +128,6 @@ public class LoadWeatherService extends IntentService {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                System.out.println("JSON error");
                 publishResults("JSON parsing error", 0);
                 return null;
             }
@@ -121,7 +141,9 @@ public class LoadWeatherService extends IntentService {
         int r = cr.delete(uri, null, null);
         Log.i("", "from table Weather, delete " + r + " lines");
         for (Weather w : forecast) {
-            cr.insert(WeatherContentProvider.CONTENT_URI_WEATHER, getWeatherValues(w));
+            if (Long.parseLong(w.getReceivingTime()) >= System.currentTimeMillis() / 1000L) {
+                cr.insert(WeatherContentProvider.CONTENT_URI_WEATHER, getWeatherValues(w));
+            }
         }
 
         return 1L;//Long.parseLong(uri.getLastPathSegment());

@@ -2,6 +2,7 @@ package ru.ifmo.md.weather;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import ru.ifmo.md.weather.db.model.Weather;
@@ -69,16 +71,20 @@ public class ForecastCursorAdapter extends CursorAdapter {
     }
 
     private static String getNormalTimeFromUnixStamp(String stamp) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm (EE)", Locale.UK);
+        TimeZone utcZone = TimeZone.getTimeZone("UTC");
+        simpleDateFormat.setTimeZone(utcZone);
+        Date myDate = new Date(Long.parseLong(stamp) * 1000);
+        simpleDateFormat.setTimeZone(TimeZone.getDefault());
+        String rv = simpleDateFormat.format(myDate);
+        return rv;
+    }
+
+    private static String getDayOfWeek(String stamp) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         TimeZone utcZone = TimeZone.getTimeZone("UTC");
         simpleDateFormat.setTimeZone(utcZone);
         Date myDate = new Date(Long.parseLong(stamp) * 1000);
-        /*try {
-             myDate = Date.parse(stamp);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return "";
-        }*/
         simpleDateFormat.setTimeZone(TimeZone.getDefault());
         String rv = simpleDateFormat.format(myDate);
         return rv;

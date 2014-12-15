@@ -3,6 +3,7 @@ package ru.ifmo.md.weather;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -174,20 +175,20 @@ public class AddNewCityActivity extends Activity implements AdapterView.OnItemCl
 
 
     public void buttonClick(View view) {
-
-
-
         AutoCompleteTextView input = (AutoCompleteTextView)findViewById(R.id.autocomplete_country);
         String text = input.getText().toString();
         if (text != null && !text.equals("")) {
             String[] parts = text.split(",");
             String country = parts[0];
             String city = parts[parts.length-1];
-            Toast.makeText(this, "country: " + country + ", city: " + city, Toast.LENGTH_SHORT).show();
+            Log.i("AddNewCityActivity", country +", "+city);
+            //Toast.makeText(this, "country: " + country + ", city: " + city, Toast.LENGTH_SHORT).show();
             ContentValues values = new ContentValues();
             values.put(CityTable.NAME_COLUMN, city.trim());
             values.put(CityTable.COUNTRY_COLUMN, country.trim());
-            Uri id = getContentResolver().insert(WeatherContentProvider.CONTENT_URI_CITIES, values);
+            Util.addCityWithNameToBase(this, values);
+            Intent returnIntent = new Intent();
+            setResult(RESULT_CANCELED, returnIntent);
             finish();
 
         } else {
