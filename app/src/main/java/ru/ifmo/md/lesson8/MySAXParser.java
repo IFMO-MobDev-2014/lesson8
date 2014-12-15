@@ -37,7 +37,7 @@ public class MySAXParser extends DefaultHandler {
     @Override
     public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
         if (cnt > N) return;
-        Log.d("FF", "qNAme = " +qName);
+//        Log.d("FF", "qNAme = " +qName);
 
         if (qName.equals("yweather:location")) {
             if (atts.getValue("region").isEmpty()) {

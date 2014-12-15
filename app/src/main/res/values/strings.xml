@@ -7,5 +7,11 @@
     <string name="update">Update</string>
     <string name="delete">Delete</string>
     <string name="error">Error</string>
+    <string name="provider_gps">GPS</string>
+    <string name="provider_network">Network</string>
+    <string name="location_settings">Location settings</string>
+
+
+
 
 </resources>

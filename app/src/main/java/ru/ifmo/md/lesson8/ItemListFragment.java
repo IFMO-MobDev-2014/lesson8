@@ -2,15 +2,28 @@ package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+
+import org.w3c.dom.Text;
+
+import java.util.Date;
 
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
@@ -71,14 +84,47 @@ public class ItemListFragment extends ListFragment {
      */
     public ItemListFragment() {
     }
+    DummyContent.DummyItem mItem;
     MyAdapter adapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(LOG_TAG, "itemlistfragment");
         Cursor cur = getActivity().getContentResolver().query(DB_URI, null, null, null, null);
+        if (cur.getCount() == 0) {
+            ContentValues cv = new ContentValues();
+            for (int i = 0; i < DummyContent.ITEMS.size(); i++) {
+                mItem = DummyContent.ITEMS.get(i);
+                ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    new DownloadWeatherTask() {
+
+                        @Override
+                        protected void onPostExecute(Weather result) {
+                            Log.d(LOG_TAG, "add " + mItem.content);
+                            ContentValues cv = new ContentValues();
+                            cv.put(MySQLite.CITY, result.city);
+                            cv.put(MySQLite.DAY, result.date);
+                            cv.put(MySQLite.TEMP, result.temp);
+                            cv.put(MySQLite.COMMENT, result.comment);
+                            cv.put(MySQLite.SUNRISE, result.sunrise);
+                            cv.put(MySQLite.SUNSET, result.sunset);
+                            getActivity().getContentResolver().insert(DB_URI, cv);
+                            Log.d(LOG_TAG, "add" + DB_URI.toString() + " from " + mItem.id);
+                        }
+                    }.execute("http://weather.yahooapis.com/forecastrss?w=" + mItem.content + "&u=c");
+                } else {
+                    Log.d(LOG_TAG, "no internet");
+                    Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_LONG);
+                }
+            }
+        }
         adapter = new MyAdapter(getActivity(), cur);
         setListAdapter(adapter);
+//        getListAdapter().notifyAll();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -149,7 +195,7 @@ public class ItemListFragment extends ListFragment {
         } else {
             getListView().setItemChecked(position, true);
         }
-
         mActivatedPosition = position;
     }
+
 }

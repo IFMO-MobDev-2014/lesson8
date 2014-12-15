@@ -2,15 +2,21 @@ package ru.ifmo.md.lesson8;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.widget.Toast;
+
+import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 /**
  * Created by Daria on 29.11.2014.
@@ -109,6 +115,7 @@ public class MySQLite extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
         }
+
         db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query(WEATHER_TABLE, projection, selection,
                 selectionArgs, null, null, sortOrder);
@@ -173,6 +180,7 @@ public class MySQLite extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
         }
+
         db = dbHelper.getWritableDatabase();
         int cnt = db.update(WEATHER_TABLE, values, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
@@ -191,21 +199,16 @@ public class MySQLite extends ContentProvider {
     }
 
     private class DBHelper extends SQLiteOpenHelper {
-
+//        Context context;
         public DBHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
             Log.d(LOG_TAG, "DBHelper constr");
         }
 
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(final SQLiteDatabase db) {
             Log.d(LOG_TAG, "create db!!!!!!!!!!!!");
             db.execSQL(DB_CREATE);
-            ContentValues cv = new ContentValues();
-            for (int i = 1; i <= 3; i++) {
-                cv.put(CITY, "city " + i);
-                cv.put(DAY, "day " + i);
-                db.insert(WEATHER_TABLE, null, cv);
-            }
+//            db.insert(WEATHER_TABLE, null, cv);
         }
 
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

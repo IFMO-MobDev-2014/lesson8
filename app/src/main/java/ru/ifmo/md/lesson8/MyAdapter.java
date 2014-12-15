@@ -26,6 +26,7 @@ public class MyAdapter extends CursorAdapter {
 
     MyAdapter(Context context, Cursor cur) {
         super(context, cur);
+
 //        cursor = cur;
 //        ctx = context;
     }
@@ -46,10 +47,12 @@ public class MyAdapter extends CursorAdapter {
         for (int i = 0; i < DummyContent.images.size(); i++) {
             String name = DummyContent.images.get(i).getWeather();
             int icon = DummyContent.images.get(i).getIcon();
+            if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)) != null)
             if (cursor.getString(cursor.getColumnIndex(MySQLite.COMMENT)).contains(name)) {
                 ((ImageView) view.findViewById(R.id.image)).setImageResource(icon);
             }
         }
+
     }
 
     Weather getIt(int position) {
