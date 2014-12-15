@@ -16,7 +16,6 @@ import ru.ifmo.md.weather.db.model.CityTable;
  */
 public class CityCursorAdapter extends CursorAdapter {
     private LayoutInflater inflater;
-    private Context context;
 
     public CityCursorAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, flags);
@@ -32,7 +31,8 @@ public class CityCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         String name = cursor.getString(cursor.getColumnIndex(CityTable.NAME_COLUMN));
         String temp = cursor.getString(cursor.getColumnIndex(CityTable.WEATHER_TEMP_COLUMN));
-        temp += "°C";
+        temp += "°";
+        //temp += "C";
         String iconName = cursor.getString(cursor.getColumnIndex(CityTable.WEATHER_ICON_NAME_COLUMN));
 
         TextView nameView = (TextView) view.findViewById(R.id.city_name);

@@ -176,7 +176,7 @@ public class LoadWeatherService extends IntentService {
             City currCity = entry.getValue();
             long cityId = entry.getKey();
             Log.i("city:", currCity.toString());
-            uri = Uri.parse(WeatherContentProvider.CONTENT_URI_CITIES + "/" + cityId);
+            uri = Uri.withAppendedPath(WeatherContentProvider.CONTENT_URI_CITIES, cityId+"");
             getContentResolver().update(uri, getCityValues(currCity), null, null);
         }
         if (uri == null)
@@ -186,7 +186,7 @@ public class LoadWeatherService extends IntentService {
     }
 
     private HashMap<Long, String> getCitiesFromContentProvider() {
-        HashMap<Long, String> rv = new HashMap<Long, String>();
+        HashMap<Long, String> rv = new HashMap<>();
         Uri uri = Uri.parse(WeatherContentProvider.CONTENT_URI_CITIES + "");
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
         while (cursor.moveToNext()) {

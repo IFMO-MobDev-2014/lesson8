@@ -23,11 +23,13 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("PRAGMA foreign_keys=ON;");
         CityTable.onCreate(db);
         WeatherTable.onCreate(db);
+        SettingsTable.onCreate(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         CityTable.onUpgrade(db, oldVersion, newVersion);
         WeatherTable.onUpgrade(db, oldVersion, newVersion);
+        SettingsTable.onUpgrade(db, oldVersion, newVersion);
     }
 }

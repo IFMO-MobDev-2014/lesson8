@@ -1,5 +1,7 @@
 package ru.ifmo.md.weather;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +31,8 @@ public class MainActivity extends ActionBarActivity implements CitiesFragment.On
 
     long chosenCityId = 0;
 
+    private PendingIntent pendingIntent;
+
     private BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
@@ -52,6 +56,9 @@ public class MainActivity extends ActionBarActivity implements CitiesFragment.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
+
+        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, 0);
 
         citiesFragment = (CitiesFragment) getFragmentManager().findFragmentById(
                 R.id.cities);
@@ -154,6 +161,10 @@ public class MainActivity extends ActionBarActivity implements CitiesFragment.On
                 Toast.makeText(this, "Action Settings selected", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, AddNewCityActivity.class);
                 startActivity(intent);
+                citiesFragment.onResume();
+                /*intent = new Intent(this, LoadWeatherService.class);
+                intent.putExtra(LoadWeatherService.REQUEST_TYPE, LoadWeatherService.UPDATE_ALL_REQUEST);
+                startService(intent);*/
                 break;
 
             case R.id.action_clear_weather:
@@ -169,8 +180,22 @@ public class MainActivity extends ActionBarActivity implements CitiesFragment.On
     }
 
     private void deleteAllWeather() {
-        Uri uri = Uri.parse(WeatherContentProvider.CONTENT_URI_WEATHER + "");
-        int r = getContentResolver().delete(uri, null, null);
+        int r = getContentResolver().delete(WeatherContentProvider.CONTENT_URI_WEATHER, null, null);
+        r = getContentResolver().delete(WeatherContentProvider.CONTENT_URI_CITIES, null, null);
+    }
+
+    public void startAlarmManager() {
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval = 8000;
+
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+    }
+
+    public void cancelAlarmManager() {
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        manager.cancel(pendingIntent);
+        Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
     }
 
 }

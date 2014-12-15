@@ -14,16 +14,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import ru.ifmo.md.weather.db.model.Weather;
 import ru.ifmo.md.weather.db.model.WeatherTable;
 
 /**
  * Created by Kirill on 01.12.2014.
  */
-public class WeatherCursorAdapter extends CursorAdapter {
+public class ForecastCursorAdapter extends CursorAdapter {
     private LayoutInflater inflater;
     private Context context;
 
-    public WeatherCursorAdapter(Context context, Cursor cursor, int flags) {
+    public ForecastCursorAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, flags);
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -37,24 +38,28 @@ public class WeatherCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         String time = getNormalTimeFromUnixStamp(cursor.getString(cursor.getColumnIndex(WeatherTable.WEATHER_TIME_COLUMN)));
         String temp = cursor.getString(cursor.getColumnIndex(WeatherTable.TEMP_COLUMN));
+        temp += "°";
         String wind = cursor.getString(cursor.getColumnIndex(WeatherTable.WIND_SPEED_COLUMN));
         String pressure = cursor.getString(cursor.getColumnIndex(WeatherTable.PRESSURE_COLUMN));
         String humidity = cursor.getString(cursor.getColumnIndex(WeatherTable.HUMIDITY_COLUMN));
         String iconName = cursor.getString(cursor.getColumnIndex(WeatherTable.ICON_NAME_COLUMN));
+        String humanDescription = cursor.getString(cursor.getColumnIndex(WeatherTable.DESCRIPTION_COLUMN));
 
 
         TextView timeView = (TextView) view.findViewById(R.id.forecast_time);
         timeView.setText(time);
         TextView tempView = (TextView) view.findViewById(R.id.forecast_temp);
         tempView.setText(temp);
-        TextView windView = (TextView) view.findViewById(R.id.forecast_wind);
+        /*TextView windView = (TextView) view.findViewById(R.id.forecast_wind);
         windView.setText(wind);
         TextView pressureView = (TextView) view.findViewById(R.id.forecast_pressure);
         pressureView.setText(pressure);
         TextView humidityView = (TextView) view.findViewById(R.id.forecast_humidity);
-        humidityView.setText(humidity);
+        humidityView.setText(humidity);*/
         ImageView imageView = (ImageView) view.findViewById(R.id.forecast_icon);
         imageView.setImageResource(getDrawable(context, "_" + iconName));
+        TextView humanDescriptionView = (TextView) view.findViewById(R.id.forecast_human_description);
+        humanDescriptionView.setText(humanDescription);
     }
 
     private static int getDrawable(Context context, String name)
@@ -67,12 +72,13 @@ public class WeatherCursorAdapter extends CursorAdapter {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         TimeZone utcZone = TimeZone.getTimeZone("UTC");
         simpleDateFormat.setTimeZone(utcZone);
-        Date myDate = null;
-        try {
-             myDate = simpleDateFormat.parse(stamp);
+        Date myDate = new Date(Long.parseLong(stamp) * 1000);
+        /*try {
+             myDate = Date.parse(stamp);
         } catch (ParseException e) {
+            e.printStackTrace();
             return "";
-        }
+        }*/
         simpleDateFormat.setTimeZone(TimeZone.getDefault());
         String rv = simpleDateFormat.format(myDate);
         return rv;

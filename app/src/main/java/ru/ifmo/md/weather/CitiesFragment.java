@@ -12,10 +12,17 @@ import android.content.Loader;
 
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 import android.widget.Toast;
 
 
@@ -28,7 +35,9 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
 
     private CityCursorAdapter cityCursorAdapter;
 
-    OnCitySelectedListener mCitySelectedListener = null;
+    private ListView mainView = null;
+
+    private OnCitySelectedListener mCitySelectedListener = null;
 
     public interface OnCitySelectedListener {
         public void onCitySelected(int index, long cityId);
@@ -77,6 +86,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public void onResume() {
         super.onResume();
+        getLoaderManager().restartLoader(0, null, this);
         cityCursorAdapter.notifyDataSetChanged();
         getActivity().registerReceiver(receiver, new IntentFilter(LoadWeatherService.NOTIFICATION));
     }
@@ -86,6 +96,21 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         super.onPause();
         cityCursorAdapter.notifyDataSetChanged();
         getActivity().unregisterReceiver(receiver);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedState) {
+        super.onActivityCreated(savedState);
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Uri uri = Uri.withAppendedPath(WeatherContentProvider.CONTENT_URI_CITIES, id+"");
+                getActivity().getContentResolver().delete(uri, null, null);
+                updateCursor();
+                return true;
+            }
+        });
     }
 
     public void setOnCitySelectedListener(OnCitySelectedListener listener) {
@@ -116,4 +141,8 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         cityCursorAdapter.swapCursor(null);
     }
 
+    public void updateCursor() {
+        getLoaderManager().restartLoader(0, null, this);
+        cityCursorAdapter.notifyDataSetChanged();
+    }
 }

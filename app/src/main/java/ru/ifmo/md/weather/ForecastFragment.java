@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import ru.ifmo.md.weather.db.WeatherContentProvider;
@@ -29,8 +27,12 @@ import ru.ifmo.md.weather.db.model.WeatherTable;
  */
 public class ForecastFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private WeatherCursorAdapter weatherCursorAdapter;
+    public static String CITY_ID = "cityItemId";
+
+    private ForecastCursorAdapter forecastCursorAdapter;
     private Activity activity;
+
+    private long id = -1;
 
     public ForecastFragment() {
         super();
@@ -47,8 +49,8 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
                 if (resultCode == 1) {
                     Toast.makeText(context,
                             "Forecast download complete.", Toast.LENGTH_SHORT).show();
-                    weatherCursorAdapter.changeCursor(context.getContentResolver().query(WeatherContentProvider.CONTENT_URI_WEATHER, null, null, null, null));
-                    weatherCursorAdapter.notifyDataSetChanged();
+                    forecastCursorAdapter.changeCursor(context.getContentResolver().query(WeatherContentProvider.CONTENT_URI_WEATHER, null, null, null, null));
+                    forecastCursorAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(context, "Error: " + error,
                             Toast.LENGTH_LONG).show();
@@ -61,9 +63,13 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
     public void onStart() {
         Log.i("ForecastFragment", "onStart()");
         super.onStart();
-        setListAdapter(weatherCursorAdapter);
-        weatherCursorAdapter.notifyDataSetChanged();
         activity = getActivity();
+        if (id >= 0L) {
+            display(id);
+        } else {
+            setListAdapter(forecastCursorAdapter);
+            forecastCursorAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -88,36 +94,39 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
         Log.i("ForecastFragment", "onCreate()");
         super.onCreate(icicle);
         getLoaderManager().initLoader(0, null, this);
-        weatherCursorAdapter = new WeatherCursorAdapter(this.getActivity(), null, 0);
+        forecastCursorAdapter = new ForecastCursorAdapter(this.getActivity(), null, 0);
+        id = -1;
+        if (icicle != null)
+            icicle.getLong(CITY_ID, -1L);
+
         /*Cursor c = weatherCursorAdapter.getCursor();
         while (c.moveToNext()) {
 
         }*/
-        weatherCursorAdapter.notifyDataSetChanged();
+        forecastCursorAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         getLoaderManager().restartLoader(0, null, this);
-        weatherCursorAdapter.notifyDataSetChanged();
+        forecastCursorAdapter.notifyDataSetChanged();
         getActivity().registerReceiver(receiver, new IntentFilter(LoadWeatherService.NOTIFICATION));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        weatherCursorAdapter.notifyDataSetChanged();
+        forecastCursorAdapter.notifyDataSetChanged();
         getActivity().unregisterReceiver(receiver);
     }
 
-    /*@Override
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.forecast_fragment_root, container, false);
 
-        return view;
-    }*/
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 
 
     public void display(long cityId) {
@@ -128,9 +137,9 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
             Log.i("", "activity is still null :(");
         ContentResolver cr = activity.getContentResolver();
 
-        weatherCursorAdapter.changeCursor(cr.query(WeatherContentProvider.CONTENT_URI_WEATHER, null,
+        forecastCursorAdapter.changeCursor(cr.query(WeatherContentProvider.CONTENT_URI_WEATHER, null,
                 WeatherTable.CITY_ID_COLUMN + " = ", new String[]{cityId + ""}, null));
-        weatherCursorAdapter.notifyDataSetChanged();
+        forecastCursorAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -142,13 +151,13 @@ public class ForecastFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        weatherCursorAdapter.swapCursor(data);
-        weatherCursorAdapter.notifyDataSetChanged();
+        forecastCursorAdapter.swapCursor(data);
+        forecastCursorAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        weatherCursorAdapter.swapCursor(null);
-        weatherCursorAdapter.notifyDataSetChanged();
+        forecastCursorAdapter.swapCursor(null);
+        forecastCursorAdapter.notifyDataSetChanged();
     }
 }
