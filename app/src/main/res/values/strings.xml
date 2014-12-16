@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Weather</string>
+    <string name="app_name">MWeather</string>
     <string name="title_item_detail">Item Detail</string>
-
+    <string name="humidity">Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="state">State</string>
+    <string name="wind">Wind</string>
+    <string name="wind_semicolon">Wind:</string>
+    <string name="humidity_semicolon">Humidity:</string>
+    <string name="pressure_semicolon">Pressure:</string>
+    <string name="cloudness_semicolon">Cloudness:</string>
 </resources>

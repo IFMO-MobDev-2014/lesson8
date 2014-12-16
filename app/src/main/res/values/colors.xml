@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Action bar background -->
+    <color name="primary">#26a69a</color>
+    <color name="primary_dark">#00796b</color>
+    <color name="actionbar_bg">#ffeb3b</color>
+    <color name="accent">#bf360c</color>
+    <color name="grey">#2000</color>
+</resources>

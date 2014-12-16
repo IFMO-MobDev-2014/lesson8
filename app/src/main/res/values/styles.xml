@@ -1,8 +1,33 @@
-<resources>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Header.TitleText" parent="android:TextAppearance">
+        <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-light</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">32dp</item>
+        <item name="android:shadowColor">#8000</item>
+        <item name="android:shadowRadius">5</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">2</item>
     </style>
-
+    <style name="Header.SubTitleText" parent="Header.TitleText">
+        <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-condensed</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+    <style name="Header.BigThinText" parent="Header.TitleText">
+        <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-thin</item>
+        <item name="android:textSize">65dp</item>
+    </style>
+    <style name="Content.TitleText" parent="android:TextAppearance.Holo">
+        <item name="android:textSize">31dp</item>
+        <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-light</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+    <style name="Content.UsualText" parent="Content.TitleText">
+        <item name="android:textSize">25dp</item>
+    </style>
+    <style name="Content.SubTitleText" parent = "Content.TitleText">
+        <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily" tools:ignore="NewApi">sans-serif-condensed</item>
+        <item name="android:shadowColor">#0000</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
 </resources>
