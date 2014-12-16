@@ -1,7 +1,0 @@
-package me.volhovm.mweather
-
-object CityAutoComplete {
-  val list = scala.io.Source.fromFile("cities.out").getLines.toArray
-  def completeCity(prefix: String): Array[String] = list.dropWhile(!_.startsWith(prefix)).takeWhile(_.startsWith(prefix)).take(15)
-  def completeCityPartial(prefix: String, part: Array[String]): Array[String] = part.dropWhile(!_.startsWith(prefix)).takeWhile(_.startsWith(prefix)).take(15)
-}
