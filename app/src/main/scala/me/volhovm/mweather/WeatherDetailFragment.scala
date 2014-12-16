@@ -66,8 +66,10 @@ class WeatherDetailFragment extends HeaderFragment with WeatherFragment {
 
   override def onDetach(): Unit = super.onDetach()
 
-  override def onCreateHeaderView(inflater: LayoutInflater, container: ViewGroup): View =
-    inflater.inflate(R.layout.fragment_header, container, false)
+  override def onCreateHeaderView(inflater: LayoutInflater, container: ViewGroup): View = {
+    val ret = inflater.inflate(R.layout.fragment_header, container, false)
+    ret
+  }
 
   override def onCreateContentView(inflater: LayoutInflater, container: ViewGroup): View = {
     mListView = cast[View, ListView](inflater.inflate(R.layout.fragment_listview, container, false))
@@ -84,7 +86,13 @@ class WeatherDetailFragment extends HeaderFragment with WeatherFragment {
       ViewGroup.LayoutParams.WRAP_CONTENT,
       Gravity.CENTER))
     mContentOverlay.setVisibility(View.VISIBLE)
-    if (mLoaded) mContentOverlay.setVisibility(View.GONE)
+    mContentOverlay.setLayoutParams(new LayoutParams(
+      ViewGroup.LayoutParams.MATCH_PARENT,
+      ViewGroup.LayoutParams.MATCH_PARENT,
+      Gravity.CENTER
+    ))
+    if (mLoaded)
+      mContentOverlay.setVisibility(View.GONE)
     mContentOverlay
   }
 

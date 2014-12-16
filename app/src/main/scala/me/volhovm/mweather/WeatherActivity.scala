@@ -8,10 +8,11 @@ import android.app._
 import android.content.DialogInterface.OnClickListener
 import android.content.{Context, DialogInterface, Intent}
 import android.location.{Location, LocationListener, LocationManager}
-import android.os.{SystemClock, Bundle, Handler}
+import android.os.{Bundle, Handler, SystemClock}
 import android.support.v13.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
+import android.text.{Editable, TextWatcher}
 import android.util.Log
 import android.view.{Menu, MenuItem, View, ViewGroup}
 import android.widget.AdapterView.{OnItemClickListener, OnItemLongClickListener}
@@ -19,6 +20,7 @@ import android.widget._
 import com.achep.header2actionbar.FadingActionBarHelper
 
 class WeatherActivity extends Activity with Receiver {
+  private var mCityHints: Array[String] = null
   private var mLocationManager: LocationManager = null
   private var mLocationListener: SimpleLocationListener = null
   private var mCityNames: List[String] = null
@@ -41,6 +43,7 @@ class WeatherActivity extends Activity with Receiver {
     setContentView(R.layout.activity_swipe)
     getFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     mDBHelper = new DatabaseHelper(getApplicationContext)
+    mCityHints = getResources.getStringArray(R.array.cities_list)
     mLocationManager = cast(getSystemService(Context.LOCATION_SERVICE))
     mLocationListener = new SimpleLocationListener
     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener)
@@ -51,7 +54,7 @@ class WeatherActivity extends Activity with Receiver {
       mCityNames.foreach((a: String) => mDBHelper.mWrapper.addCity(a))
     }
     if (getResources.getBoolean(R.bool.dual_pane))
-      mSwipeAdapter = new SwipeAdapter[WeatherTwoPanelFragment](getFragmentManager, {() => new WeatherTwoPanelFragment()})
+      mSwipeAdapter = new SwipeAdapter[WeatherTwoPanelFragment](getFragmentManager, { () => new WeatherTwoPanelFragment()})
     else {
       mSwipeAdapter = new SwipeAdapter[WeatherDetailFragment](getFragmentManager, { () => new WeatherDetailFragment()})
     }
@@ -89,8 +92,12 @@ class WeatherActivity extends Activity with Receiver {
     override def getCount: Int = mCityNames.length
 
     override def destroyItem(container: ViewGroup, position: Int, `object`: scala.Any): Unit = {
-      super.destroyItem(container, position, `object`)
-      mFragmentMap.remove(position)
+      try {
+        super.destroyItem(container, position, `object`)
+        mFragmentMap.remove(position)
+      } catch {
+        case a: IllegalStateException => ()
+      }
     }
 
     override def instantiateItem(container: ViewGroup, position: Int): AnyRef = {
@@ -99,7 +106,7 @@ class WeatherActivity extends Activity with Receiver {
       ret
     }
 
-    def findRef(id: Int): Fragment = mFragmentMap.get(id).get()
+    def findRef(id: Int): Fragment = if (mFragmentMap.get(id) != null) mFragmentMap.get(id).get() else null
   }
 
   class SimpleLocationListener extends LocationListener {
@@ -129,19 +136,61 @@ class WeatherActivity extends Activity with Receiver {
       dialog.setTitle("Available locations")
       dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Add location", new OnClickListener {
         override def onClick(p1: DialogInterface, p2: Int): Unit = {
-          val weatherAddDialogBuilder = new Builder(WeatherActivity.this)
+          val weatherAddDialog = new Builder(WeatherActivity.this).create()
           val dialogView = getLayoutInflater.inflate(R.layout.edit_view, null, false)
           val editText = cast[View, EditText](dialogView.findViewById(R.id.new_city_edittext))
-          weatherAddDialogBuilder.setView(dialogView)
-          weatherAddDialogBuilder.setTitle("Adding new city")
-          weatherAddDialogBuilder.setPositiveButton("Add city", new OnClickListener {
+          var hintArray: Array[String] = mCityHints
+          val hintList = cast[View, ListView](dialogView.findViewById(R.id.list_city_hint))
+          hintList.setOnItemClickListener(new OnItemClickListener {
+            override def onItemClick(p1: AdapterView[_], p2: View, p3: Int, p4: Long): Unit = {
+              val name = hintArray(p3)
+              weatherAddDialog.dismiss()
+              if (name != "") addCity(name)
+            }
+          })
+          hintList.setAdapter(new ArrayAdapter[String](WeatherActivity.this, android.R.layout.simple_list_item_1, hintArray.toArray))
+          editText.addTextChangedListener(new TextWatcher {
+            var currcity = ""
+            override def beforeTextChanged(p1: CharSequence, p2: Int, p3: Int, p4: Int): Unit = ()
+            override def onTextChanged(p1: CharSequence, p2: Int, p3: Int, p4: Int): Unit = ()
+            override def afterTextChanged(p1: Editable): Unit = {
+              new Thread(new Runnable() {
+                def binSearch(arr: Array[String], prefix: String, from: Int, to: Int): Int = {
+                  if (from > to) -1
+                  else if (from == to) from
+                  else {
+                    val med = (to + from) / 2
+                    if (arr(med) == prefix) med
+                    else if (arr(med) > prefix) binSearch(arr, prefix, from, med)
+                    else binSearch(arr, prefix, med + 1, to)
+                  }
+                }
+                def produce(arr: Array[String], pr: String): Array[String] =
+                  arr.slice(binSearch(arr, pr.capitalize, 0, arr.length), binSearch(arr, succ(pr.capitalize), 0, arr.length))
+                def succ(str: String): String = str.slice(0, str.length - 1) + (str.last + 1).toChar
+                override def run(): Unit = {
+                  if (p1.length < currcity.length) {
+                    hintArray = produce(mCityHints, p1.toString)
+                  }
+                  else if (p1.length > currcity.length) hintArray = produce(hintArray, p1.toString)
+                  runOnUiThread(new Runnable() {
+                    override def run(): Unit = hintList.setAdapter(new ArrayAdapter[String](WeatherActivity.this, android.R.layout.simple_list_item_1, hintArray))
+                  })
+                  currcity = p1.toString
+                }
+              }).start()
+            }
+          })
+          weatherAddDialog.setView(dialogView)
+          weatherAddDialog.setTitle("Adding new city")
+          weatherAddDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Add city", new OnClickListener {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {
               if (editText.getText != "") {
                 addCity(editText.getText.toString.trim.capitalize)
               }
             }
           })
-          weatherAddDialogBuilder.setNeutralButton("Autodetect", new OnClickListener {
+          weatherAddDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Autodetect", new OnClickListener {
             override def onClick(p1: DialogInterface, p2: Int): Unit = {
               val location: Location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
               if (location != null) {
@@ -160,7 +209,10 @@ class WeatherActivity extends Activity with Receiver {
                 Toast.makeText(WeatherActivity.this, "Couldn't retrieve location", Toast.LENGTH_SHORT)
             }
           })
-          weatherAddDialogBuilder.show()
+          weatherAddDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", new OnClickListener {
+            override def onClick(p1: DialogInterface, p2: Int): Unit = ()
+          })
+          weatherAddDialog.show()
         }
       })
       dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", new OnClickListener {
@@ -196,11 +248,16 @@ class WeatherActivity extends Activity with Receiver {
 
   private def addCity(cityname: String) = {
     if (!mCityNames.contains(cityname)) {
-      mCityNames = mCityNames ::: List(cityname)
-      mSwipeAdapter.notifyDataSetChanged()
-      mViewPager.setCurrentItem(mCityNames.length - 1, !Global.performanceOn)
-      mDBHelper.mWrapper.addCity(cityname)
-    } else Toast.makeText(WeatherActivity.this, "This city already exist", Toast.LENGTH_SHORT).show()
+      if (cityname != "") {
+        mCityNames = mCityNames ::: List(cityname)
+        mSwipeAdapter.notifyDataSetChanged()
+        mViewPager.setCurrentItem(mCityNames.length - 1, !Global.performanceOn)
+        mDBHelper.mWrapper.addCity(cityname)
+      } else Toast.makeText(WeatherActivity.this, "Can't get data for this location, sorry", Toast.LENGTH_SHORT).show()
+    } else {
+      Toast.makeText(WeatherActivity.this, "This city already exist", Toast.LENGTH_SHORT).show()
+      mViewPager.setCurrentItem(mCityNames.indexOf(cityname), !Global.performanceOn)
+    }
   }
 
   private def removeCity(position: Int) = {
@@ -242,31 +299,32 @@ class WeatherActivity extends Activity with Receiver {
   import me.volhovm.mweather.WeatherLoadService._
 
   override def onReceiveResult(resCode: Int, resData: Bundle): Unit = resCode match {
-    case STATUS_ERROR => Toast.makeText(this, "Failed to load data: " +
-      resData.getString(NEW_CITY), Toast.LENGTH_LONG).show()
+    case STATUS_ERROR => Toast.makeText(this, "Something is wrong, check your internet connection", Toast.LENGTH_LONG).show()
     case STATUS_FINISHED =>
       resData.getInt(SERVICE_MODE) match {
         case CITY_MODE =>
           val newCity = resData.getString(NEW_CITY)
-          val oldCity = resData.getString(OLD_CITY)
-          Toast.makeText(this, "Refreshed successfully", Toast.LENGTH_SHORT).show()
-          if (mCityNames.contains(newCity) && oldCity != newCity) {
-            removeCity(mCityNames.indexOf(oldCity))
-            mViewPager.setCurrentItem(mCityNames.indexOf(newCity))
-            Toast.makeText(this, oldCity + " is the same as " + newCity, Toast.LENGTH_SHORT).show()
-          } else {
-            val frag = getContainerFragment(resData.getInt(FRAGMENT_ID))
-            if (frag != null) {
-              frag.setCity(resData.getString(NEW_CITY))
-              if (newCity != oldCity)
-                mDBHelper.mWrapper.updateCity(oldCity, newCity)
-              mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), newCity)
-              if (frag.isAdded) {
-                Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
-                frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+          if (newCity != "") {
+            val oldCity = resData.getString(OLD_CITY)
+            Toast.makeText(this, "Refreshed successfully: " + newCity, Toast.LENGTH_SHORT).show()
+            if (mCityNames.contains(newCity) && oldCity != newCity) {
+              removeCity(mCityNames.indexOf(oldCity))
+              mViewPager.setCurrentItem(mCityNames.indexOf(newCity))
+              Toast.makeText(this, oldCity + " is the same as " + newCity, Toast.LENGTH_SHORT).show()
+            } else {
+              val frag = getContainerFragment(resData.getInt(FRAGMENT_ID))
+              if (frag != null) {
+                frag.setCity(resData.getString(NEW_CITY))
+                if (newCity != oldCity)
+                  mDBHelper.mWrapper.updateCity(oldCity, newCity)
+                mCityNames = mCityNames.updated(resData.getInt(FRAGMENT_ID), newCity)
+                if (frag.isAdded) {
+                  Log.d("WeatherActivity", "Restarting loader of fragment " + frag + " because of download result received")
+                  frag.getLoaderManager.restartLoader(0, null, frag).forceLoad()
+                }
               }
             }
-          }
+          } else Toast.makeText(WeatherActivity.this, "Can't update this city for now, try later or readd the location", Toast.LENGTH_SHORT).show()
         case COORD_MODE =>
           val city = resData.getString(NEW_CITY)
           Toast.makeText(this, "Loaded city: " + city, Toast.LENGTH_SHORT).show()
