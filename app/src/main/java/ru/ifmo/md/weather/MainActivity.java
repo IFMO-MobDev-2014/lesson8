@@ -178,6 +178,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onConnected(Bundle bundle) {
 
+        Log.i("onConnected", "location");
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_NO_POWER);
         mLocationRequest.setNumUpdates(1);
@@ -204,7 +205,9 @@ public class MainActivity extends ActionBarActivity implements
             Geocoder gcd = new Geocoder(this, Locale.ENGLISH);
             List<Address> addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             if (addresses.size() > 0) {
-                String city = addresses.get(0).getAdminArea();
+                String city = addresses.get(0).getLocality();
+                if (city == null)
+                    city = addresses.get(0).getAdminArea();
                 String country = addresses.get(0).getCountryCode();
                 ContentValues values = new ContentValues();
                 values.put(CityTable.NAME_COLUMN, city.trim());
