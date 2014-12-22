@@ -69,10 +69,10 @@ public class LoadWeatherService extends IntentService {
                 }
             }
             HashMap<Long, String> cities = getCitiesFromContentProvider();
-            System.out.println("Cities:");
+            /*System.out.println("Cities:");
             for (Entry<Long, String> i : cities.entrySet()) {
                 System.out.println(i.getKey() + " : " + i.getValue());
-            }
+            }*/
             boolean isOnLine = WeatherDownloader.isOnline(this);
             Log.i("isOnLine:", Boolean.toString(isOnLine));
             if (isOnLine) {
@@ -124,7 +124,7 @@ public class LoadWeatherService extends IntentService {
                         curr.setCityId(cityId);
                         forecast.add(curr);
                     }
-                    Log.i("get : ", forecast.size() + " forecasts");
+                    Log.i("for: " + cityName + ", get : ", forecast.size() + " forecasts");
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

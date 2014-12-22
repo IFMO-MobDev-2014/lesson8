@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,7 +34,7 @@ import ru.ifmo.md.weather.db.model.CityTable;
 /**
  * Created by Kirill on 08.12.2014.
  */
-public class AddNewCityActivity extends Activity implements AdapterView.OnItemClickListener{
+public class AddNewCityActivity extends ActionBarActivity implements AdapterView.OnItemClickListener{
 
     private static final String LOG_TAG = "ExampleApp";
 
@@ -47,6 +48,9 @@ public class AddNewCityActivity extends Activity implements AdapterView.OnItemCl
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.onepane_add_new_city);
+
+        getSupportActionBar().setTitle("New City");
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         AutoCompleteTextView autoCompView = (AutoCompleteTextView) findViewById(R.id.autocomplete_country);
         PlacesAutoCompleteAdapter adapter = new PlacesAutoCompleteAdapter(this, R.layout.autocomplete_list_item);

@@ -36,15 +36,11 @@ public class ForecastActivity extends ActionBarActivity {
         chosenCityIndex = getIntent().getExtras().getInt("cityItemIndex", 0);
         chosenCityId = getIntent().getExtras().getLong("cityId", 0);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-
         Uri uri = Uri.withAppendedPath(WeatherContentProvider.CONTENT_URI_CITIES, chosenCityId+"");
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
         cursor.moveToFirst();
         getSupportActionBar().setTitle(cursor.getString(cursor.getColumnIndex(CityTable.NAME_COLUMN)));
         getSupportActionBar().setHomeButtonEnabled(true);
-        //toolbar.setTitle("Places");
 
         ForecastFragment f = new ForecastFragment();
         f.setArguments(savedInstanceState);
@@ -63,10 +59,6 @@ public class ForecastActivity extends ActionBarActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // app icon in action bar clicked; go home
-                /*Intent intent = new Intent(this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);*/
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
             default:

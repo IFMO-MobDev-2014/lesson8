@@ -108,21 +108,7 @@ public class MainActivity extends ActionBarActivity implements
 
         citiesFragment.setOnCitySelectedListener(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Places");
-        //toolbar.setTitle("Places");
-
-        /*toolbar.setOnMenuItemClickListener(
-                new Toolbar.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return myOnMenuItemClick(item);
-                    }
-                });
-
-        // Inflate a menu to be displayed in the toolbar
-        toolbar.inflateMenu(R.menu.main_menu);*/
     }
 
     @Override
@@ -224,7 +210,6 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onCitySelected(int index, long cityId) {
-        Toast.makeText(this, "City selected: " + index, Toast.LENGTH_SHORT).show();
         chosenCityIndex = index;
         chosenCityId = cityId;
         if (isDualPane) {
@@ -260,19 +245,16 @@ public class MainActivity extends ActionBarActivity implements
         Intent intent;
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                Toast.makeText(this, "Action refresh selected", Toast.LENGTH_SHORT).show();
                 intent = new Intent(this, LoadWeatherService.class);
                 intent.putExtra(LoadWeatherService.REQUEST_TYPE, LoadWeatherService.UPDATE_ALL_REQUEST);
                 startService(intent);
                 break;
             case R.id.action_add:
-                Toast.makeText(this, "Action Settings selected", Toast.LENGTH_SHORT).show();
                 intent = new Intent(this, AddNewCityActivity.class);
                 startActivityForResult(intent, 1);
                 citiesFragment.onResume();
                 break;
             case R.id.action_clear_weather:
-                Toast.makeText(this, "Action Clear weather selected", Toast.LENGTH_SHORT).show();
                 deleteAllWeather();
                 break;
             case R.id.action_settings:

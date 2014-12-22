@@ -4,12 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
-        layout="@layout/main_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-
     <fragment android:id="@+id/cities"
         android:layout_height="fill_parent"
         android:name="ru.ifmo.md.weather.CitiesFragment"

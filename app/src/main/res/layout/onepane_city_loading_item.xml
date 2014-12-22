@@ -14,22 +14,14 @@
         android:textSize="20dp" />
 
 
-    <ImageView
-        android:id="@+id/city_weather_icon"
-        android:layout_width="100dp"
-        android:layout_alignParentRight="true"
-        android:paddingRight="20dp"
-        android:layout_height="match_parent"/>
-
-
-
     <TextView
-        android:id="@+id/city_temp"
+        android:id="@+id/no_data_text"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:paddingTop="30dp"
-        android:layout_toLeftOf="@id/city_weather_icon"
-        android:textSize="35dp" />
+        android:layout_above="@id/city_name"
+        android:paddingLeft="20dp"
+        android:textSize="10dp" />
 
 </RelativeLayout>
 
