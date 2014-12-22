@@ -2,6 +2,16 @@
 <resources>
 
     <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="title_activity_main">Weather</string>
+    <string name="load_service_name">WeatherLoadService</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_add">Add city</string>
+    <string name="action_clear_weather">Clear weather</string>
+    <string name="action_city_delete">Delete city</string>
+    <string name="action_settings">Settings</string>
+    <string name="settings_last_update">Last Update</string>
+    <string name="settings_update_interval">Update Interval</string>
+    <string name="settings_set_auto_update">Enable Auto Update</string>
+
 
 </resources>

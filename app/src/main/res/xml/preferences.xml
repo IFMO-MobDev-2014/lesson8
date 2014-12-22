@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="@string/settings_set_auto_update"
+        android:title="@string/settings_set_auto_update"
+        android:defaultValue="true" />
+    <EditTextPreference
+        android:key="@string/settings_update_interval"
+        android:title="@string/settings_update_interval"
+        android:summary="@string/settings_update_interval"
+        android:defaultValue="1800" />
+
+    <EditTextPreference
+        android:key="@string/settings_last_update"
+        android:title="@string/settings_last_update"
+        android:defaultValue="0"/>
+
+
+    <!--<Preference
+        android:title="@string/settings_last_update"
+        android:key="@string/settings_last_update"
+        android:layout="@layout/last_update_preference">
+
+    </Preference>-->
+</PreferenceScreen>

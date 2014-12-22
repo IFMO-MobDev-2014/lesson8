@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <item name="main_layout" type="layout">@layout/onepane_cities</item>
+    <item name="weather_layout" type="layout">@layout/onepane_weather_activity</item>
+    <item name="weather_item" type="layout">@layout/onepane_forecast_item</item>
+    <item name="city_item" type="layout">@layout/onepane_city_item</item>
+    <item name="city_loading_item" type="layout">@layout/onepane_city_loading_item</item>
+    <item name="add_new_city" type="layout">@layout/onepane_add_new_city</item>
+    <item name="forecast_fragment_root" type="layout">@layout/forecast_fragment_layout</item>
+    <bool name="has_two_panes">false</bool>
+</resources>
