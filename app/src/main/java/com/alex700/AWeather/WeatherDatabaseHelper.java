@@ -1,4 +1,4 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -64,7 +64,7 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
         sqLiteDatabase.execSQL(CREATE_WEATHER_TABLE);
 
         ContentValues cv = new ContentValues();
-        cv.put(CITY_NAME, "Saint-Petersburg");
+        cv.put(CITY_NAME, "Saint Petersburg");
         sqLiteDatabase.insert(CITY_TABLE_NAME, null, cv);
         Log.d("base", "spb");
 

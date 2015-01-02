@@ -1,4 +1,4 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.app.Activity;
 
@@ -39,8 +39,9 @@ import java.util.Objects;
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
         WeatherFragment.OnFragmentInteractionListener
-            {
+{
 
+    public static final String SP_NAME = "WEATHER";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -70,42 +71,46 @@ public class MainActivity extends Activity
         if (lastKnownLocation != null) {
             Log.d("LOCATION", "start");
             Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
-            CityGetNameService service = new CityGetNameService();
-            service.setHandler(new Handler(new Handler.Callback() {
-                    private AlertDialog alertDialog;
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        if (msg.what == CityGetNameService.OK) {
-                            final String name = (String) msg.obj;
-                            Cursor c = getContentResolver().query(WeatherContentProvider.CITY_CONTENT_URI, null,
-                                    WeatherDatabaseHelper.CITY_NAME + " = '" + name +"'", null, null);
-                            c.moveToNext();
-                            if (c.isAfterLast()) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                builder.setTitle("Geolocation");
-                                builder.setMessage("You are in " + name +
-                                        "Do you want to add " + name + "in your list of cities?");
-                                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        ContentValues cv = new ContentValues();
-                                        cv.put(WeatherDatabaseHelper.CITY_NAME, name);
-                                        getContentResolver().insert(WeatherContentProvider.CITY_CONTENT_URI, cv);
-                                    }
-                                });
-                                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        alertDialog.dismiss();
-                                    }
-                                });
-                                alertDialog = builder.create();
-                                alertDialog.show();
+            startService(new Intent(getApplicationContext(), CityGetNameService.class)
+                    .putExtra(CityGetNameService.LATITUDE, lastKnownLocation.getLatitude())
+                    .putExtra(CityGetNameService.LONGITUDE, lastKnownLocation.getLongitude()));
+            CityGetNameService.setHandler(new Handler(new Handler.Callback() {
+                        private AlertDialog alertDialog;
+                        @Override
+                        public boolean handleMessage(Message msg) {
+                            if (msg.what == CityGetNameService.OK) {
+                                final String name = (String) msg.obj;
+                                Cursor c = getContentResolver().query(WeatherContentProvider.CITY_CONTENT_URI, null,
+                                        WeatherDatabaseHelper.CITY_NAME + " = '" + name +"'", null, null);
+                                c.moveToNext();
+                                if (c.isAfterLast()) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                    builder.setTitle("Geolocation");
+                                    builder.setMessage("You are in " + name + "\n" +
+                                            "Do you want to add " + name + " in your list of cities?");
+                                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            ContentValues cv = new ContentValues();
+                                            cv.put(WeatherDatabaseHelper.CITY_NAME, name);
+                                            getContentResolver().insert(WeatherContentProvider.CITY_CONTENT_URI, cv);
+                                            mNavigationDrawerFragment.getLoaderManager().restartLoader(2221, null, mNavigationDrawerFragment);
+                                            mNavigationDrawerFragment.selectItemAfterLoading(name);
+                                        }
+                                    });
+                                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            alertDialog.dismiss();
+                                        }
+                                    });
+                                    alertDialog = builder.create();
+                                    alertDialog.show();
+                                }
                             }
+                            return true;
                         }
-                        return true;
-                    }
-                })
+                    })
             );
             //Log.d("LOCATION", currentName);
         } else {
@@ -140,6 +145,8 @@ public class MainActivity extends Activity
             } else {
                 Toast.makeText(this, "This city in this list already", Toast.LENGTH_SHORT).show();
             }
+            mNavigationDrawerFragment.selectItemAfterLoading(name);
+            mNavigationDrawerFragment.getLoaderManager().restartLoader(2225, null, mNavigationDrawerFragment);
         }
     }
 
@@ -183,7 +190,7 @@ public class MainActivity extends Activity
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
+            getMenuInflater().inflate(R.menu.menu, menu);
             restoreActionBar();
             return true;
         }
@@ -210,7 +217,7 @@ public class MainActivity extends Activity
 
     }
 
-                /**
+    /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {

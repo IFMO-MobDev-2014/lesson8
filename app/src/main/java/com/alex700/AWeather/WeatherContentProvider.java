@@ -1,4 +1,4 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -7,10 +7,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
-
-import org.apache.http.auth.AUTH;
-
-import java.util.IllegalFormatException;
 
 /**
  * Created by Алексей on 30.11.2014.

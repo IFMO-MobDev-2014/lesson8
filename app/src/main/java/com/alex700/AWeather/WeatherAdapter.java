@@ -1,9 +1,7 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.provider.CalendarContract;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -69,8 +67,8 @@ public class WeatherAdapter extends BaseAdapter {
         String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
         String day = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
         String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
+
         textView.setText(day + " of " + month + ", " + dayOfWeek);
-        textView.setTextColor(Color.WHITE);
 
         textView = (TextView) v.findViewById(R.id.small_weather_temperature);
         textView.setText("temperature = " + current.getTString());

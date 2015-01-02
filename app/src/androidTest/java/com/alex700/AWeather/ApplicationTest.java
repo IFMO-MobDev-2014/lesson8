@@ -1,4 +1,4 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -1,10 +1,13 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.res.AssetManager;
 import android.database.Cursor;
@@ -37,6 +40,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class WeatherFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final String MESSAGE_ALREADY_UPDATED = "Already updated";
+    private static final String MESSAGE_UPDATED = "Updated";
+    private static final String MESSAGE_ERROR = "Error in updating";
+    private static final String LAST_SELECTED = "last_selected";
     private static final String CITY_NUMBER = "city_number";
     private static final String CITY_NAME = "city_name";
     private static final String CITY_ID = "city_id";
@@ -47,6 +55,7 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
     private Handler handler;
     private WeatherLoaderService service;
     private WeatherAdapter adapter;
+    private AlertDialog alarmDialog;
 
     private OnFragmentInteractionListener mListener;
 
@@ -72,40 +81,59 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
             cityName = getArguments().getString(CITY_NAME);
             cityId = getArguments().getInt(CITY_ID);
         }
-
         ((MainActivity) getActivity()).onSectionAttached(cityNumber);
         ((MainActivity) getActivity()).restoreActionBar();
         setHasOptionsMenu(true);
-        Log.d("on create", "start");
         service = new WeatherLoaderService();
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
+                Log.d("UPDATING", "start");
                 switch (msg.what) {
                     case WeatherLoaderService.UPDATED:
-                        Log.d("update", "start");
-                        Toast.makeText(getActivity(), "updated", Toast.LENGTH_SHORT).show();
+                        stopLoading();
+                        Toast.makeText(getActivity(), MESSAGE_UPDATED, Toast.LENGTH_SHORT).show();
                         getLoaderManager().restartLoader(2222, null, WeatherFragment.this);
                         break;
                     case WeatherLoaderService.ALREADY_UPDATED:
-                        Toast.makeText(getActivity(), "Already updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), MESSAGE_ALREADY_UPDATED, Toast.LENGTH_SHORT).show();
                         getLoaderManager().restartLoader(2222, null, WeatherFragment.this);
                         break;
                     case WeatherLoaderService.UPDATING:
+                        startLoading();
+                        break;
+                    case WeatherLoaderService.ERROR:
+                        stopLoading();
+                        Toast.makeText(getActivity(), MESSAGE_ERROR, Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
         };
         service.setHandler(handler);
         getLoaderManager().restartLoader(2221, null, this);
-        Log.d("on create", "load");
         if (checkInternet()) {
             WeatherLoaderService.loadCity(getActivity(), cityName);
         } else {
             Toast.makeText(getActivity(), "no internet", Toast.LENGTH_SHORT).show();
         }
-        Date date = new Date();
-        new SimpleDateFormat("EEE, d m").format(date);
+    }
+
+    private void stopLoading() {
+        if (getActivity() != null) {
+            ActionBar actionBar = getActivity().getActionBar();
+            if (actionBar != null) {
+                actionBar.setSubtitle(null);
+            }
+        }
+    }
+
+    private void startLoading() {
+        if (getActivity() != null) {
+            ActionBar actionBar = getActivity().getActionBar();
+            if (actionBar != null) {
+                actionBar.setSubtitle("Updating...");
+            }
+        }
     }
 
     @Override
@@ -113,22 +141,40 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_weather, container, false);
-        Log.d("FRAGMENTS", "createView " + "hash = " + view.hashCode());
         return view;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d("FRAGMENT", "menu");
         if (item.getItemId() == R.id.action_refresh) {
-               Log.d("FRAGMENT", "refresh");
-            Log.d("CHECK_INTERNET",""+(checkInternet()));
+            Log.d("FRAGMENT", "refresh");
             if (checkInternet()) {
                 WeatherLoaderService.loadCity(getActivity(), cityName);
             } else {
                 Toast.makeText(getActivity(), "no internet", Toast.LENGTH_SHORT).show();
             }
             return true;
+        } else if (item.getItemId() == R.id.action_alarm) {
+            Log.d("ALARM_SETTINGS", "start");
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Choose update interval");
+            final CharSequence[] items = new CharSequence[]{"Never", "1 hour", "2 hour", "6 hour", "24 hour"};
+            final int[] intervals = new int[] {-1, 1, 2, 6, 24};
+            int lastChoice = getActivity().getSharedPreferences(MainActivity.SP_NAME, Context.MODE_PRIVATE).getInt(LAST_SELECTED, 0);
+            builder.setSingleChoiceItems(items, lastChoice, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    AlarmManagerHelper.disableServiceAlarm(getActivity());
+                    if (which != 0) {
+                        AlarmManagerHelper.enableServiceAlarm(getActivity(), intervals[which] * 3600 * 1000);
+                    }
+                    getActivity().getSharedPreferences(MainActivity.SP_NAME, Context.MODE_PRIVATE).edit().putInt(LAST_SELECTED, which).apply();
+                    alarmDialog.dismiss();
+                }
+            });
+            alarmDialog = builder.create();
+            alarmDialog.show();
         }
         return true;
     }
@@ -191,14 +237,12 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
         WeatherData wd;
         cursor.moveToNext();
         if (!cursor.isAfterLast()) {
-            Log.d("finish", "OK");
             wd = WeatherDatabaseHelper.WeatherDataCursor.getWeatherData(cursor);
             setCurrentWeather(wd);
             cursor.moveToNext();
         }
         adapter.clear();
         while (!cursor.isAfterLast()) {
-            Log.d("finish", "1");
             wd = WeatherDatabaseHelper.WeatherDataCursor.getWeatherData(cursor);
             adapter.add(wd);
 

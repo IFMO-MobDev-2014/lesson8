@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.alex700.lesson9.AddCityActivity"
+    tools:context="com.alex700.AWeather.AddCityActivity"
     android:orientation="vertical">
 
 
@@ -17,7 +17,6 @@
             android:hint="@string/enter_city"
             android:layout_weight="1"
             android:id="@+id/add_city_edit_text"/>
-
 
         <Button
             android:layout_width="wrap_content"

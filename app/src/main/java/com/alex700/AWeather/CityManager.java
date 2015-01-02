@@ -1,4 +1,4 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.app.Activity;
 import android.app.LoaderManager;
@@ -31,7 +31,6 @@ public class CityManager implements LoaderManager.LoaderCallbacks<List<String>> 
                     br = new BufferedReader(new InputStreamReader(context.getAssets().open("city_list.txt")));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e("TRIE", "city_list.txt not found");
                     return null;
                 }
                 try {

@@ -1,10 +1,9 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 
 import java.util.ArrayList;
@@ -113,7 +112,7 @@ public class WeatherLoaderService extends IntentService {
         return true;
     }
 
-    private WeatherData[] loadWeatherInCity(City city) {
+    public static WeatherData[] loadWeatherInCity(City city) {
         Log.d("load", "start load " + city.getId());
         return WeatherFetcher.fetch(city, NUMBER_OF_DAYS, API_KEY);
     }

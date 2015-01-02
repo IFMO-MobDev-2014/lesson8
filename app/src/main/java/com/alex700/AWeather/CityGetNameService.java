@@ -1,8 +1,9 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 
 /**
  * Created by Алексей on 11.12.2014.
@@ -16,16 +17,17 @@ public class CityGetNameService extends IntentService {
     public CityGetNameService() {
         super(SERVICE_NAME);
     }
-    private Handler handler;
+    private static Handler handler;
 
-    public void setHandler(Handler handler) {
-        this.handler = handler;
+    public static void setHandler(Handler handler) {
+        CityGetNameService.handler = handler;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         double lat = intent.getDoubleExtra(LATITUDE, 0);
         double lon = intent.getDoubleExtra(LONGITUDE, 0);
+        Log.d("CityGetNameService", "City service start");
         try {
             String name = WeatherFetcher.fetchCity(lat, lon, MainActivity.API_KEY);
             if (handler != null) {

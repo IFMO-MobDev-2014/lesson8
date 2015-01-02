@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.alex700.lesson9.WeatherFragment"
+    android:layout_height="match_parent" tools:context="com.alex700.AWeather.WeatherFragment"
     android:background="#ff8212ff"
     android:orientation="vertical">
 
@@ -32,11 +32,6 @@
                 android:id="@+id/imageView"
                 android:layout_weight="1" />
 
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="clear"
-                android:id="@+id/weather_main_description"/>
         </LinearLayout>
 
         <LinearLayout

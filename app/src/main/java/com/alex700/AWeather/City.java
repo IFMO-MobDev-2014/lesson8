@@ -1,4 +1,4 @@
-package com.alex700.lesson9;
+package com.alex700.AWeather;
 
 /**
  * Created by Алексей on 30.11.2014.
