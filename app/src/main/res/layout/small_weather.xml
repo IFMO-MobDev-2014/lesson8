@@ -9,7 +9,8 @@
         android:text="data"
         android:gravity="center"
         android:textColor="#ffa0f0f0"
-        android:id="@+id/small_weather_data" />
+        android:id="@+id/small_weather_data"
+        android:textSize="@dimen/abc_text_size_small_material"/>
 
     <LinearLayout
         android:orientation="horizontal"
