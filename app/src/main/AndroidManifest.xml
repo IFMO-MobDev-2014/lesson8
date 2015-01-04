@@ -2,27 +2,35 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.ifmo.md.lesson8">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
+        <provider
+            android:name=".database.WeatherProvider"
+            android:authorities="ru.ifmo.md.lesson8.weather">
+        </provider>
+
+        <service android:name=".WeatherLoaderService"></service>
+
         <activity
             android:name=".MainActivity"
-            android:label="Hello">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+            android:label="Hello"></activity>
 
         <activity
             android:name="ru.ifmo.md.lesson8.ItemListActivity"
             android:label="@string/app_name">
-
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+
         <activity
             android:name="ru.ifmo.md.lesson8.ItemDetailActivity"
             android:label="@string/title_item_detail"
@@ -31,13 +39,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ItemListActivity" />
         </activity>
-
-        <provider
-            android:name=".database.WeatherProvider"
-            android:authorities="ru.ifmo.md.lesson8.weather"></provider>
-
-        <service android:name=".WeatherLoaderService"></service>
-
 
     </application>
 
