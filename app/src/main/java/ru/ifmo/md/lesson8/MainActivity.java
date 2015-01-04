@@ -49,11 +49,12 @@ public class MainActivity extends ActionBarActivity {
 
         // enabling action bar app icon and behaving it as toggle button
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         myDrawerToggle = new ActionBarDrawerToggle(this, myDrawerLayout,
                 R.drawable.ic_drawer, //nav menu toggle icon
-                R.string.app_name // nav drawer open - description for accessibility
+                R.string.toggle_open
         ) {
             public void onDrawerClosed(View view) {
                 getSupportActionBar().setTitle(myTitle);

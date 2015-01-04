@@ -19,10 +19,6 @@
         <service android:name=".WeatherLoaderService"></service>
 
         <activity
-            android:name=".MainActivity"
-            android:label="Hello"></activity>
-
-        <activity
             android:name="ru.ifmo.md.lesson8.ItemListActivity"
             android:label="@string/app_name">
             <intent-filter>

@@ -9,6 +9,8 @@
         <item>Второй экран</item>
         <item>Третий экран</item>
     </string-array>
+    <string name="toggle_open">Open city list</string>
+    <string name="toggle_close">Close city list</string>
     <string name="menu">Меню</string>
     <string name="description_refresh">lalala</string>
 
