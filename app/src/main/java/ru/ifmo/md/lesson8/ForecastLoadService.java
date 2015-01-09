@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -36,7 +37,12 @@ public class ForecastLoadService extends IntentService {
             }
             JSONObject json = new JSONObject(s);
             JSONArray jItems = json.getJSONObject("query").getJSONObject("results").getJSONObject("channel").getJSONArray("forecast");
-            
+            ArrayList<Item> items = new ArrayList<Item>();
+            for (int i = 0; i < jItems.length(); i++) {
+                items.add(new Item(jItems.getJSONObject(i)));
+                Log.i("", items.get(i).toString());
+            }
+
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             Log.i("", "service failed");
