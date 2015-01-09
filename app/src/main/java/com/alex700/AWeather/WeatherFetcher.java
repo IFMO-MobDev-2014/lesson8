@@ -188,14 +188,14 @@ public class WeatherFetcher {
                 }
             }
         }
-        Log.d("fetcher", forecastJSONStr);
-        try {
-            return getWeatherDataFromJson(forecastJSONStr, city);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
+        if (forecastJSONStr != null) {
+            try {
+                return getWeatherDataFromJson(forecastJSONStr, city);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
         }
-
         return null;
     }
 }
