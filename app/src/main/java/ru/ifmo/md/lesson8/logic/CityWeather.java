@@ -1,4 +1,4 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.logic;
 
 import java.util.ArrayList;
 

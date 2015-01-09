@@ -9,6 +9,8 @@ import com.android.volley.toolbox.Volley;
 
 import ru.ifmo.md.lesson8.database.WeatherProvider;
 import ru.ifmo.md.lesson8.database.WeatherTable;
+import ru.ifmo.md.lesson8.logic.CityWeather;
+import ru.ifmo.md.lesson8.logic.YahooClient;
 
 /**
  * Created by sergey on 01.12.14.

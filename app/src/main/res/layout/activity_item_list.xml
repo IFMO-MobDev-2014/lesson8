@@ -14,11 +14,13 @@
 
     <fragment
         android:id="@+id/item_list"
-        android:name="ru.ifmo.md.lesson8.ItemListFragment"
+        android:name="ru.ifmo.md.lesson8.CityListFragment"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         tools:layout="@android:layout/list_content" />
+
+
 </android.support.v4.widget.DrawerLayout>
 
 

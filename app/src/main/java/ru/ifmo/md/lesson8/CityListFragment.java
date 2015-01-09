@@ -1,6 +1,9 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
@@ -8,14 +11,32 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import android.database.Cursor;
 
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
-public class ItemListFragment extends ListFragment {
+public class CityListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader()
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+
+    }
 
     /**
      * The serialization (saved instance state) Bundle key representing the
-     * activated item position. Only used on tablets.
+     * activated item position.
      */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
 
@@ -56,12 +77,13 @@ public class ItemListFragment extends ListFragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemListFragment() {
+    public CityListFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        getListView().setBackgroundColor(111);
 
         // TODO: replace with a real list adapter.
         setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(

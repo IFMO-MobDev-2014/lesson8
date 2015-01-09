@@ -11,14 +11,11 @@
     tools:context=".ItemListActivity">
 
     <!--
-    This layout is a two-pane layout for the Items
-    master/detail flow.
-    
-    -->
+    This layout is a two-pane layout for the Cities  -->
 
     <fragment
         android:id="@+id/item_list"
-        android:name="ru.ifmo.md.lesson8.ItemListFragment"
+        android:name="ru.ifmo.md.lesson8.CityListFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -29,5 +26,6 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3" />
+
 
 </LinearLayout>

@@ -1,4 +1,4 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.logic;
 
 /**
  * Created by sergey on 30.11.14.
@@ -28,8 +28,8 @@ public class YahooClient {
 
     private static final String APPID = "dj0yJmk9ZGd1YzhOd2VWbW9yJmQ9WVdrOWRVSTNkelJETkRJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02MA--";
 
-    public static List<CityResult> getCityList(String cityName) {
-        List<CityResult> result = new ArrayList<>();
+    public static List<CityFindResult> getCityList(String cityName) {
+        List<CityFindResult> result = new ArrayList<>();
         HttpURLConnection yahooHttpConn = null;
         try {
             String query = makeQueryCityURL(cityName);
@@ -41,7 +41,7 @@ public class YahooClient {
             Log.d("Swa", "XML Parser ok");
             int event = parser.getEventType();
 
-            CityResult cty = null;
+            CityFindResult cty = null;
             String tagName = null;
             String currentTag = null;
 
@@ -51,8 +51,8 @@ public class YahooClient {
 
                 if (event == XmlPullParser.START_TAG) {
                     if (tagName.equals("place")) {
-                        // place Tag Found so we create a new CityResult
-                        cty = new CityResult();
+                        // place Tag Found so we create a new CityFindResult
+                        cty = new CityFindResult();
                         //  Log.d("Swa", "New City found");
                     }
                     currentTag = tagName;

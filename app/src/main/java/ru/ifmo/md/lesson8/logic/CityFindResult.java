@@ -1,16 +1,16 @@
-package ru.ifmo.md.lesson8;
+package ru.ifmo.md.lesson8.logic;
 
 /**
  * Created by sergey on 30.11.14.
  */
-public class CityResult {
+public class CityFindResult {
 
     private String woeid;
     private String cityName;
     private String country;
     private String lastUpdate;
 
-    public CityResult() {}
+    public CityFindResult() {}
 
     public String getLastUpdate() {
         return lastUpdate;
@@ -20,7 +20,7 @@ public class CityResult {
         this.lastUpdate = lastUpdate;
     }
 
-    public CityResult(String woeid, String cityName, String country) {
+    public CityFindResult(String woeid, String cityName, String country) {
         this.woeid = woeid;
         this.cityName = cityName;
         this.country = country;

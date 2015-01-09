@@ -49,8 +49,27 @@ public class WeatherTable {
             + COLUMN_FORECAST + " TEXT"
             + ");";
 
+    private static String addDefaultCity(int woeid, String lastUpd, String city, String description, int temp) {
+        return "INSERT INTO TABLE " + TABLE_NAME + "(" +
+                COLUMN_WOEID + ", " +
+                COLUMN_LASTUPD + ", " +
+                COLUMN_CITY + ", " +
+                COLUMN_CONDITION_DESCRIPTION + ", " +
+                COLUMN_CONDITION_TEMP + ") VALUES (" +
+                woeid + ", " +
+                lastUpd + ", " +
+                city + ", " +
+                description + ", " +
+                temp +
+                ");";
+    }
+
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);
+        database.execSQL(addDefaultCity(2123260, "Tue, 06 Jan 2015 3:30 pm MSK", "Saint-Petersburg", "Rain", -4));
+        database.execSQL(addDefaultCity(2077746, "Tue, 06 Jan 2015 3:30 pm MSK", "Samara", "Light Snow", -16));
+        database.execSQL(addDefaultCity(2122641, "Tue, 06 Jan 2015 3:30 pm MSK", "Omsk", "Drifting Snow", -20));
+        database.execSQL(addDefaultCity(2122265, "Tue, 06 Jan 2015 3:30 pm MSK", "Moscow", "Light Snow", -5));
     }
 
     public static void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
