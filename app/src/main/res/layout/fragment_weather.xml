@@ -1,0 +1,90 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="com.alex700.AWeather.WeatherFragment"
+    android:background="#ff8212ff"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="date"
+        android:gravity="center"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:textColor="@android:color/white"
+        android:id="@+id/date_main" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="2">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.5">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:text="-10°C"
+                android:id="@+id/temperature_main"
+                android:layout_weight="2"
+                android:textColor="#ffffffff"
+                android:textSize="@dimen/abc_text_size_display_3_material"
+                android:gravity="center" />
+            <TextView
+                style="@style/text_style"
+                android:text="0/0°C"
+                android:id="@+id/temperature_min_max" />
+            <TextView
+                style="@style/text_style"
+                android:text="0m/s"
+                android:id="@+id/wind_speed" />
+            <TextView
+                style="@style/text_style2"
+                android:text="wind speed" />
+            <TextView
+                style="@style/text_style"
+                android:text="0%"
+                android:id="@+id/humidity" />
+            <TextView
+                style="@style/text_style2"
+                android:text="humidity" />
+            <TextView
+                style="@style/text_style"
+                android:text="0mb"
+                android:id="@+id/pressure" />
+            <TextView
+                style="@style/text_style2"
+                android:text="pressure" />
+
+        </LinearLayout
+            >
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/small_weather_list"
+        >
+    </ListView>
+
+</LinearLayout>
