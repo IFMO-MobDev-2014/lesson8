@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * Created by izban on 09.01.15.
@@ -43,8 +42,6 @@ public class MyContentProvider extends ContentProvider {
                 return null;
         }
         Cursor cursor = sqLiteQueryBuilder.query(helper.getWritableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
-        Log.i("", "cursor is " + (cursor == null ? "null" : "!null"));
-        assert cursor != null;
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }

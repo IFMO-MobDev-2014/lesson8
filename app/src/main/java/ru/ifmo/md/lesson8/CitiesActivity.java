@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 
+
 /**
  * An activity representing a list of Items. This activity
  * has different presentations for handset and tablet-size devices. On
@@ -64,7 +65,7 @@ public class CitiesActivity extends FragmentActivity
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(CityDetailsFragment.ARG_ITEM_ID, id);
+            //arguments.putString(CityDetailsFragment.ARG_ITEM_ID, id);
             CityDetailsFragment fragment = new CityDetailsFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -75,7 +76,7 @@ public class CitiesActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, CityDetailsActivity.class);
-            detailIntent.putExtra(CityDetailsFragment.ARG_ITEM_ID, id);
+            //detailIntent.putExtra(CityDetailsFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
     }

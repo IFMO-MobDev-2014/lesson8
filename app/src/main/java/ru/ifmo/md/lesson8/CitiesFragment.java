@@ -10,11 +10,9 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
-import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -127,7 +125,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected("");
     }
 
     @Override
