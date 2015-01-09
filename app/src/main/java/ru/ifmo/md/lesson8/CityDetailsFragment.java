@@ -48,7 +48,7 @@ public class CityDetailsFragment extends Fragment implements LoaderManager.Loade
         adapter = new ItemAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
         lv.setAdapter(adapter);
 
-        getActivity().startService(new Intent(getActivity(), ForecastLoadService.class));
+        getActivity().startService(new Intent(getActivity(), ForecastLoadService.class).putExtra(ARG_CITY, city));
 
         return rootView;
     }
