@@ -1,8 +1,14 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -14,12 +20,13 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  * A list fragment representing a list of Items. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link ItemDetailFragment}.
+ * currently being viewed in a {@link CityDetailsFragment}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class CitiesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private CityAdapter adapter;
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -64,7 +71,7 @@ public class ItemListFragment extends ListFragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemListFragment() {
+    public CitiesFragment() {
     }
 
     @Override
@@ -72,11 +79,15 @@ public class ItemListFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
+        /*setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                DummyContent.ITEMS));
+                DummyContent.ITEMS));*/
+        adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
+        setListAdapter(adapter);
+        Log.i("", "fragment created");
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -148,5 +159,30 @@ public class ItemListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.i("", "fragment started loading");
+        Uri base = Uri.parse("content://" + MyContentProvider.AUTHORITY);
+        Uri uri = Uri.withAppendedPath(base, DatabaseHelper.CITIES_TABLE_NAME);
+        return new CursorLoader(getActivity(), uri, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        if (adapter == null) {
+            adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_1);
+        }
+        adapter.clear();
+        while (cursor.moveToNext()) {
+            adapter.add(DatabaseHelper.getCity(cursor));
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        adapter = null;
     }
 }
