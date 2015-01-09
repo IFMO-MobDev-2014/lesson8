@@ -59,13 +59,13 @@ public class CitiesActivity extends FragmentActivity
      * indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(String id) {
+    public void onItemSelected(String city) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            //arguments.putString(CityDetailsFragment.ARG_ITEM_ID, id);
+            arguments.putString(CityDetailsFragment.ARG_CITY, city);
             CityDetailsFragment fragment = new CityDetailsFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -76,7 +76,7 @@ public class CitiesActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, CityDetailsActivity.class);
-            //detailIntent.putExtra(CityDetailsFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(CityDetailsFragment.ARG_CITY, city);
             startActivity(detailIntent);
         }
     }

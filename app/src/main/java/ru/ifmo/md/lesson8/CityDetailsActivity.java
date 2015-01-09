@@ -39,8 +39,8 @@ public class CityDetailsActivity extends ActionBarActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            //arguments.putString(CityDetailsFragment.ARG_CITY,
-            //        getIntent().getStringExtra(CityDetailsFragment.ARG_CITY));
+            arguments.putString(CityDetailsFragment.ARG_CITY,
+                    getIntent().getStringExtra(CityDetailsFragment.ARG_CITY));
             CityDetailsFragment fragment = new CityDetailsFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

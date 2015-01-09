@@ -1,7 +1,9 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -12,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -37,12 +38,12 @@ public class ForecastLoadService extends IntentService {
             }
             JSONObject json = new JSONObject(s);
             JSONArray jItems = json.getJSONObject("query").getJSONObject("results").getJSONObject("channel").getJSONArray("forecast");
-            ArrayList<Item> items = new ArrayList<Item>();
             for (int i = 0; i < jItems.length(); i++) {
-                items.add(new Item(jItems.getJSONObject(i)));
-                Log.i("", items.get(i).toString());
+                Item item = new Item(jItems.getJSONObject(i));
+                Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
+                ContentValues cv = item.getContentValues();
+                getContentResolver().insert(uri, cv);
             }
-
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             Log.i("", "service failed");

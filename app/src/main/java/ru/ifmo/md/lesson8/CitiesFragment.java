@@ -77,11 +77,6 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
         super.onCreate(savedInstanceState);
 
         // TODO: replace with a real list adapter.
-        /*setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));*/
         adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
         setListAdapter(adapter);
         Log.i("", "fragment created");
@@ -125,7 +120,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected("");
+        mCallbacks.onItemSelected(adapter.getItem(position).name);
     }
 
     @Override
