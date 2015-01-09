@@ -19,6 +19,7 @@ public class MyContentProvider extends ContentProvider {
 
     static {
         sUriMatcher.addURI(AUTHORITY, DatabaseHelper.CITIES_TABLE_NAME, 0);
+        sUriMatcher.addURI(AUTHORITY, DatabaseHelper.ITEMS_TABLE_NAME, 1);
     }
 
     @Override
@@ -34,9 +35,15 @@ public class MyContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case 0:
                 if (TextUtils.isEmpty(sortOrder)) {
-                    sortOrder = "_ID ASC";
+                    sortOrder = DatabaseHelper.CITIES_ID + " ASC";
                 }
                 sqLiteQueryBuilder.setTables(DatabaseHelper.CITIES_TABLE_NAME);
+                break;
+            case 1:
+                if (TextUtils.isEmpty(sortOrder)) {
+                    sortOrder = DatabaseHelper.ITEMS_ID + " ASC";
+                }
+                sqLiteQueryBuilder.setTables(DatabaseHelper.ITEMS_TABLE_NAME);
                 break;
             default:
                 return null;
@@ -51,6 +58,8 @@ public class MyContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case 0:
                 return DatabaseHelper.CITIES_TABLE_NAME;
+            case 1:
+                return DatabaseHelper.ITEMS_TABLE_NAME;
             default:
                 return null;
         }
@@ -62,6 +71,9 @@ public class MyContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case 0:
                 _id = helper.getWritableDatabase().insert(DatabaseHelper.CITIES_TABLE_NAME, null, values);
+                break;
+            case 1:
+                _id = helper.getWritableDatabase().insert(DatabaseHelper.ITEMS_TABLE_NAME, null, values);
                 break;
             default:
                 return null;
@@ -77,6 +89,9 @@ public class MyContentProvider extends ContentProvider {
             case 0:
                 _id = helper.getWritableDatabase().delete(DatabaseHelper.CITIES_TABLE_NAME, selection, selectionArgs);
                 break;
+            case 1:
+                _id = helper.getWritableDatabase().delete(DatabaseHelper.ITEMS_TABLE_NAME, selection, selectionArgs);
+                break;
             default:
                 return -1;
         }
@@ -90,6 +105,9 @@ public class MyContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case 0:
                 _id = helper.getWritableDatabase().update(DatabaseHelper.CITIES_TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case 1:
+                _id = helper.getWritableDatabase().update(DatabaseHelper.ITEMS_TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
                 return -1;

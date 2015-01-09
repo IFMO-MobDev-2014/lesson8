@@ -29,7 +29,7 @@ public class Item {
     }
 
     Item(JSONObject object) throws JSONException {
-        city = object.getString(city);
+        city = object.getString("city");
         code = object.getString("code");
         date = object.getString("date");
         //date = new SimpleDateFormat("dd MMM yyyy").parse(object.getString("date"), new ParsePosition(0));

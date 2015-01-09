@@ -37,13 +37,14 @@ public class ForecastLoadService extends IntentService {
                 s += in.next();
             }
             JSONObject json = new JSONObject(s);
-            JSONArray jItems = json.getJSONObject("query").getJSONObject("results").getJSONObject("channel").getJSONArray("forecast");
+            JSONArray jItems = json.getJSONObject("query").getJSONObject("results").getJSONObject("channel").getJSONObject("item").getJSONArray("forecast");
             for (int i = 0; i < jItems.length(); i++) {
                 Item item = new Item(jItems.getJSONObject(i).put("city", intent.getStringExtra(CityDetailsFragment.ARG_CITY)));
                 Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
                 ContentValues cv = item.getContentValues();
                 getContentResolver().insert(uri, cv);
             }
+            Log.i("", "service ok");
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             Log.i("", "service failed");
