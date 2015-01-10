@@ -54,7 +54,7 @@ public class AddCityActivity extends ActionBarActivity {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                startService(new Intent(AddCityActivity.this, CityLoadService.class).putExtra("city", adapter.getItem(i)));
+                startService(new Intent(AddCityActivity.this, CityLoadService.class).putExtra("city", adapter.getItem(i)).putExtra("action", "insert"));
                 finish();
             }
         });

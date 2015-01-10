@@ -1,6 +1,9 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +13,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 
@@ -76,7 +80,6 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
         adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
         setListAdapter(adapter);
         Log.i("", "fragment created");
@@ -92,6 +95,25 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final CharSequence[] items = {"Delete"};
+                final String city = adapter.getItem(i).name;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Choose an action");
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (item == 0) {
+                            getActivity().startService(new Intent(getActivity(), CityLoadService.class).putExtra("city", city).putExtra("action", "delete"));
+                        }
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+                return true;
+            }
+        });
     }
 
     @Override

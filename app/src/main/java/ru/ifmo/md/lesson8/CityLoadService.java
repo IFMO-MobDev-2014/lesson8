@@ -16,17 +16,29 @@ public class CityLoadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("", "trying to add city");
-        String city = intent.getStringExtra("city");
-        Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.CITIES_TABLE_NAME);
-        String selection = DatabaseHelper.CITIES_NAME + " = \"" + city + "\"";
-        if (getContentResolver().query(uri, null, selection, null, null).getCount() != 0) {
-            return;
+        String action = intent.getStringExtra("action");
+        if (action.equals("insert")) {
+            Log.i("", "trying to add city");
+            String city = intent.getStringExtra("city");
+            Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.CITIES_TABLE_NAME);
+            String selection = DatabaseHelper.CITIES_NAME + " = \"" + city + "\"";
+            if (getContentResolver().query(uri, null, selection, null, null).getCount() != 0) {
+                return;
+            }
+            ContentValues cv = new ContentValues();
+            cv.put(DatabaseHelper.CITIES_NAME, city);
+            getContentResolver().insert(uri, cv);
+            startService(new Intent(this, ForecastLoadService.class).putExtra("city", city));
+            Log.i("", "city added ok");
         }
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.CITIES_NAME, city);
-        getContentResolver().insert(uri, cv);
-        startService(new Intent(this, ForecastLoadService.class).putExtra("city", city));
-        Log.i("", "city added ok");
+        if (action.equals("delete")) {
+            String city = intent.getStringExtra("city");
+            Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.CITIES_TABLE_NAME);
+            String selection = DatabaseHelper.CITIES_NAME + " = \"" + city + "\"";
+            getContentResolver().delete(uri, selection, null);
+            uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
+            selection = DatabaseHelper.ITEMS_CITY + " = \"" + city + "\"";
+            getContentResolver().delete(uri, selection, null);
+        }
     }
 }
