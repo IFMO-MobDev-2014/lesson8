@@ -26,13 +26,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".CitiesActivity" />
         </activity>
-        <provider
-            android:authorities="ru.ifmo.md.lesson8.MyContentProvider"
-            android:name=".MyContentProvider" >
-        </provider>
-        <service android:name=".ForecastLoadService">
 
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="ru.ifmo.md.lesson8.MyContentProvider" >
+        </provider>
+
+        <service android:name=".ForecastLoadService" >
         </service>
+        <service android:name=".CityLoadService" >
+        </service>
+
+        <activity
+            android:name=".AddCityActivity"
+            android:label="@string/title_activity_add_city" >
+        </activity>
     </application>
 
 </manifest>

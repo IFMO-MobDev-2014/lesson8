@@ -1,5 +1,4 @@
 package ru.ifmo.md.lesson8;
-
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;

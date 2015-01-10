@@ -1,10 +1,12 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-
+import android.view.KeyEvent;
 
 
 /**
@@ -79,5 +81,28 @@ public class CitiesActivity extends FragmentActivity
             detailIntent.putExtra(CityDetailsFragment.ARG_CITY, city);
             startActivity(detailIntent);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keycode, KeyEvent e) {
+        switch(keycode) {
+            case KeyEvent.KEYCODE_MENU:
+                final CharSequence[] items = {"Add city"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Choose an action");
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (item == 0) {
+                            startActivity(new Intent(CitiesActivity.this, AddCityActivity.class));
+                        }
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+                return true;
+        }
+
+        return super.onKeyDown(keycode, e);
     }
 }
