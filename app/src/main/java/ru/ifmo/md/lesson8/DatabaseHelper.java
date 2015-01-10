@@ -12,7 +12,7 @@ import android.util.Log;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String NAME = "data";
-    public static final int ver = 7;
+    public static final int ver = 8;
 
     public static final String CITIES_TABLE_NAME = "cities";
     public static final String CITIES_ID = "_ID";
@@ -30,6 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String ITEMS_DAY = "day";
     public static final String ITEMS_LOW = "low";
     public static final String ITEMS_HIGH = "high";
+    public static final String ITEMS_TEXT = "text";
     public static final String ITEMS_CREATE = "" +
             "CREATE TABLE " + ITEMS_TABLE_NAME + " (" +
             ITEMS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -38,7 +39,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ITEMS_DATE + " INTEGER, " +
             ITEMS_DAY + " TEXT, " +
             ITEMS_LOW + " INTEGER, " +
-            ITEMS_HIGH + " INTEGER)";
+            ITEMS_HIGH + " INTEGER, " +
+            ITEMS_TEXT + " TEXT)";
 
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -83,8 +85,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndex(ITEMS_CODE)),
                 cursor.getString(cursor.getColumnIndex(ITEMS_DATE)),
                 cursor.getString(cursor.getColumnIndex(ITEMS_DAY)),
+                cursor.getString(cursor.getColumnIndex(ITEMS_HIGH)),
                 cursor.getString(cursor.getColumnIndex(ITEMS_LOW)),
-                cursor.getString(cursor.getColumnIndex(ITEMS_HIGH))
+                cursor.getString(cursor.getColumnIndex(ITEMS_TEXT))
         );
     }
 }

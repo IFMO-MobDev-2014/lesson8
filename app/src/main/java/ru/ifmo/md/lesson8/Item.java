@@ -20,16 +20,18 @@ public class Item {
     String day;
     String high;
     String low;
+    String text;
 
     Item() {}
 
-    Item(String city, String code, String date, String day, String high, String low) {
+    Item(String city, String code, String date, String day, String high, String low, String text) {
         this.city = city;
         this.code = code;
         this.date = Long.parseLong(date);
         this.day = day;
         this.high = high;
         this.low = low;
+        this.text = text;
     }
 
     Item(JSONObject object) throws JSONException {
@@ -39,6 +41,7 @@ public class Item {
         day = object.getString("day");
         high = Integer.toString((int)((object.getInt("high") - 32) / 1.8));
         low = Integer.toString((int)((object.getInt("low") - 32) / 1.8));
+        text = object.getString("text");
     }
 
     public String toString() {
@@ -53,6 +56,7 @@ public class Item {
         res.put("day", day);
         res.put("high", high);
         res.put("low", low);
+        res.put("text", text);
         return res;
     }
 }
