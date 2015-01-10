@@ -45,7 +45,7 @@ public class AddCityActivity extends ActionBarActivity {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text = (TextView) view.findViewById(android.R.id.text1);
-                text.setTextColor(Color.BLACK);
+                text.setTextColor(Color.WHITE);
                 return view;
             }
         };

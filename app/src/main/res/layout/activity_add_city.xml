@@ -2,7 +2,8 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/background">
 
     <LinearLayout
         android:orientation="horizontal"
@@ -13,7 +14,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/editText"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textColor="#ffffffff" />
 
     </LinearLayout>
 

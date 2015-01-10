@@ -114,6 +114,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
                 return true;
             }
         });
+        getListView().setBackgroundResource(R.drawable.background);
     }
 
     @Override
