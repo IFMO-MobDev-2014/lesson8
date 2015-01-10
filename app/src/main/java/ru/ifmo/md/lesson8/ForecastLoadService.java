@@ -28,7 +28,8 @@ public class ForecastLoadService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i("", "service started");
         try {
-            URL url = new URL("https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22saint-petersburg%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys");
+            String city = intent.getStringExtra(CityDetailsFragment.ARG_CITY);
+            URL url = new URL("https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22" + city + "%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys");
             HttpURLConnection connect = (HttpURLConnection) url.openConnection();
             InputStream is = connect.getInputStream();
             Scanner in = new Scanner(is);
@@ -38,12 +39,14 @@ public class ForecastLoadService extends IntentService {
             }
             JSONObject json = new JSONObject(s);
             JSONArray jItems = json.getJSONObject("query").getJSONObject("results").getJSONObject("channel").getJSONObject("item").getJSONArray("forecast");
+            ContentValues[] cv = new ContentValues[jItems.length()];
             for (int i = 0; i < jItems.length(); i++) {
                 Item item = new Item(jItems.getJSONObject(i).put("city", intent.getStringExtra(CityDetailsFragment.ARG_CITY)));
-                Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
-                ContentValues cv = item.getContentValues();
-                getContentResolver().insert(uri, cv);
+                cv[i] = item.getContentValues();
             }
+            Uri uri = Uri.parse("content://" + MyContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
+            getContentResolver().delete(uri, DatabaseHelper.ITEMS_CITY + " = \"" + city + "\"", null);
+            getContentResolver().bulkInsert(uri, cv);
             Log.i("", "service ok");
         } catch (IOException | JSONException e) {
             e.printStackTrace();

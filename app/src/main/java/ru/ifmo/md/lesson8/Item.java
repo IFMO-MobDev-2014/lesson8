@@ -5,6 +5,10 @@ import android.content.ContentValues;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 /**
  * Created by izban on 09.01.15.
@@ -12,7 +16,7 @@ import org.json.JSONObject;
 public class Item {
     String city;
     String code;
-    String date;
+    long date;
     String day;
     String high;
     String low;
@@ -22,7 +26,7 @@ public class Item {
     Item(String city, String code, String date, String day, String high, String low) {
         this.city = city;
         this.code = code;
-        this.date = date;
+        this.date = Long.parseLong(date);
         this.day = day;
         this.high = high;
         this.low = low;
@@ -31,15 +35,14 @@ public class Item {
     Item(JSONObject object) throws JSONException {
         city = object.getString("city");
         code = object.getString("code");
-        date = object.getString("date");
-        //date = new SimpleDateFormat("dd MMM yyyy").parse(object.getString("date"), new ParsePosition(0));
+        date = new SimpleDateFormat("ddMMMyyyy").parse(object.getString("date"), new ParsePosition(0)).getTime();
         day = object.getString("day");
         high = Integer.toString((int)((object.getInt("high") - 32) / 1.8));
         low = Integer.toString((int)((object.getInt("low") - 32) / 1.8));
     }
 
     public String toString() {
-        return "code: " + code + ", date: " + date + ", day: " + day + ", high: " + high + ", low: " + low;
+        return new SimpleDateFormat("EEE, dd MMM yyyy").format(new Date(date)) + "\n" + "between " + low + " and " + high + "\n";
     }
 
     public ContentValues getContentValues() {

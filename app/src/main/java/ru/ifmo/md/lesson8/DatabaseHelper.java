@@ -12,7 +12,7 @@ import android.util.Log;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String NAME = "data";
-    public static final int ver = 4;
+    public static final int ver = 5;
 
     public static final String CITIES_TABLE_NAME = "cities";
     public static final String CITIES_ID = "_ID";
@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ITEMS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             ITEMS_CITY + " TEXT, " +
             ITEMS_CODE + " TEXT, " +
-            ITEMS_DATE + " TEXT, " +
+            ITEMS_DATE + " INTEGER, " +
             ITEMS_DAY + " TEXT, " +
             ITEMS_LOW + " INTEGER, " +
             ITEMS_HIGH + " INTEGER)";
