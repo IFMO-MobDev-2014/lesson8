@@ -1,32 +1,43 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
-import android.database.Cursor;
-
-import ru.ifmo.md.lesson8.dummy.DummyContent;
+import ru.ifmo.md.lesson8.database.WeatherProvider;
+import ru.ifmo.md.lesson8.database.WeatherTable;
 
 public class CityListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-
+    private static final int LOADER_CITIES = 0;
+    private SimpleCursorAdapter mAdapter;
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader()
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+        switch (id) {
+            case LOADER_CITIES:
+                return new CursorLoader(getActivity(), WeatherProvider.CONTENT_URI, null, null, null, null);
+            default:
+                return null;
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-
+        mAdapter.swapCursor(cursor);
     }
 
     @Override
@@ -34,73 +45,51 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
 
     }
 
-    /**
-     * The serialization (saved instance state) Bundle key representing the
-     * activated item position.
-     */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
 
-    /**
-     * The fragment's current callback object, which is notified of list item
-     * clicks.
-     */
     private Callbacks mCallbacks = sDummyCallbacks;
 
-    /**
-     * The current activated item position. Only used on tablets.
-     */
-    private int mActivatedPosition = ListView.INVALID_POSITION;
-
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface Callbacks {
-        /**
-         * Callback for when an item has been selected.
-         */
-        public void onItemSelected(String id);
-    }
-
-    /**
-     * A dummy implementation of the {@link Callbacks} interface that does
-     * nothing. Used only when this fragment is not attached to an activity.
-     */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
         public void onItemSelected(String id) {
         }
     };
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
+    private int mActivatedPosition = ListView.INVALID_POSITION;
+
+    public interface Callbacks {
+        public void onItemSelected(String id);
+    }
+
     public CityListFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getListView().setBackgroundColor(111);
-
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        setHasOptionsMenu(true);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_cities, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
-        // Restore the previously serialized activated item position.
-        if (savedInstanceState != null
-                && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-            setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add:
+//                showCitySelectDialog();
+                return true;
+            case R.id.action_set_interval:
+//                showUpdateIntervalDialog();
+                return true;
+            case R.id.action_update_all:
+//                WeatherLoaderService.startActionUpdateAll(getActivity());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -119,18 +108,60 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onDetach() {
         super.onDetach();
-
-        // Reset the active callbacks interface to the dummy implementation.
         mCallbacks = sDummyCallbacks;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mAdapter = new SimpleCursorAdapter(getActivity(),
+                android.R.layout.simple_list_item_activated_1,
+                null,
+                new String[]{WeatherTable.COLUMN_CITY},
+                new int[]{android.R.id.text1});
+        setListAdapter(mAdapter);
+        registerForContextMenu(getListView());
+        getLoaderManager().initLoader(LOADER_CITIES, Bundle.EMPTY, this);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        // Restore the previously serialized activated item position.
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
+            setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+        }
     }
 
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
+        mCallbacks.onItemSelected(Long.toString(id));
+    }
 
-        // Notify the active callbacks interface (the activity, if the
-        // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        getActivity().getMenuInflater().inflate(R.menu.menu_context_cities, menu);
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.delete:
+                Cursor cursor = (Cursor) getListAdapter().getItem(acmi.position);
+                Log.d("TAG", "delete " + acmi.position);
+//                final String cityId = cursor.getString(cursor.getColumnIndex(WeatherContract.City._ID));
+//                Log.d("TAG", "delete city id=" + cityId);
+//                getActivity().getContentResolver().delete(WeatherContract.City.buildCityUri(cityId), null, null);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override
@@ -140,18 +171,6 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
-    }
-
-    /**
-     * Turns on activate-on-click mode. When this mode is on, list items will be
-     * given the 'activated' state when touched.
-     */
-    public void setActivateOnItemClick(boolean activateOnItemClick) {
-        // When setting CHOICE_MODE_SINGLE, ListView will automatically
-        // give items the 'activated' state when touched.
-        getListView().setChoiceMode(activateOnItemClick
-                ? ListView.CHOICE_MODE_SINGLE
-                : ListView.CHOICE_MODE_NONE);
     }
 
     private void setActivatedPosition(int position) {

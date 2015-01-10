@@ -27,6 +27,10 @@ public class WeatherProvider extends ContentProvider {
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY + "/" + PATH_WEATHER);
 
+    public static Uri buildCityUri(String cityId) {
+        return CONTENT_URI.buildUpon().appendPath(cityId).build();
+    }
+
     private static final UriMatcher uriMatcher;
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);

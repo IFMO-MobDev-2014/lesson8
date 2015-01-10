@@ -2,15 +2,13 @@
 <resources>
 
     <string name="app_name">Weather</string>
-    <string name="action_settings">Settings</string>
-    <string-array name="views_array">
-        <item>Первый экран</item>
-        <item>Второй экран</item>
-        <item>Третий экран</item>
-    </string-array>
     <string name="toggle_open">Open city list</string>
     <string name="toggle_close">Close city list</string>
     <string name="city_list">Cities</string>
     <string name="description_refresh">lalala</string>
+    <string name="action_add">Add</string>
+    <string name="action_set_update">Set update interval</string>
+    <string name="action_update_all">Update all</string>
+    <string name="action_delete">Delete</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package ru.ifmo.md.lesson8.database;
 
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
@@ -50,16 +51,16 @@ public class WeatherTable {
             + ");";
 
     private static String addDefaultCity(int woeid, String lastUpd, String city, String description, int temp) {
-        return "INSERT INTO TABLE " + TABLE_NAME + "(" +
+        return "INSERT INTO " + TABLE_NAME + "(" +
                 COLUMN_WOEID + ", " +
                 COLUMN_LASTUPD + ", " +
                 COLUMN_CITY + ", " +
                 COLUMN_CONDITION_DESCRIPTION + ", " +
                 COLUMN_CONDITION_TEMP + ") VALUES (" +
                 woeid + ", " +
-                lastUpd + ", " +
-                city + ", " +
-                description + ", " +
+                DatabaseUtils.sqlEscapeString(lastUpd) + ", " +
+                DatabaseUtils.sqlEscapeString(city) + ", " +
+                DatabaseUtils.sqlEscapeString(description) + ", " +
                 temp +
                 ");";
     }

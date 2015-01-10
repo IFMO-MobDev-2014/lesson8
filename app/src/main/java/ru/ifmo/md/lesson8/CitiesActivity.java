@@ -2,6 +2,7 @@ package ru.ifmo.md.lesson8;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.ActionBarActivity;
@@ -10,34 +11,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MainActivity extends ActionBarActivity implements CityListFragment.Callbacks {
+public class CitiesActivity extends ActionBarActivity implements CityListFragment.Callbacks {
 
     private boolean mTwoPane;
     private DrawerLayout myDrawerLayout;
     private ActionBarDrawerToggle myDrawerToggle;
 
-    // navigation drawer title
     private CharSequence myDrawerTitle;
-    // used to store app title
     private CharSequence myTitle;
-
-    private String[] viewsNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
-        ((CityListFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.item_list))
-                .setActivateOnItemClick(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         myDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTwoPane = myDrawerLayout == null;
         if (!mTwoPane) {
             myTitle = getTitle();
             myDrawerTitle = getResources().getString(R.string.city_list);
-            viewsNames = getResources().getStringArray(R.array.views_array);
 
             // enabling action bar app icon and behaving it as toggle button
             android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -63,6 +58,9 @@ public class MainActivity extends ActionBarActivity implements CityListFragment.
             myDrawerLayout.setDrawerListener(myDrawerToggle);
         }
 
+//        if (savedInstanceState == null) {
+//            onItemSelected(0);
+//        }
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
@@ -74,12 +72,14 @@ public class MainActivity extends ActionBarActivity implements CityListFragment.
     @Override
     public void onItemSelected(String id) {
         Bundle arguments = new Bundle();
-        arguments.putString(CityDetailFragment.ARG_ITEM_ID, id);
+        arguments.putString(CityDetailFragment.ARG_CITY_ID, id);
         CityDetailFragment fragment = new CityDetailFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(R.id.city_detail_container, fragment)
                 .commit();
+        if (!mTwoPane)
+            myDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class MainActivity extends ActionBarActivity implements CityListFragment.
         }
         // Handle action bar actions click
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_set_interval:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -109,8 +109,10 @@ public class MainActivity extends ActionBarActivity implements CityListFragment.
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // if navigation drawer is opened, hide the action items
-//        boolean drawerOpen = myDrawerLayout.isDrawerOpen(myDrawerList);
-//        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+        boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
+        menu.findItem(R.id.action_set_interval).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_update_all).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_add).setVisible(drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
 

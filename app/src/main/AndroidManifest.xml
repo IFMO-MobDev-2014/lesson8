@@ -16,10 +16,10 @@
             android:authorities="ru.ifmo.md.lesson8.weather">
         </provider>
 
-        <service android:name=".WeatherLoaderService"></service>
+        <service android:name=".WeatherLoaderService"/>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".CitiesActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
