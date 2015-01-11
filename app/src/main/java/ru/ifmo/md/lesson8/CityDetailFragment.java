@@ -38,7 +38,6 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setHasOptionsMenu(true);
         setRetainInstance(true);
 
         if (getArguments().containsKey(ARG_CITY_ID)) {
@@ -69,23 +68,6 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
 
     private void updateUserInterface() {
 
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_detail, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_update_current:
-                WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override

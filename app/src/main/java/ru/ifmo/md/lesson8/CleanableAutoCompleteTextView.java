@@ -11,11 +11,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 /**
- * sub class of {@link android.widget.AutoCompleteTextView} that includes a clear (dismiss / close) button with
- * a OnClearListener to handle the event of clicking the button
- * based on code from {@link http://www.gubed.net/clearableautocompletetextview}
  * @author Michael Derazon
- *
  */
 public class CleanableAutoCompleteTextView extends AutoCompleteTextView {
     // was the text just cleared?
@@ -35,7 +31,7 @@ public class CleanableAutoCompleteTextView extends AutoCompleteTextView {
     private OnClearListener onClearListener = defaultClearListener;
 
     // The image we defined for the clear button
-    public Drawable imgClearButton = getResources().getDrawable(android.R.drawable.btn_dialog);
+    public Drawable imgClearButton = getResources().getDrawable(R.drawable.ic_action_remove);
 
     public interface OnClearListener {
         void onClear();
@@ -61,8 +57,7 @@ public class CleanableAutoCompleteTextView extends AutoCompleteTextView {
 
     void init() {
         // Set the bounds of the button
-        this.setCompoundDrawablesWithIntrinsicBounds(null, null,
-                imgClearButton, null);
+        this.setCompoundDrawablesWithIntrinsicBounds(null, null, imgClearButton, null);
 
         // if the clear button is pressed, fire up the handler. Otherwise do nothing
         this.setOnTouchListener(new OnTouchListener() {

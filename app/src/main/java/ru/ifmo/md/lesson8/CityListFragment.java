@@ -1,8 +1,6 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -10,11 +8,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -70,30 +65,6 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_city_list, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-//            case R.id.action_add:
-//                showCitySelectDialog();
-//                return true;
-            case R.id.action_settings:
-//                showUpdateIntervalDialog();
-                return true;
-            case R.id.action_update_all:
-//                WeatherLoaderService.startActionUpdateAll(getActivity());
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -155,7 +126,7 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
-            case R.id.delete:
+            case R.id.action_delete:
                 Cursor cursor = (Cursor) getListAdapter().getItem(acmi.position);
                 Log.d("TAG", "delete " + acmi.position);
 //                final String cityId = cursor.getString(cursor.getColumnIndex(WeatherContract.City._ID));

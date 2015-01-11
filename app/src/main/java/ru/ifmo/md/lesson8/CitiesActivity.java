@@ -21,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -43,9 +42,6 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
 
         myDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTwoPane = myDrawerLayout == null;
@@ -79,9 +75,8 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
   /*
         if (savedInstanceState == null) {
             onItemSelected(0);
-        }
+        }3
 */
-        showCityFindTextView();
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
@@ -106,7 +101,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         private List<CityFindResult> cityList = new ArrayList<CityFindResult>();
 
         public CityAdapter(Context ctx, List<CityFindResult> cityList) {
-            super(ctx, R.layout.search_item, cityList);
+            super(ctx, android.R.layout.simple_dropdown_item_1line, cityList);
             this.cityList = cityList;
             this.ctx = ctx;
         }
@@ -127,9 +122,9 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             View result = convertView;
             if (result == null) {
                 LayoutInflater inf = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                result = inf.inflate(R.layout.search_item, parent, false);
+                result = inf.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
             }
-            TextView tv = (TextView) result.findViewById(R.id.search_item_venue_name);
+            TextView tv = (TextView) result.findViewById(android.R.id.text1);
             tv.setText(cityList.get(position).getCityName() + ", " + cityList.get(position).getCountry());
             return result;
         }
@@ -172,28 +167,21 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void showCityFindTextView() {
+    private void toggleCityFinder() {
         //Setting up custom search widget
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM |
-                ActionBar.DISPLAY_USE_LOGO |
-                ActionBar.DISPLAY_SHOW_HOME |
-                ActionBar.DISPLAY_HOME_AS_UP);
 
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_USE_LOGO);
+        if (!mTwoPane) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.actionbar_search, null);
-        final ImageView searchIcon = (ImageView) v.findViewById(R.id.search_icon);
         final CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) v.findViewById(R.id.search_box);
 
         // start with the text view hidden in the action bar
 //        searchBox.setVisibility(View.INVISIBLE);
-        searchIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleSearch(false);
-            }
-        });
-
         searchBox.setOnClearListener(new CleanableAutoCompleteTextView.OnClearListener() {
             @Override
             public void onClear() {
@@ -222,18 +210,21 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
     // this toggles between the visibility of the search icon and the search box
     protected void toggleSearch(boolean reset) {
         CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) findViewById(R.id.search_box);
-        ImageView searchIcon = (ImageView) findViewById(R.id.search_icon);
         if (reset) {
             // hide search box and show search icon
             searchBox.setText("");
             searchBox.setVisibility(View.GONE);
-            searchIcon.setVisibility(View.VISIBLE);
             // hide the keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+            if (!mTwoPane) {
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+            invalidateOptionsMenu();
         } else {
             // hide search icon and show search box
-            searchIcon.setVisibility(View.GONE);
             searchBox.setVisibility(View.VISIBLE);
             searchBox.requestFocus();
             // show the keyboard
@@ -245,14 +236,15 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // toggle nav drawer on selecting action bar app icon/title
-        if (myDrawerToggle.onOptionsItemSelected(item)) {
+        if (!mTwoPane && myDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
         // Handle action bar actions click
         switch (item.getItemId()) {
-//            case R.id.action_add:
-//                showCityFindTextView();
-//                return true;
+            case R.id.action_add:
+                toggleCityFinder();
+                item.setVisible(false);
+                return true;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
@@ -269,12 +261,12 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // if navigation drawer is opened, hide the action items
-        boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
-        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
-        menu.findItem(R.id.action_update_all).setVisible(!drawerOpen);
-//        menu.findItem(R.id.action_add).setVisible(drawerOpen);
-
-
+        if (!mTwoPane) {
+            boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
+            menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+            menu.findItem(R.id.action_update_all).setVisible(!drawerOpen);
+            menu.findItem(R.id.action_add).setVisible(drawerOpen);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 

@@ -1,4 +1,0 @@
-<searchable xmlns:android="http://schemas.android.com/apk/res/android"
-    android:label="@string/string_search_city"
-    android:hint="@string/string_search_city" >
-</searchable>
