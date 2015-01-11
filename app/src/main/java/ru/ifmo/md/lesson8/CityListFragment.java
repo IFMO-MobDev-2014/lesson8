@@ -1,6 +1,8 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -8,6 +10,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -72,7 +75,7 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_cities, menu);
+        inflater.inflate(R.menu.menu_city_list, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -82,7 +85,7 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
             case R.id.action_add:
 //                showCitySelectDialog();
                 return true;
-            case R.id.action_set_interval:
+            case R.id.action_settings:
 //                showUpdateIntervalDialog();
                 return true;
             case R.id.action_update_all:

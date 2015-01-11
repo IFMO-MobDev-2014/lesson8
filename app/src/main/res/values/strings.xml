@@ -9,6 +9,9 @@
     <string name="action_add">Add</string>
     <string name="action_set_update">Set update interval</string>
     <string name="action_update_all">Update all</string>
+    <string name="action_update_current">Update city</string>
     <string name="action_delete">Delete</string>
+    <string name="string_settings_title">Interval settings</string>
+    <string name="string_search_city">Search city</string>
 
 </resources>

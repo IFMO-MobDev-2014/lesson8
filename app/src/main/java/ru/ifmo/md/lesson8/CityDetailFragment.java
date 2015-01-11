@@ -27,6 +27,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
     public static final String ARG_CITY_ID = "city_id";
     private static final int LOADER_CITY_INFO = 0;
 
+    private int mCityId;
     private Cursor mCursor;
     private BroadcastReceiver mUpdateReceiver;
 
@@ -72,18 +73,16 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        inflater.inflate(R.menu.menu_detail, menu);
+        inflater.inflate(R.menu.menu_detail, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-//            case R.id.action_refresh:
-//                if (mCityId != null && mCityWeatherId != null) {
-//                    WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId, mCityWeatherId);
-//                }
-//                return true;
+            case R.id.action_update_current:
+                WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

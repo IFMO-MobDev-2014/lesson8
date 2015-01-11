@@ -1,6 +1,10 @@
 package ru.ifmo.md.lesson8.logic;
 
+import android.content.ContentValues;
+
 import java.util.ArrayList;
+
+import ru.ifmo.md.lesson8.database.WeatherTable;
 
 /**
  * Created by sergey on 30.11.14.
@@ -76,6 +80,38 @@ public class CityWeather {
     public class Astronomy {
         public String sunRise;
         public String sunSet;
+    }
+
+    public ContentValues getContentValues() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(WeatherTable.COLUMN_LASTUPD, lastUpdate);
+
+        contentValues.put(WeatherTable.COLUMN_COUNTRY, location.country);
+        contentValues.put(WeatherTable.COLUMN_CITY, location.name);
+
+        contentValues.put(WeatherTable.COLUMN_CONDITION_DESCRIPTION, condition.description);
+        contentValues.put(WeatherTable.COLUMN_CONDITION_TEMP, condition.temp);
+        contentValues.put(WeatherTable.COLUMN_CONDITION_CODE, condition.code);
+        contentValues.put(WeatherTable.COLUMN_CONDITION_DATE, condition.date);
+
+        contentValues.put(WeatherTable.COLUMN_ATMOSPHERE_PRESSURE, atmosphere.pressure);
+        contentValues.put(WeatherTable.COLUMN_ATMOSPHERE_HUMIDITY, atmosphere.humidity);
+
+        contentValues.put(WeatherTable.COLUMN_WIND_DIRECTION, wind.direction);
+        contentValues.put(WeatherTable.COLUMN_WIND_SPEED, wind.speed);
+
+        StringBuilder builder = new StringBuilder();
+        for (CityWeather.Forecast forecast : forecasts) {
+            builder.append(forecast.day).append("|");
+            builder.append(forecast.date).append("|");
+            builder.append(forecast.description).append("|");
+            builder.append(forecast.tempMin).append("|");
+            builder.append(forecast.tempMax).append("|");
+            builder.append(forecast.code).append("|");
+        }
+
+        contentValues.put(WeatherTable.COLUMN_FORECAST, builder.toString());
+        return contentValues;
     }
 
 }

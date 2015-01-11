@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- The main content view -->
+    <!-- The menu_main content view -->
     <FrameLayout
         android:id="@+id/city_detail_container"
         android:layout_width="match_parent"
