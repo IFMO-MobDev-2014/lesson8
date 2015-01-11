@@ -113,6 +113,7 @@ public class UpdaterService extends IntentService {
                         values.put(MyContentProvider.CITY_NAME, name);
                         values.put(MyContentProvider.CITY_COUNTRY, country);
                         getContentResolver().insert(MyContentProvider.CITIES_CONTENT_URI, values);
+                        updateCity(id);
                     }
                     receiver.send(AppResultReceiver.OK, Bundle.EMPTY);
                 }

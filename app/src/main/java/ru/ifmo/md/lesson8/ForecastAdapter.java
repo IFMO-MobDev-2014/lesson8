@@ -37,7 +37,7 @@ public class ForecastAdapter extends ArrayAdapter<DummyContent.ForecastItem> {
         lowTemp.setText("Low: "  + forecast.get(position).lowTemp + " C");
         highTemp.setText("High: " + forecast.get(position).highTemp + " C");
         Date date1 = new Date(forecast.get(position).date*1000L);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
         String formattedDate = sdf.format(date1);
         date.setText(formattedDate);
         switch (forecast.get(position).type) {
