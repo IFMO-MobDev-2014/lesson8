@@ -3,6 +3,8 @@ package ru.ifmo.md.lesson8;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -75,9 +77,38 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
   /*
         if (savedInstanceState == null) {
             onItemSelected(0);
-        }3
-*/
-        // TODO: If exposing deep links into your app, handle intents here.
+        }
+  */
+        double [] coordinates =  getLastLocation();
+        Log.d("FIRST = ", "" + coordinates[0]);
+        Log.d("SECOND = ", "" + coordinates[1]);
+
+       // TODO: If exposing deep links into your app, handle intents here.
+    }
+
+    private double[] getLastLocation() {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers = lm.getProviders(true);
+        Location location = null;
+
+        for (int i = providers.size() - 1; i >= 0; i--) {
+            Location lt = lm.getLastKnownLocation(providers.get(i));
+            if (lt != null) {
+                Log.d("TAG", "provider: " + lt.getProvider());
+                Log.d("TAG", "latitude: " + lt.getLatitude());
+                Log.d("TAG", "longitude: " + lt.getLongitude());
+                location = lt;
+                break;
+            }
+        }
+
+        double[] coordinates = null;
+        if (location != null) {
+            coordinates = new double[2];
+            coordinates[0] = location.getLatitude();
+            coordinates[1] = location.getLongitude();
+        }
+        return coordinates;
     }
 
     // Callback indicating that the item with the given ID was selected.
@@ -180,8 +211,6 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         View v = inflater.inflate(R.layout.actionbar_search, null);
         final CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) v.findViewById(R.id.search_box);
 
-        // start with the text view hidden in the action bar
-//        searchBox.setVisibility(View.INVISIBLE);
         searchBox.setOnClearListener(new CleanableAutoCompleteTextView.OnClearListener() {
             @Override
             public void onClear() {
@@ -193,17 +222,14 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // handle clicks on search results here
+                CityFindResult cityFindResult = (CityFindResult) parent.getItemAtPosition(position);
+                WeatherLoaderService.startActionAddNewCity(getApplicationContext(), Integer.valueOf(cityFindResult.getWoeid()));
+                toggleSearch(true);
             }
         });
 
         CityAdapter searchAdapter = new CityAdapter(this, null);
         searchBox.setAdapter(searchAdapter);
-        searchBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // do something when the user clicks
-            }
-        });
         actionBar.setCustomView(v);
     }
 
@@ -249,7 +275,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_update_all:
+            case R.id.action_update:
                 WeatherLoaderService.startActionUpdateAll(getApplicationContext());
                 return true;
             default:
@@ -264,7 +290,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         if (!mTwoPane) {
             boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
             menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
-            menu.findItem(R.id.action_update_all).setVisible(!drawerOpen);
+            menu.findItem(R.id.action_update).setVisible(!drawerOpen);
             menu.findItem(R.id.action_add).setVisible(drawerOpen);
         }
         return super.onPrepareOptionsMenu(menu);

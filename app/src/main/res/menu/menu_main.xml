@@ -9,7 +9,7 @@
         app:showAsAction="ifRoom|withText" />
 
     <item
-        android:id="@+id/action_update_all"
+        android:id="@+id/action_update"
         android:icon="@android:drawable/ic_menu_rotate"
         android:title="@string/action_update"
         app:showAsAction="ifRoom|withText" />

@@ -128,10 +128,10 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
         switch (item.getItemId()) {
             case R.id.action_delete:
                 Cursor cursor = (Cursor) getListAdapter().getItem(acmi.position);
-                Log.d("TAG", "delete " + acmi.position);
-//                final String cityId = cursor.getString(cursor.getColumnIndex(WeatherContract.City._ID));
-//                Log.d("TAG", "delete city id=" + cityId);
-//                getActivity().getContentResolver().delete(WeatherContract.City.buildCityUri(cityId), null, null);
+                final int cityId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+                Log.d("TAG", "delete city woeid = " + cityId);
+                getActivity().getContentResolver().delete(
+                        WeatherProvider.buildCityUri(Integer.toString(cityId)), null, null);
                 return true;
             default:
                 return super.onContextItemSelected(item);
