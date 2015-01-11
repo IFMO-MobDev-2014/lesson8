@@ -85,8 +85,12 @@ public class ItemListActivity extends FragmentActivity
             }
         });
 
+
         mReceiver = new AppResultReceiver(new Handler());
         mReceiver.setReceiver(this);
+        Intent intent = new Intent(this, AlarmService.class);
+        intent.putExtra("receiver", mReceiver);
+        startService(intent);
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and

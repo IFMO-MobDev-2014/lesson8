@@ -18,6 +18,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+
+import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 
 /**
@@ -36,6 +39,7 @@ public class UpdaterService extends IntentService {
     int wind;
     int lowTemp;
     int highTemp;
+    boolean updateAll;
     String weatherType;
 
     int selected = 0;
@@ -63,7 +67,16 @@ public class UpdaterService extends IntentService {
         receiver = intent.getParcelableExtra("receiver");
         lon = intent.getDoubleExtra("lon", 1000);
         lat = intent.getDoubleExtra("lat", 1000);
-        if (id == -1) {
+        updateAll = intent.getBooleanExtra("all", false);
+        if (updateAll) {
+
+            for (DummyContent.CitiesItem city : DummyContent.ITEMS) {
+                updateCity(city.woeid);
+            }
+            receiver.send(AppResultReceiver.OK, Bundle.EMPTY);
+
+        }
+        else if (id == -1) {
             try {
                 StringBuilder builder = new StringBuilder();
                 URLConnection connection;
@@ -102,52 +115,6 @@ public class UpdaterService extends IntentService {
                         getContentResolver().insert(MyContentProvider.CITIES_CONTENT_URI, values);
                     }
                     receiver.send(AppResultReceiver.OK, Bundle.EMPTY);
-                        /*
-                        weatherType = myCity.getJSONArray("weather").getJSONObject(0).getString("icon");
-                        date = myCity.getInt("dt");
-                        humidity = myCity.getJSONObject("main").getInt("humidity");
-                        temp = myCity.getJSONObject("main").getInt("temp");
-                        wind = myCity.getJSONObject("wind").getInt("speed");
-                        pressure = myCity.getJSONObject("main").getInt("pressure");
-                        values = new ContentValues();
-                        values.put(MyContentProvider.CURRENT_CITY_ID, id);
-                        values.put(MyContentProvider.CURRENT_DATE, date);
-                        values.put(MyContentProvider.CURRENT_WEATHER_TYPE, weatherType);
-                        values.put(MyContentProvider.CURRENT_HUMIDITY, humidity);
-                        values.put(MyContentProvider.CURRENT_TEMP, temp);
-                        values.put(MyContentProvider.CURRENT_WIND, wind);
-                        values.put(MyContentProvider.CURRENT_PRESSURE, pressure);
-                        getContentResolver().insert(MyContentProvider.CURRENT_WEATHER_CONTENT_URI, values);
-
-                        builder = new StringBuilder();
-                        connection = new URL(urlForecast + "id=" + id + urlPost+APIKey+"/").openConnection();
-                        reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-                        while ((line = reader.readLine()) != null) {
-                            builder.append(line + "\n");
-                        }
-                        reader.close();
-                        resultJson = builder.toString();
-                        jsonObject = new JSONObject(resultJson);
-                        JSONArray array = jsonObject.getJSONArray("list");
-                        int counter = 0;
-                        while (array.getJSONObject(counter).getInt("dt") < date) {
-                            counter++;
-                        }
-                        for (int i = 0; i < 7; i++) {
-                            values = new ContentValues();
-                            lowTemp = array.getJSONObject(i).getJSONObject("temp").getInt("min");
-                            highTemp = array.getJSONObject(i).getJSONObject("temp").getInt("max");
-                            weatherType = array.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("icon");
-                            date = array.getJSONObject(i).getInt("dt");
-                            values.put(MyContentProvider.FORECAST_CITY_ID, id);
-                            values.put(MyContentProvider.FORECAST_DATE, date);
-                            values.put(MyContentProvider.FORECAST_HIGH_TEMP, highTemp);
-                            values.put(MyContentProvider.FORECAST_LOW_TEMP, lowTemp);
-                            values.put(MyContentProvider.FORECAST_WEATHER_TYPE, weatherType);
-                            getContentResolver().insert(MyContentProvider.CURRENT_FORECAST_CONTENT_URI, values);
-                        }
-                    }*/
                 }
 
             } catch (FileNotFoundException e) {
@@ -162,68 +129,72 @@ public class UpdaterService extends IntentService {
                 receiver.send(AppResultReceiver.ERROR, bundle);
             }
         } else {
-            try {
-                StringBuilder builder = new StringBuilder();
-                URLConnection connection = new URL(urlCurrent + "id=" + id + urlPost+APIKey + "/").openConnection();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line + "\n");
-                }
-                reader.close();
-                String resultJson = builder.toString();
-                JSONObject jsonObject = new JSONObject(resultJson);
-                weatherType = jsonObject.getJSONArray("weather").getJSONObject(0).getString("icon");
-                date = jsonObject.getInt("dt");
-                humidity = jsonObject.getJSONObject("main").getInt("humidity");
-                temp = jsonObject.getJSONObject("main").getInt("temp");
-                wind = jsonObject.getJSONObject("wind").getInt("speed");
-                pressure = jsonObject.getJSONObject("main").getInt("pressure");
-                ContentValues values = new ContentValues();
-                getContentResolver().delete(MyContentProvider.CURRENT_WEATHER_CONTENT_URI, "city_id = ?", new String[] {""+id});
-                values.put(MyContentProvider.CURRENT_CITY_ID, id);
-                values.put(MyContentProvider.CURRENT_DATE, date);
-                values.put(MyContentProvider.CURRENT_WEATHER_TYPE, weatherType);
-                values.put(MyContentProvider.CURRENT_HUMIDITY, humidity);
-                values.put(MyContentProvider.CURRENT_TEMP, temp);
-                values.put(MyContentProvider.CURRENT_WIND, wind);
-                values.put(MyContentProvider.CURRENT_PRESSURE, pressure);
-                getContentResolver().insert(MyContentProvider.CURRENT_WEATHER_CONTENT_URI, values);
-                builder = new StringBuilder();
-                connection = new URL(urlForecast+"id="+id+urlPost).openConnection();
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line + "\n");
-                }
-                reader.close();
-                resultJson = builder.toString();
-                jsonObject = new JSONObject(resultJson);
-                JSONArray array = jsonObject.getJSONArray("list");
-                getContentResolver().delete(MyContentProvider.CURRENT_FORECAST_CONTENT_URI, "city_id = ?", new String[] {""+id});
-
-                for (int i = 0; i<7; i++) {
-                    values = new ContentValues();
-                    lowTemp = array.getJSONObject(i).getJSONObject("temp").getInt("min");
-                    highTemp = array.getJSONObject(i).getJSONObject("temp").getInt("max");
-                    weatherType = array.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("icon");
-                    date = array.getJSONObject(i).getInt("dt");
-                    values.put(MyContentProvider.FORECAST_CITY_ID, id);
-                    values.put(MyContentProvider.FORECAST_DATE, date);
-                    values.put(MyContentProvider.FORECAST_HIGH_TEMP, highTemp);
-                    values.put(MyContentProvider.FORECAST_LOW_TEMP, lowTemp);
-                    values.put(MyContentProvider.FORECAST_WEATHER_TYPE, weatherType);
-                    getContentResolver().insert(MyContentProvider.CURRENT_FORECAST_CONTENT_URI, values);
-                    receiver.send(AppResultReceiver.OK, Bundle.EMPTY);
-                }
-
-            } catch (Exception e) {
-                receiver.send(AppResultReceiver.ERROR, Bundle.EMPTY);
-            }
+            updateCity(id);
         }
 
 
 
+    }
+
+    public void updateCity(int id) {
+        try {
+            StringBuilder builder = new StringBuilder();
+            URLConnection connection = new URL(urlCurrent + "id=" + id + urlPost+APIKey + "/").openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line + "\n");
+            }
+            reader.close();
+            String resultJson = builder.toString();
+            JSONObject jsonObject = new JSONObject(resultJson);
+            weatherType = jsonObject.getJSONArray("weather").getJSONObject(0).getString("icon");
+            date = jsonObject.getInt("dt");
+            humidity = jsonObject.getJSONObject("main").getInt("humidity");
+            temp = jsonObject.getJSONObject("main").getInt("temp");
+            wind = jsonObject.getJSONObject("wind").getInt("speed");
+            pressure = jsonObject.getJSONObject("main").getInt("pressure");
+            ContentValues values = new ContentValues();
+            getContentResolver().delete(MyContentProvider.CURRENT_WEATHER_CONTENT_URI, "city_id = ?", new String[] {""+id});
+            values.put(MyContentProvider.CURRENT_CITY_ID, id);
+            values.put(MyContentProvider.CURRENT_DATE, date);
+            values.put(MyContentProvider.CURRENT_WEATHER_TYPE, weatherType);
+            values.put(MyContentProvider.CURRENT_HUMIDITY, humidity);
+            values.put(MyContentProvider.CURRENT_TEMP, temp);
+            values.put(MyContentProvider.CURRENT_WIND, wind);
+            values.put(MyContentProvider.CURRENT_PRESSURE, pressure);
+            getContentResolver().insert(MyContentProvider.CURRENT_WEATHER_CONTENT_URI, values);
+            builder = new StringBuilder();
+            connection = new URL(urlForecast+"id="+id+urlPost).openConnection();
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+            while ((line = reader.readLine()) != null) {
+                builder.append(line + "\n");
+            }
+            reader.close();
+            resultJson = builder.toString();
+            jsonObject = new JSONObject(resultJson);
+            JSONArray array = jsonObject.getJSONArray("list");
+            getContentResolver().delete(MyContentProvider.CURRENT_FORECAST_CONTENT_URI, "city_id = ?", new String[] {""+id});
+
+            for (int i = 0; i<7; i++) {
+                values = new ContentValues();
+                lowTemp = array.getJSONObject(i).getJSONObject("temp").getInt("min");
+                highTemp = array.getJSONObject(i).getJSONObject("temp").getInt("max");
+                weatherType = array.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("icon");
+                date = array.getJSONObject(i).getInt("dt");
+                values.put(MyContentProvider.FORECAST_CITY_ID, id);
+                values.put(MyContentProvider.FORECAST_DATE, date);
+                values.put(MyContentProvider.FORECAST_HIGH_TEMP, highTemp);
+                values.put(MyContentProvider.FORECAST_LOW_TEMP, lowTemp);
+                values.put(MyContentProvider.FORECAST_WEATHER_TYPE, weatherType);
+                getContentResolver().insert(MyContentProvider.CURRENT_FORECAST_CONTENT_URI, values);
+
+            }
+
+        } catch (Exception e) {
+            receiver.send(AppResultReceiver.ERROR, Bundle.EMPTY);
+        }
     }
 
     @Override
