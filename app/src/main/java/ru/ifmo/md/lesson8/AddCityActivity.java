@@ -1,14 +1,12 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,7 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class AddCityActivity extends ActionBarActivity {
+public class AddCityActivity extends Activity {
     private static final int MAX_ITEMS = 10;
 
     private ListView lv;
@@ -136,28 +134,5 @@ public class AddCityActivity extends ActionBarActivity {
             e.printStackTrace();
             Log.i("", "file didn't opened");
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_city, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
