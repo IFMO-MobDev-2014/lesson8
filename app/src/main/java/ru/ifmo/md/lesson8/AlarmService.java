@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -25,7 +26,7 @@ public class AlarmService extends IntentService {
         PendingIntent pending = PendingIntent.getBroadcast(this, 0, in, PendingIntent.FLAG_CANCEL_CURRENT);
         manager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 Calendar.getInstance().getTimeInMillis(),
-                AlarmManager.INTERVAL_HOUR,
+                AlarmManager.INTERVAL_HOUR * 2,
                 pending);
     }
 }

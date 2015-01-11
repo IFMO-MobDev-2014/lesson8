@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class CitiesAdapter extends ArrayAdapter<DummyContent.CitiesItem> {
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.cities_element, parent, false);
         TextView textView = (TextView) convertView.findViewById(R.id.textView);
-        Button button = (Button) convertView.findViewById(R.id.button);
+        ImageButton button = (ImageButton) convertView.findViewById(R.id.button);
         textView.setText(items.get(position).toString());
         final int pos = position;
         button.setOnClickListener(new View.OnClickListener() {
