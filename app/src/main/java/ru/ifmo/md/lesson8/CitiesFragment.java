@@ -1,25 +1,34 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 
-import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 /**
  * A list fragment representing a list of Items. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link ItemDetailFragment}.
+ * currently being viewed in a {@link CityDetailsFragment}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class CitiesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private CityAdapter adapter;
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -64,30 +73,48 @@ public class ItemListFragment extends ListFragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemListFragment() {
+    public CitiesFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        getLoaderManager().initLoader(0, null, this).forceLoad();
+        Log.i("", "citiesfragment created");
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Log.i("", "citiesfragment view is creating");
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final CharSequence[] items = {"Delete"};
+                final String city = adapter.getItem(i).name;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Choose an action");
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (item == 0) {
+                            getActivity().startService(new Intent(getActivity(), CityLoadService.class).putExtra("city", city).putExtra("action", "delete"));
+                        }
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+                return true;
+            }
+        });
+        getListView().setBackgroundResource(R.drawable.background);
+        setListShown(true);
     }
 
     @Override
@@ -116,7 +143,7 @@ public class ItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(adapter.getItem(position).name);
     }
 
     @Override
@@ -148,5 +175,31 @@ public class ItemListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.i("", "fragment started loading");
+        Uri base = Uri.parse("content://" + MyContentProvider.AUTHORITY);
+        Uri uri = Uri.withAppendedPath(base, DatabaseHelper.CITIES_TABLE_NAME);
+        return new CursorLoader(getActivity(), uri, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        if (adapter == null) {
+            adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
+        }
+        adapter.clear();
+        while (cursor.moveToNext()) {
+            adapter.add(DatabaseHelper.getCity(cursor));
+        }
+        setListAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        adapter = null;
     }
 }

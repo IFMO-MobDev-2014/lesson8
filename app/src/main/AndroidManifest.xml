@@ -2,13 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.ifmo.md.lesson8" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="ru.ifmo.md.lesson8.ItemListActivity"
+            android:name=".CitiesActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,12 +19,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="ru.ifmo.md.lesson8.ItemDetailActivity"
+            android:name=".CityDetailsActivity"
             android:label="@string/title_item_detail"
-            android:parentActivityName="ru.ifmo.md.lesson8.ItemListActivity" >
+            android:parentActivityName=".CitiesActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ItemListActivity" />
+                android:value=".CitiesActivity" />
+        </activity>
+
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="ru.ifmo.md.lesson8.MyContentProvider" >
+        </provider>
+
+        <service android:name=".ForecastLoadService" >
+        </service>
+        <service android:name=".CityLoadService" >
+        </service>
+
+        <activity
+            android:name=".AddCityActivity"
+            android:label="@string/title_activity_add_city" >
         </activity>
     </application>
 
