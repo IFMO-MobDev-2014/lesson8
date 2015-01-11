@@ -45,7 +45,6 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 
     @Override
     public View getView(int position, View view, ViewGroup parent) {
-        //View view = super.getView(position, convertView, parent);
         if (view == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.item, parent, false);
         }

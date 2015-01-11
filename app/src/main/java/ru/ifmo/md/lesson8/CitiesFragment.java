@@ -80,16 +80,16 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
-        setListAdapter(adapter);
-        Log.i("", "fragment created");
-        getLoaderManager().initLoader(0, null, this);
+        //setRetainInstance(true);
+        getLoaderManager().initLoader(0, null, this).forceLoad();
+        Log.i("", "citiesfragment created");
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Log.i("", "citiesfragment view is creating");
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
@@ -115,6 +115,7 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
             }
         });
         getListView().setBackgroundResource(R.drawable.background);
+        setListShown(true);
     }
 
     @Override
@@ -188,12 +189,13 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         if (adapter == null) {
-            adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_1);
+            adapter = new CityAdapter(getActivity(), android.R.layout.simple_list_item_activated_1);
         }
         adapter.clear();
         while (cursor.moveToNext()) {
             adapter.add(DatabaseHelper.getCity(cursor));
         }
+        setListAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
 

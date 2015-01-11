@@ -52,7 +52,7 @@ public class CitiesActivity extends FragmentActivity
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
         }
-        Log.i("", "activity created");
+        Log.i("", "citiesactivity created");
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
