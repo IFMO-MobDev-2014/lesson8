@@ -3,5 +3,8 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="open">Opened</string>
+    <string name="close">Closed</string>
+    <string name="action_search">Search</string>
 
 </resources>
