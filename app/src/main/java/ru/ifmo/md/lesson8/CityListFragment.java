@@ -82,9 +82,9 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_add:
+//            case R.id.action_add:
 //                showCitySelectDialog();
-                return true;
+//                return true;
             case R.id.action_settings:
 //                showUpdateIntervalDialog();
                 return true;

@@ -1,14 +1,12 @@
 package ru.ifmo.md.lesson8;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.ActionBarActivity;
 
@@ -18,9 +16,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
-import android.widget.SearchView;
-import android.widget.SimpleCursorAdapter;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
 
     private CharSequence myDrawerTitle;
     private CharSequence myTitle;
-    private Menu searchMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,32 +76,16 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             };
             myDrawerLayout.setDrawerListener(myDrawerToggle);
         }
-
-/*        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                double latitude = 59.57;
-                double longitude = 30.18;
-                int woeid = YahooClient.getWoeidByCoord(latitude, longitude);
-                Log.d("woeid", "" + woeid);
-                int woeid = 2121267;
-                WeatherLoaderService.startActionAddNewCity(getApplicationContext(), woeid);
-            }
-        });
-        t.start();
+  /*
+        if (savedInstanceState == null) {
+            onItemSelected(0);
+        }
 */
-
-//        if (savedInstanceState == null) {
-//            onItemSelected(0);
-//        }
-
+        showCityFindTextView();
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
-    /**
-     * Callback method from {@link CityListFragment.Callbacks}
-     * indicating that the item with the given ID was selected.
-     */
+    // Callback indicating that the item with the given ID was selected.
     @Override
     public void onItemSelected(String id) {
         Bundle arguments = new Bundle();
@@ -116,71 +100,145 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             myDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
+    private class CityAdapter extends ArrayAdapter<CityFindResult> implements Filterable {
+
+        private Context ctx;
+        private List<CityFindResult> cityList = new ArrayList<CityFindResult>();
+
+        public CityAdapter(Context ctx, List<CityFindResult> cityList) {
+            super(ctx, R.layout.search_item, cityList);
+            this.cityList = cityList;
+            this.ctx = ctx;
+        }
+
+
+        @Override
+        public CityFindResult getItem(int position) {
+            return cityList != null ? cityList.get(position) : null;
+        }
+
+        @Override
+        public int getCount() {
+            return cityList != null ? cityList.size() : 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View result = convertView;
+            if (result == null) {
+                LayoutInflater inf = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                result = inf.inflate(R.layout.search_item, parent, false);
+            }
+            TextView tv = (TextView) result.findViewById(R.id.search_item_venue_name);
+            tv.setText(cityList.get(position).getCityName() + ", " + cityList.get(position).getCountry());
+            return result;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return cityList != null ? cityList.get(position).hashCode() : 0;
+        }
+
+        @Override
+        public Filter getFilter() {
+            Filter cityFilter = new Filter() {
+
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    if (constraint == null || constraint.length() < 2)
+                        return results;
+
+                    List<CityFindResult> cityResultList = YahooClient.getCityList(constraint.toString());
+                    results.values = cityResultList;
+                    results.count = cityResultList.size();
+                    return results;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    cityList = (List) results.values;
+                    notifyDataSetChanged();
+                }
+            };
+
+            return cityFilter;
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.searchMenu = menu;
-        SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView search = (SearchView) menu.findItem(R.id.action_add).getActionView();
-        search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return true;
-            }
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    private void showCityFindTextView() {
+        //Setting up custom search widget
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM |
+                ActionBar.DISPLAY_USE_LOGO |
+                ActionBar.DISPLAY_SHOW_HOME |
+                ActionBar.DISPLAY_HOME_AS_UP);
+
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.actionbar_search, null);
+        final ImageView searchIcon = (ImageView) v.findViewById(R.id.search_icon);
+        final CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) v.findViewById(R.id.search_box);
+
+        // start with the text view hidden in the action bar
+//        searchBox.setVisibility(View.INVISIBLE);
+        searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onQueryTextChange(String query) {
-                loadMatchingCities(query);
-                return true;
+            public void onClick(View v) {
+                toggleSearch(false);
             }
         });
-        return true;
+
+        searchBox.setOnClearListener(new CleanableAutoCompleteTextView.OnClearListener() {
+            @Override
+            public void onClear() {
+                toggleSearch(true);
+            }
+        });
+
+        searchBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // handle clicks on search results here
+            }
+        });
+
+        CityAdapter searchAdapter = new CityAdapter(this, null);
+        searchBox.setAdapter(searchAdapter);
+        searchBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // do something when the user clicks
+            }
+        });
+        actionBar.setCustomView(v);
     }
 
-    private void loadMatchingCities(String query) {
-        String[] columns = new String[]{"_id", "city"};
-        Object[] temp = new Object[]{0, "Moscow"};
-
-        List<String> items = new ArrayList<>();
-        items.add("Abakan");
-        items.add("Tashkent");
-        items.add("Barnaul");
-
-        MatrixCursor cursor = new MatrixCursor(columns);
-        for (int i = 0; i < items.size(); i++) {
-            temp[0] = i;
-            temp[1] = items.get(i);
-            cursor.addRow(temp);
-        }
-
-        SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView search = (SearchView) searchMenu.findItem(R.id.action_add).getActionView();
-        search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
-        search.setSuggestionsAdapter(new SuggestionsAdapter(this, cursor, items));
-    }
-
-    private class SuggestionsAdapter extends CursorAdapter {
-
-        private List<String> items;
-        private TextView text;
-
-        public SuggestionsAdapter(Context context, Cursor cursor, List items) {
-            super(context, cursor, false);
-            this.items = items;
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            text.setText(items.get(cursor.getPosition()));
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.suggestions_item, parent, false);
-            text = (TextView) view.findViewById(R.id.tvSuggestion);
-            return view;
+    // this toggles between the visibility of the search icon and the search box
+    protected void toggleSearch(boolean reset) {
+        CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) findViewById(R.id.search_box);
+        ImageView searchIcon = (ImageView) findViewById(R.id.search_icon);
+        if (reset) {
+            // hide search box and show search icon
+            searchBox.setText("");
+            searchBox.setVisibility(View.GONE);
+            searchIcon.setVisibility(View.VISIBLE);
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+        } else {
+            // hide search icon and show search box
+            searchIcon.setVisibility(View.GONE);
+            searchBox.setVisibility(View.VISIBLE);
+            searchBox.requestFocus();
+            // show the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 
@@ -192,6 +250,9 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         }
         // Handle action bar actions click
         switch (item.getItemId()) {
+//            case R.id.action_add:
+//                showCityFindTextView();
+//                return true;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
@@ -204,26 +265,25 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         }
     }
 
-    /**
-     * Called when invalidateOptionsMenu() is triggered
-     *
-     * @Override public boolean onPrepareOptionsMenu(Menu menu) {
-     * // if navigation drawer is opened, hide the action items
-     * boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
-     * menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
-     * menu.findItem(R.id.action_update_all).setVisible(!drawerOpen);
-     * menu.findItem(R.id.action_add).setVisible(drawerOpen);
-     * return super.onPrepareOptionsMenu(menu);
-     * }
-     * @Override public void setTitle(CharSequence title) {
-     * myTitle = title;
-     * getSupportActionBar().setTitle(myTitle);
-     * }
-     * <p/>
-     * /**
-     * When using the ActionBarDrawerToggle, you must call it during
-     * onPostCreate() and onConfigurationChanged()...
-     */
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // if navigation drawer is opened, hide the action items
+        boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
+        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_update_all).setVisible(!drawerOpen);
+//        menu.findItem(R.id.action_add).setVisible(drawerOpen);
+
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        myTitle = title;
+        getSupportActionBar().setTitle(myTitle);
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
