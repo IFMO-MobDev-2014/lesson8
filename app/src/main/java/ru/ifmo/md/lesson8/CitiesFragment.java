@@ -80,7 +80,6 @@ public class CitiesFragment extends ListFragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //setRetainInstance(true);
         getLoaderManager().initLoader(0, null, this).forceLoad();
         Log.i("", "citiesfragment created");
     }

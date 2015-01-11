@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-
+// TODO: settings -> menu
 
 /**
  * An activity representing a list of Items. This activity
@@ -53,7 +53,6 @@ public class CitiesActivity extends FragmentActivity
                     .setActivateOnItemClick(true);
         }
         Log.i("", "citiesactivity created");
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
     /**
