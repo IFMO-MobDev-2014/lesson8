@@ -92,7 +92,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                         intent.putExtra("receiver", mReceiver);
                         getActivity().startService(intent);
                         upgrade();
-                        refreshLayout.setRefreshing(false);
+
                     }
                 });
 
@@ -192,8 +192,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 imageView.setImageResource(R.drawable.na);
                 break;
         }
-
-
+        refreshLayout.setRefreshing(false);
     }
 
     @Override
