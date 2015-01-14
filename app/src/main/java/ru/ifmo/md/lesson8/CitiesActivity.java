@@ -204,7 +204,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         }
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.actionbar_search, null);
-        final CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) v.findViewById(R.id.search_box);
+        CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) v.findViewById(R.id.search_box);
 
         searchBox.setOnClearListener(new CleanableAutoCompleteTextView.OnClearListener() {
             @Override
@@ -264,6 +264,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         switch (item.getItemId()) {
             case R.id.action_add:
                 toggleCityFinder();
+
                 item.setVisible(false);
                 return true;
             case R.id.action_settings:

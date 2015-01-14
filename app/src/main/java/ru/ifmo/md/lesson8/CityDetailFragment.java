@@ -149,11 +149,8 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
             return;
         }
 
-        Log.d("Tag", "FORECAST");
-        Log.d("TAG", forecast);
-
         String[] parts = forecast.split("\\|");
-/*        try {
+        try {
             for (int i = 0; i < 5 * 6; i += 6) {
                 String day = parts[i];
                 String date = parts[i + 1];
@@ -163,7 +160,9 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
                 int code = Integer.parseInt(parts[i + 5]);
                 int index = i / 6;
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                //Wed|14 Jan 2015|Sunny|8|16|32|Thu|15 Jan 2015|Partly Cloudy|10|18|30|Fri|16 Jan 2015|Mo
+
+/*                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
                 SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.ENGLISH);
                 try {
                     Date dt = dateFormat.parse(date);
@@ -171,6 +170,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+*/
 
                 switch (index) {
                     case 0:
@@ -217,65 +217,14 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             return;
-        }*/
+        }
     }
 
     private int getImageByCode(int code) {
-        return R.drawable.snowflake;
-                /*
-            0	tornado
-            1	tropical storm
-            2	hurricane
-            3	severe thunderstorms
-            4	thunderstorms
-            5	mixed rain and snow
-            6	mixed rain and sleet
-            7	mixed snow and sleet
-            8	freezing drizzle
-            9	drizzle
-            10	freezing rain
-            11	showers
-            12	showers
-            13	snow flurries
-            14	light snow showers
-            15	blowing snow
-            16	snow
-            17	hail
-            18	sleet
-            19	dust
-            20	foggy
-            21	haze
-            22	smoky
-            23	blustery
-            24	windy
-            25	cold
-            26	cloudy
-            27	mostly cloudy (night)
-            28	mostly cloudy (day)
-            29	partly cloudy (night)
-            30	partly cloudy (day)
-            31	clear (night)
-            32	sunny
-            33	fair (night)
-            34	fair (day)
-            35	mixed rain and hail
-            36	hot
-            37	isolated thunderstorms
-            38	scattered thunderstorms
-            39	scattered thunderstorms
-            40	scattered showers
-            41	heavy snow
-            42	scattered snow showers
-            43	heavy snow
-            44	partly cloudy
-            45	thundershowers
-            46	snow showers
-            47	isolated thundershowers
-            3200	not available
-
-
-         */
-
+        if (code == 48)
+            return R.drawable.wna;
+        String name = "w" + (code < 10 ? "0" + code : String.valueOf(code));
+        return getResources().getIdentifier(name, "drawable", getActivity().getPackageName());
     }
 
     @Override
