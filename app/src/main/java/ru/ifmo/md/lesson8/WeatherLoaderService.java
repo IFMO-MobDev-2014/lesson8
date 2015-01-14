@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -104,16 +106,8 @@ public class WeatherLoaderService extends IntentService {
                 .commit();
     }
 
-    static CityWeather loadWeatherResult = null;
     private CityWeather loadWeather(int woeid) {
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        YahooClient.getWeather(Integer.toString(woeid), "c", requestQueue, new YahooClient.WeatherClientListener() {
-            @Override
-            public void onWeatherResponse(CityWeather cityWeather) {
-                loadWeatherResult = cityWeather;
-            }
-        });
-        return loadWeatherResult;
+        return YahooClient.getWeather(woeid);
     }
 
     private void actionAddCity(int woeid) {
@@ -123,7 +117,7 @@ public class WeatherLoaderService extends IntentService {
                 WeatherTable.COLUMN_WOEID + " = ?",
                 new String[] {String.valueOf(woeid)},
                 null);
-        boolean updateNotInsert = cursor.getCount() > 0;
+        final boolean updateNotInsert = cursor.getCount() > 0;
 
         CityWeather weather = loadWeather(woeid);
         ContentValues contentValues = weather.getContentValues();
@@ -141,13 +135,17 @@ public class WeatherLoaderService extends IntentService {
     }
 
     private void actionUpdateCity(int woeid) {
+        Log.d("TAG", "start action update woeid");
         CityWeather weather = loadWeather(woeid);
         ContentValues contentValues = weather.getContentValues();
         contentValues.put(WeatherTable.COLUMN_WOEID, woeid);
         getContentResolver().update(WeatherProvider.buildCityUri(Integer.toString(woeid)), contentValues, null, null);
+        Intent intent = new Intent("update");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void actionUpdateAll() {
+        Log.d("TAG", "start action update all");
         Cursor cursor = getContentResolver().query(
                 WeatherProvider.CONTENT_URI,
                 new String[] {WeatherTable.COLUMN_ID, WeatherTable.COLUMN_WOEID},
@@ -155,6 +153,7 @@ public class WeatherLoaderService extends IntentService {
         cursor.moveToFirst();
         while (!cursor.isBeforeFirst() && !cursor.isAfterLast()) {
             final int cityId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+            Log.d("Updating city", cityId + "");
             actionUpdateCity(cityId);
             cursor.moveToNext();
         }

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ifmo.md.lesson8.logic.CityFindResult;
+import ru.ifmo.md.lesson8.logic.CityWeather;
 import ru.ifmo.md.lesson8.logic.YahooClient;
 
 public class CitiesActivity extends ActionBarActivity implements CityListFragment.Callbacks {
@@ -79,10 +80,21 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             onItemSelected(0);
         }
   */
-        double [] coordinates =  getLastLocation();
-        Log.d("FIRST = ", "" + coordinates[0]);
-        Log.d("SECOND = ", "" + coordinates[1]);
+/*
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                CityWeather weather = YahooClient.getWeather(2123260);
+                Log.d("TAG", weather.lastUpdate);
+                Log.d("TAG", weather.condition.description);
+                Log.d("TAG", "" + weather.condition.code);
+            }
+        });
+        t.start();*/
 
+//        double [] coordinates =  getLastLocation();
+//        Log.d("FIRST = ", "" + coordinates[0]);
+//        Log.d("SECOND = ", "" + coordinates[1]);
        // TODO: If exposing deep links into your app, handle intents here.
     }
 

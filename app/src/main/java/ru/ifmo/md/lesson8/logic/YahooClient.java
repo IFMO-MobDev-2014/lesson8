@@ -147,6 +147,102 @@ public class YahooClient {
         return result;
     }
 
+    public static CityWeather getWeather(int woeid) {
+        HttpURLConnection yahooHttpConn = null;
+        CityWeather result = new CityWeather();
+        try {
+            String query = makeWeatherURL(String.valueOf(woeid), "c");
+            yahooHttpConn = (HttpURLConnection) (new URL(query)).openConnection();
+            yahooHttpConn.connect();
+            XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
+            parser.setInput(new InputStreamReader(yahooHttpConn.getInputStream()));
+
+            String tagName = null;
+            String currentTag = null;
+
+            int event = parser.getEventType();
+            while (event != XmlPullParser.END_DOCUMENT) {
+                tagName = parser.getName();
+
+                if (event == XmlPullParser.START_TAG) {
+                    switch (tagName) {
+                        case "yweather:wind":
+                            result.wind.chill = Integer.parseInt(parser.getAttributeValue(null, "chill"));
+                            result.wind.direction = Integer.parseInt(parser.getAttributeValue(null, "direction"));
+                            result.wind.speed = (int) Float.parseFloat(parser.getAttributeValue(null, "speed"));
+                            break;
+                        case "yweather:atmosphere":
+                            result.atmosphere.humidity = Integer.parseInt(parser.getAttributeValue(null, "humidity"));
+//                            result.atmosphere.visibility = Float.parseFloat(parser.getAttributeValue(null, "visibility"));
+                            result.atmosphere.pressure = Float.parseFloat(parser.getAttributeValue(null, "pressure"));
+                            result.atmosphere.rising = Integer.parseInt(parser.getAttributeValue(null, "rising"));
+                            break;
+                        case "yweather:forecast":
+                            String day = parser.getAttributeValue(null, "day");
+                            String date = parser.getAttributeValue(null, "date");
+                            String description = parser.getAttributeValue(null, "text");
+                            int tempMin = Integer.parseInt(parser.getAttributeValue(null, "low"));
+                            int tempMax = Integer.parseInt(parser.getAttributeValue(null, "high"));
+                            int code = Integer.parseInt(parser.getAttributeValue(null, "code"));
+                            result.addForecast(day, date, description, tempMin, tempMax, code);
+                            break;
+                        case "yweather:condition":
+                            result.condition.code = Integer.parseInt(parser.getAttributeValue(null, "code"));
+                            result.condition.description = parser.getAttributeValue(null, "text");
+                            result.condition.temp = Integer.parseInt(parser.getAttributeValue(null, "temp"));
+                            result.condition.date = parser.getAttributeValue(null, "date");
+                            break;
+                        case "yweather:units":
+                            result.units.temperature = "°" + parser.getAttributeValue(null, "temperature");
+                            result.units.pressure = parser.getAttributeValue(null, "pressure");
+                            result.units.distance = parser.getAttributeValue(null, "distance");
+                            result.units.speed = parser.getAttributeValue(null, "speed");
+                            break;
+                        case "yweather:location":
+                            result.location.name = parser.getAttributeValue(null, "city");
+                            result.location.region = parser.getAttributeValue(null, "region");
+                            result.location.country = parser.getAttributeValue(null, "country");
+                            break;
+                        case "image":
+                            currentTag = "image";
+                            break;
+                        case "url":
+                            if (currentTag == null) {
+                                result.imageUrl = parser.getAttributeValue(null, "src");
+                            }
+                            break;
+                        case "lastBuildDate":
+                            currentTag = "update";
+                            break;
+                        case "yweather:astronomy":
+                            result.astronomy.sunRise = parser.getAttributeValue(null, "sunrise");
+                            result.astronomy.sunSet = parser.getAttributeValue(null, "sunset");
+                            break;
+                    }
+                } else if (event == XmlPullParser.END_TAG) {
+                    if ("image".equals(currentTag)) {
+                        currentTag = null;
+                    }
+                } else if (event == XmlPullParser.TEXT) {
+                    if ("update".equals(currentTag))
+                        result.lastUpdate = parser.getText();
+                }
+                event = parser.next();
+            }
+
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (yahooHttpConn != null) {
+                    yahooHttpConn.disconnect();
+                }
+            } catch (Throwable ignore) {
+            }
+        }
+        return result;
+    }
+
     public static void getWeather(String woeid, String unit, RequestQueue rq, final WeatherClientListener listener) {
         String url2Call = makeWeatherURL(woeid, unit);
         final CityWeather result = new CityWeather();
@@ -165,6 +261,7 @@ public class YahooClient {
     }
 
     private static CityWeather parseWeatherResponse(String resp, CityWeather result) {
+//        Log.d("Response", resp);
         try {
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
             parser.setInput(new StringReader(resp));
@@ -185,7 +282,7 @@ public class YahooClient {
                             break;
                         case "yweather:atmosphere":
                             result.atmosphere.humidity = Integer.parseInt(parser.getAttributeValue(null, "humidity"));
-                            result.atmosphere.visibility = Float.parseFloat(parser.getAttributeValue(null, "visibility"));
+//                            result.atmosphere.visibility = Float.parseFloat(parser.getAttributeValue(null, "visibility"));
                             result.atmosphere.pressure = Float.parseFloat(parser.getAttributeValue(null, "pressure"));
                             result.atmosphere.rising = Integer.parseInt(parser.getAttributeValue(null, "rising"));
                             break;

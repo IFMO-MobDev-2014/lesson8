@@ -1,9 +1,669 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/item_detail"
-    style="?android:attr/textAppearanceLarge"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:textIsSelectable="true"
-    tools:context=".ItemDetailFragment" />
+    tools:context="ru.ifmo.md.lesson8.CityDetailFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#ffe7f6df">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="@dimen/internal_padding"
+            android:background="@android:color/white">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/internal_padding"
+                android:gravity="center"
+                android:id="@+id/city_name"
+                style="?android:attr/textAppearanceLarge"
+                android:text="Saint-Petersburg"
+                android:textIsSelectable="true"
+                android:layout_marginTop="@dimen/internal_padding"
+                android:background="#ffffbe00"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/internal_padding"
+                android:id="@+id/weather_desc"
+                android:gravity="center"
+                style="?android:attr/textAppearanceLarge"
+                android:text="Party Cloudy"
+                android:layout_marginLeft="@dimen/internal_padding"
+                android:fontFamily="sans-serif-light" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_gravity="center_horizontal">
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/internal_padding"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/cloud_fog"
+                    android:id="@+id/weather_icon"
+                    android:contentDescription="@null"
+                    android:layout_weight="0.7" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="0.8"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/internal_padding"
+                    android:id="@+id/detail_temperature"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textSize="60sp"
+                    style="?android:attr/textAppearanceLarge"
+                    android:clickable="false"
+                    android:fontFamily="sans-serif-thin"
+                    android:text="-24&quot;" />
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        style="?android:attr/textAppearanceLarge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:id="@+id/textView"/>
+
+                    <TextView
+                        style="?android:attr/textAppearanceLarge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:id="@+id/textView2"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="@dimen/internal_padding"
+            android:background="@android:color/white">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Forecast"
+                style="?android:attr/textAppearanceLarge"
+                android:gravity="left"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="@dimen/internal_padding"
+                android:fontFamily="sans-serif-light" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:focusable="false"
+                    android:layout_marginLeft="@dimen/internal_padding"
+                    android:layout_marginRight="@dimen/internal_padding"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        style="?android:attr/textAppearanceLarge"
+                        android:id="@+id/forecast_date1"
+                        android:layout_weight="1"
+                        android:text="Wed"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light" />
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:id="@+id/forecast_icon_1"
+                            android:scaleType="center"
+                            android:contentDescription="@null"
+                            android:padding="@dimen/internal_padding"
+                            android:src="@drawable/cloud_fog"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/internal_padding"
+                            android:id="@+id/forecast_desc1"
+                            android:gravity="center"
+                            android:text="Party Cloudy"
+                            android:layout_marginLeft="@dimen/internal_padding"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/min_temp1"
+                            android:text="MIN: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="2dp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            style="?android:attr/textAppearanceLarge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/max_temp1"
+                            android:text="MAX: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:focusable="false"
+                    android:layout_marginLeft="@dimen/internal_padding"
+                    android:layout_marginRight="@dimen/internal_padding"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        style="?android:attr/textAppearanceLarge"
+                        android:id="@+id/forecast_date2"
+                        android:layout_weight="1"
+                        android:text="Wed"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light" />
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_icon_2"
+                            android:scaleType="center"
+                            android:contentDescription="@null"
+                            android:padding="@dimen/internal_padding"
+                            android:src="@drawable/cloud_fog"
+                            android:layout_gravity="center_horizontal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/internal_padding"
+                            android:id="@+id/forecast_desc2"
+                            android:gravity="center"
+                            android:text="Party Cloudy"
+                            android:layout_marginLeft="@dimen/internal_padding"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/min_temp2"
+                            android:text="MIN: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="2dp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            style="?android:attr/textAppearanceLarge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/max_temp2"
+                            android:text="MAX: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:focusable="false"
+                    android:layout_marginLeft="@dimen/internal_padding"
+                    android:layout_marginRight="@dimen/internal_padding"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        style="?android:attr/textAppearanceLarge"
+                        android:id="@+id/forecast_date3"
+                        android:layout_weight="1"
+                        android:text="Wed"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light" />
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_icon_3"
+                            android:scaleType="center"
+                            android:contentDescription="@null"
+                            android:padding="@dimen/internal_padding"
+                            android:src="@drawable/cloud_fog"
+                            android:layout_gravity="center_horizontal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/internal_padding"
+                            android:id="@+id/forecast_desc3"
+                            android:gravity="center"
+                            android:text="Party Cloudy"
+                            android:layout_marginLeft="@dimen/internal_padding"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/min_temp3"
+                            android:text="MIN: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="2dp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            style="?android:attr/textAppearanceLarge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/max_temp3"
+                            android:text="MAX: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:focusable="false"
+                    android:layout_marginLeft="@dimen/internal_padding"
+                    android:layout_marginRight="@dimen/internal_padding"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        style="?android:attr/textAppearanceLarge"
+                        android:id="@+id/forecast_date4"
+                        android:layout_weight="1"
+                        android:text="Wed"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light" />
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_icon_4"
+                            android:scaleType="center"
+                            android:contentDescription="@null"
+                            android:padding="@dimen/internal_padding"
+                            android:src="@drawable/cloud_fog"
+                            android:layout_gravity="center_horizontal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/internal_padding"
+                            android:id="@+id/forecast_desc4"
+                            android:gravity="center"
+                            android:text="Party Cloudy"
+                            android:layout_marginLeft="@dimen/internal_padding"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/min_temp4"
+                            android:text="MIN: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="2dp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            style="?android:attr/textAppearanceLarge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/max_temp4"
+                            android:text="MAX: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:focusable="false"
+                    android:layout_marginLeft="@dimen/internal_padding"
+                    android:layout_marginRight="@dimen/internal_padding"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        style="?android:attr/textAppearanceLarge"
+                        android:id="@+id/forecast_date5"
+                        android:layout_weight="1"
+                        android:text="Wed"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light" />
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_icon_5"
+                            android:scaleType="center"
+                            android:contentDescription="@null"
+                            android:padding="@dimen/internal_padding"
+                            android:src="@drawable/cloud_fog"
+                            android:layout_gravity="center_horizontal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/internal_padding"
+                            android:id="@+id/forecast_desc5"
+                            android:gravity="center"
+                            android:text="Party Cloudy"
+                            android:layout_marginLeft="@dimen/internal_padding"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/min_temp5"
+                            android:text="MIN: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="2dp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            style="?android:attr/textAppearanceLarge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/max_temp5"
+                            android:text="MAX: 14&quot;"
+                            android:gravity="end"
+                            android:textColor="#fff1b300"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:weightSum="4"
+            android:background="@android:color/white"
+            android:layout_margin="@dimen/internal_padding">
+
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Details"
+                android:gravity="left"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="@dimen/internal_padding"
+                android:id="@+id/textView3"
+                android:fontFamily="sans-serif-light" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="left"
+                android:layout_marginLeft="@dimen/internal_padding"
+                android:layout_marginRight="@dimen/internal_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@null"
+                    android:padding="@dimen/internal_padding"
+                    android:src="@drawable/wind" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/internal_padding"
+                    android:gravity="left"
+                    android:id="@+id/wind_info"
+                    style="?android:attr/textAppearanceLarge"
+                    android:layout_gravity="center"
+                    android:text="9.66 km/h 80&quot;"
+                    android:fontFamily="sans-serif-light" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/internal_padding"
+                android:layout_marginRight="@dimen/internal_padding">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/humidity"
+                    android:contentDescription="@null"
+                    android:padding="@dimen/internal_padding"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/internal_padding"
+                    android:gravity="left"
+                    android:layout_gravity="center"
+                    android:id="@+id/humidity_info"
+                    style="?android:attr/textAppearanceLarge"
+                    android:text="82%"
+                    android:fontFamily="sans-serif-light" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/internal_padding"
+                android:layout_marginRight="@dimen/internal_padding" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/pressure"
+                    android:contentDescription="@null"
+                    android:padding="@dimen/internal_padding" />
+
+                <TextView
+                    style="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/internal_padding"
+                    android:gravity="left"
+                    android:layout_gravity="center"
+                    android:id="@+id/pressure_info"
+                    android:text="1016 mb"
+                    android:fontFamily="sans-serif-light" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
