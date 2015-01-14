@@ -13,7 +13,7 @@
 
         <provider
             android:name=".database.WeatherProvider"
-            android:authorities="ru.ifmo.md.lesson8.weather"></provider>
+            android:authorities="ru.ifmo.md.lesson8.weather"/>
 
         <service android:name=".WeatherLoaderService" />
 

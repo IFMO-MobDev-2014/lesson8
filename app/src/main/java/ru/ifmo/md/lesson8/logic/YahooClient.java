@@ -4,30 +4,17 @@ package ru.ifmo.md.lesson8.logic;
  * Created by sergey on 30.11.14.
  */
 
-import android.util.Log;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class YahooClient {
     public static final String YAHOO_GEO_URL = "http://where.yahooapis.com/v1";
@@ -98,7 +85,7 @@ public class YahooClient {
             yahooHttpConn.connect();
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
             parser.setInput(new InputStreamReader(yahooHttpConn.getInputStream()));
-            Log.d("Swa", "XML Parser ok");
+//            Log.d("Swa", "XML Parser ok");
             int event = parser.getEventType();
 
             CityFindResult cty = null;
@@ -239,107 +226,6 @@ public class YahooClient {
                 }
             } catch (Throwable ignore) {
             }
-        }
-        return result;
-    }
-
-    public static void getWeather(String woeid, String unit, RequestQueue rq, final WeatherClientListener listener) {
-        String url2Call = makeWeatherURL(woeid, unit);
-        final CityWeather result = new CityWeather();
-        StringRequest req = new StringRequest(Request.Method.GET, url2Call, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                parseWeatherResponse(s, result);
-                listener.onWeatherResponse(result);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-            }
-        });
-        rq.add(req);
-    }
-
-    private static CityWeather parseWeatherResponse(String resp, CityWeather result) {
-//        Log.d("Response", resp);
-        try {
-            XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-            parser.setInput(new StringReader(resp));
-
-            String tagName = null;
-            String currentTag = null;
-
-            int event = parser.getEventType();
-            while (event != XmlPullParser.END_DOCUMENT) {
-                tagName = parser.getName();
-
-                if (event == XmlPullParser.START_TAG) {
-                    switch (tagName) {
-                        case "yweather:wind":
-                            result.wind.chill = Integer.parseInt(parser.getAttributeValue(null, "chill"));
-                            result.wind.direction = Integer.parseInt(parser.getAttributeValue(null, "direction"));
-                            result.wind.speed = (int) Float.parseFloat(parser.getAttributeValue(null, "speed"));
-                            break;
-                        case "yweather:atmosphere":
-                            result.atmosphere.humidity = Integer.parseInt(parser.getAttributeValue(null, "humidity"));
-//                            result.atmosphere.visibility = Float.parseFloat(parser.getAttributeValue(null, "visibility"));
-                            result.atmosphere.pressure = Float.parseFloat(parser.getAttributeValue(null, "pressure"));
-                            result.atmosphere.rising = Integer.parseInt(parser.getAttributeValue(null, "rising"));
-                            break;
-                        case "yweather:forecast":
-                            String day = parser.getAttributeValue(null, "day");
-                            String date = parser.getAttributeValue(null, "date");
-                            String description = parser.getAttributeValue(null, "text");
-                            int tempMin = Integer.parseInt(parser.getAttributeValue(null, "low"));
-                            int tempMax = Integer.parseInt(parser.getAttributeValue(null, "high"));
-                            int code = Integer.parseInt(parser.getAttributeValue(null, "code"));
-                            result.addForecast(day, date, description, tempMin, tempMax, code);
-                            break;
-                        case "yweather:condition":
-                            result.condition.code = Integer.parseInt(parser.getAttributeValue(null, "code"));
-                            result.condition.description = parser.getAttributeValue(null, "text");
-                            result.condition.temp = Integer.parseInt(parser.getAttributeValue(null, "temp"));
-                            result.condition.date = parser.getAttributeValue(null, "date");
-                            break;
-                        case "yweather:units":
-                            result.units.temperature = "°" + parser.getAttributeValue(null, "temperature");
-                            result.units.pressure = parser.getAttributeValue(null, "pressure");
-                            result.units.distance = parser.getAttributeValue(null, "distance");
-                            result.units.speed = parser.getAttributeValue(null, "speed");
-                            break;
-                        case "yweather:location":
-                            result.location.name = parser.getAttributeValue(null, "city");
-                            result.location.region = parser.getAttributeValue(null, "region");
-                            result.location.country = parser.getAttributeValue(null, "country");
-                            break;
-                        case "image":
-                            currentTag = "image";
-                            break;
-                        case "url":
-                            if (currentTag == null) {
-                                result.imageUrl = parser.getAttributeValue(null, "src");
-                            }
-                            break;
-                        case "lastBuildDate":
-                            currentTag = "update";
-                            break;
-                        case "yweather:astronomy":
-                            result.astronomy.sunRise = parser.getAttributeValue(null, "sunrise");
-                            result.astronomy.sunSet = parser.getAttributeValue(null, "sunset");
-                            break;
-                    }
-                } else if (event == XmlPullParser.END_TAG) {
-                    if ("image".equals(currentTag)) {
-                        currentTag = null;
-                    }
-                } else if (event == XmlPullParser.TEXT) {
-                    if ("update".equals(currentTag))
-                        result.lastUpdate = parser.getText();
-                }
-                event = parser.next();
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
         }
         return result;
     }

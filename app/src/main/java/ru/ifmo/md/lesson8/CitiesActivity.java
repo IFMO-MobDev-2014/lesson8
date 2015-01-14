@@ -9,9 +9,8 @@ import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.ActionBarActivity;
-
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ifmo.md.lesson8.logic.CityFindResult;
-import ru.ifmo.md.lesson8.logic.CityWeather;
 import ru.ifmo.md.lesson8.logic.YahooClient;
 
 public class CitiesActivity extends ActionBarActivity implements CityListFragment.Callbacks {
@@ -75,23 +73,8 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             };
             myDrawerLayout.setDrawerListener(myDrawerToggle);
         }
-  /*
-        if (savedInstanceState == null) {
-            onItemSelected(0);
-        }
-  */
-/*
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                CityWeather weather = YahooClient.getWeather(2123260);
-                Log.d("TAG", weather.lastUpdate);
-                Log.d("TAG", weather.condition.description);
-                Log.d("TAG", "" + weather.condition.code);
-            }
-        });
-        t.start();*/
 
+        // TODO: add detecting current city
 //        double [] coordinates =  getLastLocation();
 //        Log.d("FIRST = ", "" + coordinates[0]);
 //        Log.d("SECOND = ", "" + coordinates[1]);
@@ -125,13 +108,13 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
 
     // Callback indicating that the item with the given ID was selected.
     @Override
-    public void onItemSelected(String id) {
+    public void onItemSelected(String cityId) {
         Bundle arguments = new Bundle();
-        arguments.putString(CityDetailFragment.ARG_CITY_ID, id);
-        Log.d("TAG", "Clicked id = " + id);
+        arguments.putString(CityDetailFragment.ARG_CITY_ID, cityId);
         CityDetailFragment fragment = new CityDetailFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
+                //                    .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                 .replace(R.id.city_detail_container, fragment)
                 .commit();
         if (!mTwoPane)
@@ -287,9 +270,6 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_update:
-                WeatherLoaderService.startActionUpdateAll(getApplicationContext());
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -302,8 +282,10 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         if (!mTwoPane) {
             boolean drawerOpen = myDrawerLayout.isDrawerOpen(GravityCompat.START);
             menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
-            menu.findItem(R.id.action_update).setVisible(!drawerOpen);
             menu.findItem(R.id.action_add).setVisible(drawerOpen);
+            if (menu.findItem(R.id.action_update) != null) {
+                menu.findItem(R.id.action_update).setVisible(!drawerOpen);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }

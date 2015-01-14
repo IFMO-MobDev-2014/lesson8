@@ -32,7 +32,7 @@ public class WeatherTable {
             + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_WOEID + " INTEGER NOT NULL, "
-            + COLUMN_LASTUPD  + " TEXT NOT NULL, "
+            + COLUMN_LASTUPD  + " TEXT, "
             + COLUMN_COUNTRY + " TEXT, "
             + COLUMN_CITY + " TEXT NOT NULL, "
 
@@ -56,7 +56,8 @@ public class WeatherTable {
                 COLUMN_LASTUPD + ", " +
                 COLUMN_CITY + ", " +
                 COLUMN_CONDITION_DESCRIPTION + ", " +
-                COLUMN_CONDITION_TEMP + ") VALUES (" +
+                COLUMN_CONDITION_TEMP +
+                ") VALUES (" +
                 woeid + ", " +
                 DatabaseUtils.sqlEscapeString(lastUpd) + ", " +
                 DatabaseUtils.sqlEscapeString(city) + ", " +
@@ -68,7 +69,6 @@ public class WeatherTable {
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);
         database.execSQL(addDefaultCity(2123260, "Tue, 06 Jan 2015 3:30 pm MSK", "Saint-Petersburg", "Rain", -4));
-        database.execSQL(addDefaultCity(2077746, "Tue, 06 Jan 2015 3:30 pm MSK", "Samara", "Light Snow", -16));
         database.execSQL(addDefaultCity(2122641, "Tue, 06 Jan 2015 3:30 pm MSK", "Omsk", "Drifting Snow", -20));
         database.execSQL(addDefaultCity(2122265, "Tue, 06 Jan 2015 3:30 pm MSK", "Moscow", "Light Snow", -5));
     }

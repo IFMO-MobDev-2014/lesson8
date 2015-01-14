@@ -10,9 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
 import ru.ifmo.md.lesson8.database.WeatherProvider;
 import ru.ifmo.md.lesson8.database.WeatherTable;
 import ru.ifmo.md.lesson8.logic.CityWeather;
@@ -28,19 +25,16 @@ public class WeatherLoaderService extends IntentService {
     public static final String ACTION_UPDATE_CITY = "ru.ifmo.md.lesson8.action.UPDATE_CITY";
     public static final String ACTION_UPDATE_ALL = "ru.ifmo.md.lesson8.action.UPDATE_ALL";
 
+    public static final String EXTRA_ID = "KEY_CITY_ID";
+    public static final String EXTRA_WOEID = "KEY_CITY_WOEID";
     public static final String EXTRA_LATITUDE = "KEY_LATITUDE";
     public static final String EXTRA_LONGITUDE = "KEY_LONGTITUDE";
-    public static final String EXTRA_WOEID = "KEY_WOEID";
 
     public static final long INTERVAL_NONE = -1;
     public static final long INTERVAL_ONE_HOUR = AlarmManager.INTERVAL_HOUR;
     public static final long INTERVAL_TWO_HOURS = INTERVAL_ONE_HOUR * 2;
     public static final long INTERVAL_SIX_HOURS = INTERVAL_ONE_HOUR * 6;
     public static final long INTERVAL_TWELVE_HOURS = INTERVAL_ONE_HOUR * 12;
-
-    private static final String YAHOO_GEO_URL = "http://where.yahooapis.com/v1";
-    private static final String YAHOO_WEATHER_URL = "http://weather.yahooapis.com/forecastrss";
-    private static final String APPID = "dj0yJmk9ZGd1YzhOd2VWbW9yJmQ9WVdrOWRVSTNkelJETkRJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02MA--";
 
     public WeatherLoaderService() {
         super("WeatherLoaderService");
@@ -58,8 +52,9 @@ public class WeatherLoaderService extends IntentService {
                 final double longtitude = intent.getDoubleExtra(EXTRA_LONGITUDE, 30.5);
                 actionAddCity(latitude, longtitude);
             } else if (actionType.equals(ACTION_UPDATE_CITY)) {
-                final int cityId = intent.getIntExtra(EXTRA_WOEID, 2123260);
-                actionUpdateCity(cityId);
+                final int cityId = intent.getIntExtra(EXTRA_ID, 1);
+                final int cityWoeid = intent.getIntExtra(EXTRA_WOEID, 2123260);
+                actionUpdateCity(cityId, cityWoeid);
             } else if (actionType.equals(ACTION_UPDATE_ALL)) {
                 actionUpdateAll();
             }
@@ -87,10 +82,11 @@ public class WeatherLoaderService extends IntentService {
         context.startService(intent);
     }
 
-    public static void startActionUpdateCity(Context context, int woeid) {
+    public static void startActionUpdateCity(Context context, int cityId, int cityWoeid) {
         Intent intent = new Intent(context, WeatherLoaderService.class);
         intent.setAction(ACTION_UPDATE_CITY);
-        intent.putExtra(EXTRA_WOEID, woeid);
+        intent.putExtra(EXTRA_ID, cityId);
+        intent.putExtra(EXTRA_WOEID, cityWoeid);
         context.startService(intent);
     }
 
@@ -107,7 +103,17 @@ public class WeatherLoaderService extends IntentService {
     }
 
     private CityWeather loadWeather(int woeid) {
-        return YahooClient.getWeather(woeid);
+        CityWeather result = YahooClient.getWeather(woeid);
+
+        Log.d("TAG", "-----------------------");
+        Log.d("TAG", "aaa" + result.location.name);
+        Log.d("TAG", "aaa" + result.lastUpdate);
+        Log.d("TAG", "aaa" + result.condition.description);
+        Log.d("TAG", "aaa" + result.condition.temp);
+        Log.d("TAG", "aaa" + result.condition.date);
+        Log.d("TAG", "-----------------------");
+
+        return result;
     }
 
     private void actionAddCity(int woeid) {
@@ -134,29 +140,28 @@ public class WeatherLoaderService extends IntentService {
         actionAddCity(woeid);
     }
 
-    private void actionUpdateCity(int woeid) {
-        Log.d("TAG", "start action update woeid");
-        CityWeather weather = loadWeather(woeid);
+    private void actionUpdateCity(int cityId, int cityWoeid) {
+        CityWeather weather = loadWeather(cityWoeid);
         ContentValues contentValues = weather.getContentValues();
-        contentValues.put(WeatherTable.COLUMN_WOEID, woeid);
-        getContentResolver().update(WeatherProvider.buildCityUri(Integer.toString(woeid)), contentValues, null, null);
+        contentValues.put(WeatherTable.COLUMN_WOEID, cityWoeid);
+        getContentResolver().update(WeatherProvider.buildCityUri(Integer.toString(cityId)), contentValues, null, null);
         Intent intent = new Intent("update");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void actionUpdateAll() {
-        Log.d("TAG", "start action update all");
         Cursor cursor = getContentResolver().query(
                 WeatherProvider.CONTENT_URI,
                 new String[] {WeatherTable.COLUMN_ID, WeatherTable.COLUMN_WOEID},
                 null, null, null);
         cursor.moveToFirst();
         while (!cursor.isBeforeFirst() && !cursor.isAfterLast()) {
-            final int cityId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
-            Log.d("Updating city", cityId + "");
-            actionUpdateCity(cityId);
+            final int cityId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_ID));
+            final int cityWoeid = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+            actionUpdateCity(cityId, cityWoeid);
             cursor.moveToNext();
         }
+        cursor.close();
     }
 
 }

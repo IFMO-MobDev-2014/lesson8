@@ -2,6 +2,7 @@ package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -89,11 +90,13 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mAdapter = new SimpleCursorAdapter(getActivity(),
+        mAdapter = new SimpleCursorAdapter(
+                getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 null,
                 new String[]{WeatherTable.COLUMN_CITY},
-                new int[]{android.R.id.text1});
+                new int[]{android.R.id.text1},
+                0);
         setListAdapter(mAdapter);
         registerForContextMenu(getListView());
         getLoaderManager().initLoader(LOADER_CITIES, Bundle.EMPTY, this);
@@ -103,7 +106,7 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
+        getListView().setBackgroundColor(Color.WHITE);
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));

@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -23,22 +22,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import ru.ifmo.md.lesson8.database.WeatherProvider;
 import ru.ifmo.md.lesson8.database.WeatherTable;
 
 public class CityDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String ARG_CITY_ID = "city_id";
-    private static final int LOADER_CITY_INFO = 0;
+    private static final int LOADER_CITY_WEATHER = 0;
 
     private View mRootView;
     private Cursor mCursor;
+    private int mCityId;
+    private int mCityWoeid;
     private BroadcastReceiver mUpdateReceiver;
 
     public CityDetailFragment() {
@@ -49,10 +44,30 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         super.onCreate(savedInstanceState);
 
         setRetainInstance(true);
+        setHasOptionsMenu(true);
 
         if (getArguments().containsKey(ARG_CITY_ID)) {
-            getLoaderManager().initLoader(LOADER_CITY_INFO, getArguments(), this);
+            mCityId = Integer.parseInt(getArguments().getString(ARG_CITY_ID));
+            getLoaderManager().initLoader(LOADER_CITY_WEATHER, getArguments(), this);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_update:
+                mCityWoeid = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+                WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId, mCityWoeid);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_detail, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -63,8 +78,9 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
             public void onReceive(Context context, Intent intent) {
                 Log.d("TAG", "updated came");
                 Bundle argCity = new Bundle();
+                mCityId = Integer.parseInt(getArguments().getString(ARG_CITY_ID));
                 argCity.putString(ARG_CITY_ID, getArguments().getString(ARG_CITY_ID));
-                getLoaderManager().restartLoader(LOADER_CITY_INFO, argCity, CityDetailFragment.this);
+                getLoaderManager().restartLoader(LOADER_CITY_WEATHER, argCity, CityDetailFragment.this);
             }
         };
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mUpdateReceiver, new IntentFilter("update"));
@@ -111,7 +127,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         final String temperature = String.format("%d°", temp);
 //        final String lastUpdate = "Last update: " + mCursor.getString(mCursor.getColumnIndex(WeatherContract.City.CITY_LAST_UPDATE)) .replace("T", " ");
         final String humidityInfo = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_ATMOSPHERE_HUMIDITY)) + "%";
-        final String windInfo = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_SPEED)) + " m/s " +
+        final String windInfo = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_SPEED)) + " kph " +
                 mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_DIRECTION)) + "°";
 
         final double pressure = mCursor.getDouble(mCursor.getColumnIndex(WeatherTable.COLUMN_ATMOSPHERE_PRESSURE));
@@ -127,15 +143,17 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         ((TextView) mRootView.findViewById(R.id.humidity_info)).setText(humidityInfo);
         ((TextView) mRootView.findViewById(R.id.pressure_info)).setText(pressureInfo);
 
-/*        String forecast = mCursor.getString(mCursor.getColumnIndex(WeatherTable.COLUMN_FORECAST));
+        String forecast = mCursor.getString(mCursor.getColumnIndex(WeatherTable.COLUMN_FORECAST));
         if (forecast == null || !forecast.contains("|")) {
-            int mCityId = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
-            WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId);
+            WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId, mCityWoeid);
             return;
         }
 
+        Log.d("Tag", "FORECAST");
+        Log.d("TAG", forecast);
+
         String[] parts = forecast.split("\\|");
-        try {
+/*        try {
             for (int i = 0; i < 5 * 6; i += 6) {
                 String day = parts[i];
                 String date = parts[i + 1];
@@ -144,9 +162,8 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
                 String maxTemp = "MAX: " + parts[i + 4] + "°";
                 int code = Integer.parseInt(parts[i + 5]);
                 int index = i / 6;
-                */
 
-/*                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
                 SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.ENGLISH);
                 try {
                     Date dt = dateFormat.parse(date);
@@ -154,9 +171,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-*/
 
-        /*
                 switch (index) {
                     case 0:
                         ((TextView) mRootView.findViewById(R.id.min_temp1)).setText(minTemp);
@@ -202,12 +217,11 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             return;
-        }
-*/
+        }*/
     }
 
     private int getImageByCode(int code) {
-        return R.drawable.cloud_wind_sun;
+        return R.drawable.snowflake;
                 /*
             0	tornado
             1	tropical storm
@@ -267,7 +281,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
         switch (id) {
-            case LOADER_CITY_INFO:
+            case LOADER_CITY_WEATHER:
                 return new CursorLoader(
                         getActivity(),
                         WeatherProvider.buildCityUri(bundle.getString(ARG_CITY_ID)),
@@ -280,7 +294,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onResume() {
         super.onResume();
-        getLoaderManager().initLoader(LOADER_CITY_INFO, null, this).forceLoad();
+        getLoaderManager().initLoader(LOADER_CITY_WEATHER, null, this).forceLoad();
     }
 
     @Override
@@ -293,6 +307,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mCursor = cursor;
         mCursor.moveToFirst();
+        mCityWoeid = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
         updateUserInterface();
     }
 
