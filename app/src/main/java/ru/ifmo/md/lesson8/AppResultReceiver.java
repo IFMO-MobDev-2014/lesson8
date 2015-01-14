@@ -10,6 +10,7 @@ import android.os.ResultReceiver;
 public class AppResultReceiver extends ResultReceiver {
     public static final int OK = 0;
     public static final int ERROR = 1;
+    public static final int UPDATE = 2;
     public interface Receiver {
         public void onReceiveResult(int resultCode, Bundle data);
     }

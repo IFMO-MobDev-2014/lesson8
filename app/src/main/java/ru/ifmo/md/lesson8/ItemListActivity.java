@@ -1,9 +1,15 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -48,7 +54,7 @@ public class ItemListActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
-
+    private static final int NOTIFY_ID = 101;
     double lat;
     double lon;
 
@@ -239,9 +245,34 @@ public class ItemListActivity extends FragmentActivity
             case AppResultReceiver.OK:
                 Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
                 break;
+            case AppResultReceiver.UPDATE:
+                Intent notificationIntent = new Intent(this, ItemListActivity.class);
+                PendingIntent contentIntent = PendingIntent.getActivity(this,
+                        0, notificationIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                Resources res = getResources();
+                Notification.Builder builder = new Notification.Builder(this);
+
+                builder.setContentIntent(contentIntent)
+                        .setSmallIcon(R.drawable.ic_action)
+                        .setLargeIcon(BitmapFactory.decodeResource(res, R.drawable.ic_push))
+
+                        .setTicker("UPDATING TIME!!!!")
+                        .setWhen(System.currentTimeMillis())
+                        .setAutoCancel(true)
+                        .setContentTitle("Hello!")
+                        .setContentText("I have some new weather for you");
+
+                Notification notification = builder.build();
+
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(NOTIFY_ID, notification);
         }
 
             ItemListFragment fragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list);
-            fragment.update();
+            if (fragment!=null) {
+                fragment.update();
+            }
     }
 }

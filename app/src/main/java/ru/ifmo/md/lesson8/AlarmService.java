@@ -28,5 +28,6 @@ public class AlarmService extends IntentService {
                 Calendar.getInstance().getTimeInMillis(),
                 AlarmManager.INTERVAL_HOUR * 2,
                 pending);
+
     }
 }

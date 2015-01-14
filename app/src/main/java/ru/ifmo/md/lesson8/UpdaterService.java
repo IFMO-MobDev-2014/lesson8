@@ -73,7 +73,7 @@ public class UpdaterService extends IntentService {
             for (DummyContent.CitiesItem city : DummyContent.ITEMS) {
                 updateCity(city.woeid);
             }
-            receiver.send(AppResultReceiver.OK, Bundle.EMPTY);
+            receiver.send(AppResultReceiver.UPDATE, Bundle.EMPTY);
 
         }
         else if (id == -1) {
