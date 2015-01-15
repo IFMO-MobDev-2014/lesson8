@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +31,20 @@ public class ForecastAdapter extends ArrayAdapter<DummyContent.ForecastItem> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.forecast_element, parent, false);
+
+        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "font.ttf");
+
         TextView lowTemp = (TextView) convertView.findViewById(R.id.low);
         TextView highTemp = (TextView) convertView.findViewById(R.id.high);
         TextView date = (TextView) convertView.findViewById(R.id.forDate);
+
+        date.setTypeface(tf);
+        lowTemp.setTypeface(tf);
+        highTemp.setTypeface(tf);
+
         ImageView icon = (ImageView) convertView.findViewById(R.id.forIcon);
-        lowTemp.setText("Low: "  + forecast.get(position).lowTemp + " C");
-        highTemp.setText("High: " + forecast.get(position).highTemp + " C");
+        lowTemp.setText("Low: "  + forecast.get(position).lowTemp + "°C");
+        highTemp.setText("High: " + forecast.get(position).highTemp + "°C");
         Date date1 = new Date(forecast.get(position).date*1000L);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
         String formattedDate = sdf.format(date1);

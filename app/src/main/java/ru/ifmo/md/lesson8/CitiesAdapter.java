@@ -2,6 +2,7 @@ package ru.ifmo.md.lesson8;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;

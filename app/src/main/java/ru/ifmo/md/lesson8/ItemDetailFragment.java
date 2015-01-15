@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -42,6 +43,10 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
 
     View rootView;
     SwipeRefreshLayout refreshLayout;
+    TextView date;
+    TextView humidity;
+    TextView other;
+    TextView temp;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -68,6 +73,24 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             // to load content from a content provider.
             mItem = DummyContent.ITEM_MAP.get(getArguments().getInt(ARG_ITEM_ID));
             mWeatherItem = DummyContent.WEATHER_MAP.get(getArguments().getInt(ARG_ITEM_ID));
+
+
+            Typeface tf = Typeface.createFromAsset(getResources().getAssets(), "font.ttf");
+            date = (TextView) rootView.findViewById(R.id.something);
+            temp = (TextView) rootView.findViewById(R.id.temp);
+            other = (TextView) rootView.findViewById(R.id.other);
+            humidity = (TextView) rootView.findViewById(R.id.humadity);
+            date.setTypeface(tf);
+            temp.setTypeface(tf);
+            other.setTypeface(tf);
+            humidity.setTypeface(tf);
+            date.setVisibility(View.INVISIBLE);
+            humidity.setVisibility(View.INVISIBLE);
+            other.setVisibility(View.INVISIBLE);
+            (rootView.findViewById(R.id.forecastView)).setVisibility(View.INVISIBLE);
+            (rootView.findViewById(R.id.icon_weather)).setVisibility(View.INVISIBLE);
+            temp.setVisibility(View.INVISIBLE);
+
             getLoaderManager().initLoader(0, null, this);
             Intent intent = new Intent(getActivity(), UpdaterService.class);
             intent.putExtra("id", mItem.woeid);
@@ -75,12 +98,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             intent.putExtra("receiver", mReceiver);
             getActivity().startService(intent);
             upgrade();
-            (rootView.findViewById(R.id.something)).setVisibility(View.INVISIBLE);
-            (rootView.findViewById(R.id.humadity)).setVisibility(View.INVISIBLE);
-            (rootView.findViewById(R.id.other)).setVisibility(View.INVISIBLE);
-            (rootView.findViewById(R.id.forecastView)).setVisibility(View.INVISIBLE);
-            (rootView.findViewById(R.id.icon_weather)).setVisibility(View.INVISIBLE);
-            (rootView.findViewById(R.id.temp)).setVisibility(View.INVISIBLE);
+
             if (mItem != null) {
                 refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe);
                 refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -123,7 +141,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         (rootView.findViewById(R.id.other)).setVisibility(View.VISIBLE);
         (rootView.findViewById(R.id.forecastView)).setVisibility(View.VISIBLE);
         (rootView.findViewById(R.id.icon_weather)).setVisibility(View.VISIBLE);
-        ((TextView) rootView.findViewById(R.id.temp)).setText(data.current.temp+" C");
+        ((TextView) rootView.findViewById(R.id.temp)).setText(data.current.temp+"°C");
         Date date1 = new Date(data.current.date*1000L);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         String formattedDate = sdf.format(date1);

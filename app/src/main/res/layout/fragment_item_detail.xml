@@ -43,8 +43,7 @@
         android:shadowDy="3"
         android:shadowRadius="6"
         android:textColor="#666"
-        android:textSize="36sp"
-        android:textStyle="bold"
+        android:textSize="46sp"
         android:id="@+id/temp"
          />
 
@@ -54,6 +53,7 @@
 
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/something"
+        android:textSize="20sp"
         android:layout_gravity="center_horizontal" />
 
 
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
+            android:textSize="20sp"
             android:id="@+id/humadity" />
     </LinearLayout>
 
@@ -81,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
+            android:textSize="20sp"
             android:id="@+id/other" />
     </LinearLayout>
         </LinearLayout>
@@ -91,7 +91,7 @@
         android:layout_height="0dp"
         android:layout_weight="6"
         android:id="@+id/forecastView"
-        android:background="#4000"
+        android:background="#2000"
          />
 
 
