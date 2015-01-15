@@ -6,6 +6,8 @@
 
     <ru.ifmo.md.lesson8.CleanableAutoCompleteTextView
         android:id="@+id/search_box"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:background="@android:color/darker_gray"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

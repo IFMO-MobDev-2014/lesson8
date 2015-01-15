@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -238,7 +237,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
 
     // this toggles between the visibility of the search icon and the search box
     protected void toggleSearch(boolean reset) {
-        CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) findViewById(R.id.search_box);
+        final CleanableAutoCompleteTextView searchBox = (CleanableAutoCompleteTextView) findViewById(R.id.search_box);
         if (reset) {
             // hide search box and show search icon
             searchBox.setText("");
@@ -254,18 +253,12 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             invalidateOptionsMenu();
         } else {
             // hide search icon and show search box
-            searchBox.setFocusable(true);
-            searchBox.setFocusableInTouchMode(true);
             searchBox.setVisibility(View.VISIBLE);
-            // show the keyboard
-            if(searchBox.requestFocus()) {
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-            }
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-            imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
             searchBox.requestFocus();
-        }
+            // show the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
+       }
     }
 
     @Override
@@ -278,7 +271,6 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         switch (item.getItemId()) {
             case R.id.action_add:
                 toggleCityFinder();
-
                 item.setVisible(false);
                 return true;
             case R.id.action_settings:
