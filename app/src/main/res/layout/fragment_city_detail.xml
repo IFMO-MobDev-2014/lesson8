@@ -18,6 +18,15 @@
             android:background="@android:color/white">
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Last update: Thu, 15 Jan 2015 12:29 pm MSK"
+                android:id="@+id/tv_last_update"
+                android:fontFamily="sanf-serif-light"
+                android:gravity="start"
+                android:layout_margin="@dimen/internal_padding" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/internal_padding"
@@ -26,21 +35,27 @@
                 style="?android:attr/textAppearanceLarge"
                 android:text="Saint-Petersburg"
                 android:textIsSelectable="true"
-                android:layout_marginTop="@dimen/internal_padding"
                 android:background="#ffffbe00"
                 android:textColor="@android:color/white"
                 android:fontFamily="sans-serif" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/internal_padding"
-                android:id="@+id/weather_desc"
-                android:gravity="center"
-                style="?android:attr/textAppearanceLarge"
-                android:text="Party Cloudy"
-                android:layout_marginLeft="@dimen/internal_padding"
-                android:fontFamily="sans-serif-light" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/internal_padding"
+                    android:id="@+id/weather_desc"
+                    android:gravity="center"
+                    style="?android:attr/textAppearanceLarge"
+                    android:text="Party Cloudy"
+                    android:layout_marginLeft="@dimen/internal_padding"
+                    android:fontFamily="sans-serif-light" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -74,28 +89,6 @@
                     android:clickable="false"
                     android:fontFamily="sans-serif-thin"
                     android:text="-24&quot;" />
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.5"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        style="?android:attr/textAppearanceLarge"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:id="@+id/textView"/>
-
-                    <TextView
-                        style="?android:attr/textAppearanceLarge"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:id="@+id/textView2"/>
-                </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>
@@ -234,32 +227,49 @@
                     android:layout_marginRight="@dimen/internal_padding"
                     android:layout_marginTop="4dp">
 
-                    <TextView
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        style="?android:attr/textAppearanceLarge"
-                        android:id="@+id/forecast_date1"
-                        android:layout_weight="1"
-                        android:text="Wed"
-                        android:gravity="center"
-                        android:fontFamily="sans-serif-light" />
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/forecast_dayofweek1"
+                            android:text="Wed"
+                            android:gravity="center"
+                            android:fontFamily="sans-serif-light"
+                            android:layout_weight="1.5" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:text="16 January"
+                            android:id="@+id/forecast_date1"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"
+                            android:fontFamily="sans-serif"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.9">
+                        android:layout_weight="1">
 
                         <ImageView
                             android:layout_width="wrap_content"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:id="@+id/forecast_icon_1"
                             android:scaleType="center"
                             android:contentDescription="@null"
                             android:src="@drawable/w36"
-                            android:layout_gravity="center"
-                            android:layout_weight="0.8"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="false"
+                            android:layout_gravity="center" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -269,42 +279,22 @@
                             android:text="Party Cloudy"
                             android:layout_marginLeft="@dimen/internal_padding"
                             android:fontFamily="sans-serif"
-                            android:layout_gravity="center"
+                            android:layout_gravity="center_horizontal"
                             android:padding="@dimen/internal_padding" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:orientation="vertical"
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="14&quot;...18&quot;"
+                        android:id="@+id/forecast_temp1"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="?android:attr/textAppearanceLarge"
-                            android:id="@+id/min_temp1"
-                            android:text="MIN: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:layout_marginBottom="2dp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="?android:attr/textAppearanceLarge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/max_temp1"
-                            android:text="MAX: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#ffffa900" />
 
                 </LinearLayout>
 
@@ -324,15 +314,33 @@
                     android:layout_marginRight="@dimen/internal_padding"
                     android:layout_marginTop="4dp">
 
-                    <TextView
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        style="?android:attr/textAppearanceLarge"
-                        android:id="@+id/forecast_date2"
-                        android:layout_weight="1"
-                        android:text="Wed"
-                        android:gravity="center"
-                        android:fontFamily="sans-serif-light" />
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/forecast_dayofweek2"
+                            android:text="Wed"
+                            android:gravity="center"
+                            android:fontFamily="sans-serif-light"
+                            android:layout_weight="1.5" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:text="16 January"
+                            android:id="@+id/forecast_date2"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"
+                            android:fontFamily="sans-serif"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -348,7 +356,7 @@
                             android:contentDescription="@null"
                             android:src="@drawable/w36"
                             android:layout_gravity="center_horizontal"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="false" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -362,38 +370,18 @@
                             android:layout_gravity="center_horizontal" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:orientation="vertical"
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="14&quot;...18&quot;"
+                        android:id="@+id/forecast_temp2"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="?android:attr/textAppearanceLarge"
-                            android:id="@+id/min_temp2"
-                            android:text="MIN: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:layout_marginBottom="2dp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="?android:attr/textAppearanceLarge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/max_temp2"
-                            android:text="MAX: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#ffffa900" />
 
                 </LinearLayout>
 
@@ -413,15 +401,33 @@
                     android:layout_marginRight="@dimen/internal_padding"
                     android:layout_marginTop="4dp">
 
-                    <TextView
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        style="?android:attr/textAppearanceLarge"
-                        android:id="@+id/forecast_date3"
-                        android:layout_weight="1"
-                        android:text="Wed"
-                        android:gravity="center"
-                        android:fontFamily="sans-serif-light" />
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/forecast_dayofweek3"
+                            android:text="Wed"
+                            android:gravity="center"
+                            android:fontFamily="sans-serif-light"
+                            android:layout_weight="1.5" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:text="16 January"
+                            android:id="@+id/forecast_date3"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"
+                            android:fontFamily="sans-serif"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -437,7 +443,7 @@
                             android:contentDescription="@null"
                             android:src="@drawable/w36"
                             android:layout_gravity="center_horizontal"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="false" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -451,38 +457,18 @@
                             android:layout_gravity="center_horizontal" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:orientation="vertical"
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="14&quot;...18&quot;"
+                        android:id="@+id/forecast_temp3"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="?android:attr/textAppearanceLarge"
-                            android:id="@+id/min_temp3"
-                            android:text="MIN: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:layout_marginBottom="2dp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="?android:attr/textAppearanceLarge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/max_temp3"
-                            android:text="MAX: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#ffffa900" />
 
                 </LinearLayout>
 
@@ -502,15 +488,33 @@
                     android:layout_marginRight="@dimen/internal_padding"
                     android:layout_marginTop="4dp">
 
-                    <TextView
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        style="?android:attr/textAppearanceLarge"
-                        android:id="@+id/forecast_date4"
-                        android:layout_weight="1"
-                        android:text="Wed"
-                        android:gravity="center"
-                        android:fontFamily="sans-serif-light" />
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/forecast_dayofweek4"
+                            android:text="Wed"
+                            android:gravity="center"
+                            android:fontFamily="sans-serif-light"
+                            android:layout_weight="1.5" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:text="16 January"
+                            android:id="@+id/forecast_date4"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"
+                            android:fontFamily="sans-serif"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -526,7 +530,7 @@
                             android:contentDescription="@null"
                             android:src="@drawable/w36"
                             android:layout_gravity="center_horizontal"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="false" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -540,38 +544,18 @@
                             android:layout_gravity="center_horizontal" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:orientation="vertical"
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="14&quot;...18&quot;"
+                        android:id="@+id/forecast_temp4"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="?android:attr/textAppearanceLarge"
-                            android:id="@+id/min_temp4"
-                            android:text="MIN: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:layout_marginBottom="2dp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="?android:attr/textAppearanceLarge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/max_temp4"
-                            android:text="MAX: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#ffffa900" />
 
                 </LinearLayout>
 
@@ -591,15 +575,33 @@
                     android:layout_marginRight="@dimen/internal_padding"
                     android:layout_marginTop="4dp">
 
-                    <TextView
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        style="?android:attr/textAppearanceLarge"
-                        android:id="@+id/forecast_date5"
-                        android:layout_weight="1"
-                        android:text="Wed"
-                        android:gravity="center"
-                        android:fontFamily="sans-serif-light" />
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            style="?android:attr/textAppearanceLarge"
+                            android:id="@+id/forecast_dayofweek5"
+                            android:text="Wed"
+                            android:gravity="center"
+                            android:fontFamily="sans-serif-light"
+                            android:layout_weight="1.5" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:text="16 January"
+                            android:id="@+id/forecast_date5"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"
+                            android:fontFamily="sans-serif"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -615,7 +617,7 @@
                             android:contentDescription="@null"
                             android:src="@drawable/w36"
                             android:layout_gravity="center_horizontal"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="false" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -629,38 +631,18 @@
                             android:layout_gravity="center_horizontal" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:orientation="vertical"
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="14&quot;...18&quot;"
+                        android:id="@+id/forecast_temp5"
                         android:layout_weight="1"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="?android:attr/textAppearanceLarge"
-                            android:id="@+id/min_temp5"
-                            android:text="MIN: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:layout_marginBottom="2dp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="?android:attr/textAppearanceLarge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/max_temp5"
-                            android:text="MAX: 14&quot;"
-                            android:gravity="end"
-                            android:textColor="#ffffa900"
-                            android:textSize="18sp"
-                            android:fontFamily="sans-serif-light"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-light"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#ffffa900" />
 
                 </LinearLayout>
 

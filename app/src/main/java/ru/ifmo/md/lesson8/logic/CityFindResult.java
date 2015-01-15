@@ -10,6 +10,16 @@ public class CityFindResult {
     private String country;
     private String lastUpdate;
 
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    private String district;
+
     public CityFindResult() {}
 
     public String getLastUpdate() {

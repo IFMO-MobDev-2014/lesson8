@@ -12,7 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -76,7 +76,8 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         mUpdateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d("TAG", "updated came");
+                if (!isAdded())
+                    return;
                 Bundle argCity = new Bundle();
                 mCityId = Integer.parseInt(getArguments().getString(ARG_CITY_ID));
                 argCity.putString(ARG_CITY_ID, getArguments().getString(ARG_CITY_ID));
@@ -93,33 +94,12 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         return mRootView;
     }
 
-    /*
-        public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_WOEID = "woeid";
-    public static final String COLUMN_LASTUPD = "last_upd";
-    public static final String COLUMN_COUNTRY = "country";
-    public static final String COLUMN_CITY = "city";
-
-    public static final String COLUMN_CONDITION_DESCRIPTION = "condition_description";
-    public static final String COLUMN_CONDITION_TEMP = "condition_temp";
-    public static final String COLUMN_CONDITION_CODE = "condition_code";
-    public static final String COLUMN_CONDITION_DATE = "condition_date";
-
-    public static final String COLUMN_ATMOSPHERE_PRESSURE = "atmosphere_pressure";
-    public static final String COLUMN_ATMOSPHERE_HUMIDITY = "atmosphere_humidity";
-
-    public static final String COLUMN_WIND_DIRECTION = "wind_direction";
-    public static final String COLUMN_WIND_SPEED = "wind_speed";
-
-    public static final String COLUMN_FORECAST = "forecast";
-
-     */
-
     private void updateUserInterface() {
         if (mCursor == null) {
             return;
         }
         final String cityName = mCursor.getString(mCursor.getColumnIndex(WeatherTable.COLUMN_CITY));
+        final String lastUpdateDate = mCursor.getString(mCursor.getColumnIndex(WeatherTable.COLUMN_LASTUPD));
         final String weatherDesc = mCursor.getString(mCursor.getColumnIndex(WeatherTable.COLUMN_CONDITION_DESCRIPTION));
         final int temp = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_CONDITION_TEMP));
         final int currentWeatherIconId = getImageByCode(mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_CONDITION_CODE)));
@@ -127,11 +107,19 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         final String temperature = String.format("%d°", temp);
 //        final String lastUpdate = "Last update: " + mCursor.getString(mCursor.getColumnIndex(WeatherContract.City.CITY_LAST_UPDATE)) .replace("T", " ");
         final String humidityInfo = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_ATMOSPHERE_HUMIDITY)) + "%";
-        final String windInfo = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_SPEED)) + " kph " +
-                mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_DIRECTION)) + "°";
 
-        final double pressure = mCursor.getDouble(mCursor.getColumnIndex(WeatherTable.COLUMN_ATMOSPHERE_PRESSURE));
-        final String pressureInfo = String.format("%.1f mb", pressure);
+        long windSpeed = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_SPEED));
+        windSpeed = Math.round(windSpeed / 3.6);
+        int windAngle = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WIND_DIRECTION));
+        final String windInfo = windSpeed + " m/s " + getWindDirection(windAngle);
+
+        final double pressure = 0.7500637 * mCursor.getDouble(mCursor.getColumnIndex(WeatherTable.COLUMN_ATMOSPHERE_PRESSURE));
+        final String pressureInfo = String.format("%.1f mm Hg", pressure);
+
+        String lastUpdate = "Last update: " + lastUpdateDate;
+        if (TextUtils.isEmpty(lastUpdate))
+            lastUpdate = "";
+        ((TextView) mRootView.findViewById(R.id.tv_last_update)).setText(lastUpdate);
 
         ((ImageView) mRootView.findViewById(R.id.weather_icon))
                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), currentWeatherIconId));
@@ -155,60 +143,49 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
                 String day = parts[i];
                 String date = parts[i + 1];
                 String description = parts[i + 2];
-                String minTemp = "MIN: " + parts[i + 3] + "°";
-                String maxTemp = "MAX: " + parts[i + 4] + "°";
+                String minTemp = parts[i + 3] + "°";
+                String maxTemp = parts[i + 4] + "°";
+                String tempBounds = minTemp + "... " + maxTemp;
                 int code = Integer.parseInt(parts[i + 5]);
                 int index = i / 6;
 
-                //Wed|14 Jan 2015|Sunny|8|16|32|Thu|15 Jan 2015|Partly Cloudy|10|18|30|Fri|16 Jan 2015|Mo
-
-/*                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-                SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.ENGLISH);
-                try {
-                    Date dt = dateFormat.parse(date);
-                    date = toTitleCase(dayOfWeekFormat.format(dt));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-*/
-
                 switch (index) {
                     case 0:
-                        ((TextView) mRootView.findViewById(R.id.min_temp1)).setText(minTemp);
-                        ((TextView) mRootView.findViewById(R.id.max_temp1)).setText(maxTemp);
-                        ((TextView) mRootView.findViewById(R.id.forecast_date1)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_temp1)).setText(tempBounds);
+                        ((TextView) mRootView.findViewById(R.id.forecast_dayofweek1)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_date1)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc1)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_1))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
                         break;
                     case 1:
-                        ((TextView) mRootView.findViewById(R.id.min_temp2)).setText(minTemp);
-                        ((TextView) mRootView.findViewById(R.id.max_temp2)).setText(maxTemp);
-                        ((TextView) mRootView.findViewById(R.id.forecast_date2)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_temp2)).setText(tempBounds);
+                        ((TextView) mRootView.findViewById(R.id.forecast_dayofweek2)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_date2)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc2)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_2))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
                         break;
                     case 2:
-                        ((TextView) mRootView.findViewById(R.id.min_temp3)).setText(minTemp);
-                        ((TextView) mRootView.findViewById(R.id.max_temp3)).setText(maxTemp);
-                        ((TextView) mRootView.findViewById(R.id.forecast_date3)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_temp3)).setText(tempBounds);
+                        ((TextView) mRootView.findViewById(R.id.forecast_dayofweek3)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_date3)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc3)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_3))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
                         break;
                     case 3:
-                        ((TextView) mRootView.findViewById(R.id.min_temp4)).setText(minTemp);
-                        ((TextView) mRootView.findViewById(R.id.max_temp4)).setText(maxTemp);
-                        ((TextView) mRootView.findViewById(R.id.forecast_date4)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_temp4)).setText(tempBounds);
+                        ((TextView) mRootView.findViewById(R.id.forecast_dayofweek4)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_date4)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc4)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_4))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
                         break;
                     case 4:
-                        ((TextView) mRootView.findViewById(R.id.min_temp5)).setText(minTemp);
-                        ((TextView) mRootView.findViewById(R.id.max_temp5)).setText(maxTemp);
-                        ((TextView) mRootView.findViewById(R.id.forecast_date5)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_temp5)).setText(tempBounds);
+                        ((TextView) mRootView.findViewById(R.id.forecast_dayofweek5)).setText(day);
+                        ((TextView) mRootView.findViewById(R.id.forecast_date5)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc5)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_5))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
@@ -218,6 +195,43 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         } catch (ArrayIndexOutOfBoundsException e) {
             return;
         }
+    }
+
+    private String getWindDirection(int angle) {
+        double dAngle = angle * 1.0;
+        if (348.75 <= dAngle && dAngle <= 360.0 || 0 <= dAngle && dAngle <= 11.25)
+            return "N";
+        if (11.25 <= dAngle && dAngle <= 33.75)
+            return "NNE";
+        if (33.75 <= dAngle && dAngle <= 56.25)
+            return "NE";
+        if (56.25 <= dAngle && dAngle <= 78.75)
+            return "ENE";
+        if (78.75 <= dAngle && dAngle <= 101.25)
+            return "E";
+        if (101.25 <= dAngle && dAngle <= 123.75)
+            return "ESE";
+        if (123.75 <= dAngle && dAngle <= 146.25)
+            return "SE";
+        if (146.25 <= dAngle && dAngle <= 168.75)
+            return "SSE";
+        if (168.75 <= dAngle && dAngle <= 191.25)
+            return "S";
+        if (191.25 <= dAngle && dAngle <= 213.75)
+            return "SSW";
+        if (213.75 <= dAngle && dAngle <= 236.25)
+            return "SWW";
+        if (236.25 <= dAngle && dAngle <= 258.75)
+            return "WSW";
+        if (258.75 <= dAngle && dAngle <= 281.25)
+            return "W";
+        if (281.25 <= dAngle && dAngle <= 303.75)
+            return "WNW";
+        if (303.75 <= dAngle && dAngle <= 326.25)
+            return "NW";
+        if (326.25 <= dAngle && dAngle <= 348.75)
+            return "NNW";
+        return "?";
     }
 
     private int getImageByCode(int code) {

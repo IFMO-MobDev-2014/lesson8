@@ -2,13 +2,13 @@ package ru.ifmo.md.lesson8;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import ru.ifmo.md.lesson8.database.WeatherProvider;
 import ru.ifmo.md.lesson8.database.WeatherTable;
@@ -30,11 +30,13 @@ public class WeatherLoaderService extends IntentService {
     public static final String EXTRA_LATITUDE = "KEY_LATITUDE";
     public static final String EXTRA_LONGITUDE = "KEY_LONGTITUDE";
 
-    public static final long INTERVAL_NONE = -1;
+    public static final long INTERVAL_MANUALLY = -1;
     public static final long INTERVAL_ONE_HOUR = AlarmManager.INTERVAL_HOUR;
+    public static final long INTERVAL_HALF_HOUR = INTERVAL_ONE_HOUR / 2;
     public static final long INTERVAL_TWO_HOURS = INTERVAL_ONE_HOUR * 2;
     public static final long INTERVAL_SIX_HOURS = INTERVAL_ONE_HOUR * 6;
     public static final long INTERVAL_TWELVE_HOURS = INTERVAL_ONE_HOUR * 12;
+    public static final long INTERVAL_DAY = AlarmManager.INTERVAL_DAY;
 
     public WeatherLoaderService() {
         super("WeatherLoaderService");
@@ -90,7 +92,7 @@ public class WeatherLoaderService extends IntentService {
         context.startService(intent);
     }
 
-    private static long readInterval(Context context) {
+    public static long getInterval(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getLong("shared_interval", INTERVAL_ONE_HOUR);
     }
@@ -102,18 +104,40 @@ public class WeatherLoaderService extends IntentService {
                 .commit();
     }
 
+    public static int getCurrentCity(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt("shared_current_city", 2123260);
+    }
+
+    public static void setCurrentCity(Context context, int cityWoeid) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt("shared_current_city", cityWoeid)
+                .commit();
+    }
+
+    public static boolean isServiceAlarmOn(Context context) {
+        Intent i = new Intent(context, WeatherLoaderService.class);
+        PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_NO_CREATE);
+        return pi != null;
+    }
+
+    public static void setServiceAlarm(Context context, boolean isOn) {
+        Intent intent = new Intent(context, WeatherLoaderService.class);
+        intent.setAction(ACTION_UPDATE_ALL);
+        PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (isOn) {
+            alarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), getInterval(context), pi);
+        } else {
+            alarmManager.cancel(pi);
+            pi.cancel();
+        }
+    }
+
     private CityWeather loadWeather(int woeid) {
-        CityWeather result = YahooClient.getWeather(woeid);
-
-        Log.d("TAG", "-----------------------");
-        Log.d("TAG", "aaa" + result.location.name);
-        Log.d("TAG", "aaa" + result.lastUpdate);
-        Log.d("TAG", "aaa" + result.condition.description);
-        Log.d("TAG", "aaa" + result.condition.temp);
-        Log.d("TAG", "aaa" + result.condition.date);
-        Log.d("TAG", "-----------------------");
-
-        return result;
+        return YahooClient.getWeather(woeid);
     }
 
     private void actionAddCity(int woeid) {
@@ -124,6 +148,7 @@ public class WeatherLoaderService extends IntentService {
                 new String[] {String.valueOf(woeid)},
                 null);
         final boolean updateNotInsert = cursor.getCount() > 0;
+        cursor.close();
 
         CityWeather weather = loadWeather(woeid);
         ContentValues contentValues = weather.getContentValues();
@@ -136,11 +161,17 @@ public class WeatherLoaderService extends IntentService {
     }
 
     private void actionAddCity(double latitude, double longitude) {
-        int woeid = YahooClient.getWoeidByCoord(latitude, longitude);
+        int woeid;
+        if (Math.abs(latitude - 59.97) < 0.3 && Math.abs(longitude - 30.20) < 0.3)
+            woeid = 2123260; // Saint Petersburg
+        else
+            woeid = YahooClient.getWoeidByCoord(latitude, longitude);
         actionAddCity(woeid);
+        setCurrentCity(getApplicationContext(), woeid);
     }
 
     private void actionUpdateCity(int cityId, int cityWoeid) {
+//        Log.d("TAG", "action update city_id = " + cityId + "cityWoeid = " + cityWoeid);
         CityWeather weather = loadWeather(cityWoeid);
         ContentValues contentValues = weather.getContentValues();
         contentValues.put(WeatherTable.COLUMN_WOEID, cityWoeid);

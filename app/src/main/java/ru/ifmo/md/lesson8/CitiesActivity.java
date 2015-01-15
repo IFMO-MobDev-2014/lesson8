@@ -3,6 +3,8 @@ package ru.ifmo.md.lesson8;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -11,22 +13,25 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ifmo.md.lesson8.database.WeatherProvider;
+import ru.ifmo.md.lesson8.database.WeatherTable;
 import ru.ifmo.md.lesson8.logic.CityFindResult;
 import ru.ifmo.md.lesson8.logic.YahooClient;
 
@@ -35,6 +40,8 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
     private boolean mTwoPane;
     private DrawerLayout myDrawerLayout;
     private ActionBarDrawerToggle myDrawerToggle;
+    private LocationManager locationManager;
+    private String provider;
 
     private CharSequence myDrawerTitle;
     private CharSequence myTitle;
@@ -73,37 +80,38 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             };
             myDrawerLayout.setDrawerListener(myDrawerToggle);
         }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(provider);
 
-        // TODO: add detecting current city
-//        double [] coordinates =  getLastLocation();
-//        Log.d("FIRST = ", "" + coordinates[0]);
-//        Log.d("SECOND = ", "" + coordinates[1]);
+        if (location != null) {
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+//            Log.d("Latitude", "" + latitude);
+//            Log.d("Longitude", "" + longitude);
+            WeatherLoaderService.startActionAddNewCity(getApplicationContext(), latitude, longitude);
+        } else {
+            Toast.makeText(this, "Your location is not available now", Toast.LENGTH_LONG).show();
+        }
+        showFirstCityWeather();
        // TODO: If exposing deep links into your app, handle intents here.
     }
 
-    private double[] getLastLocation() {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        List<String> providers = lm.getProviders(true);
-        Location location = null;
-
-        for (int i = providers.size() - 1; i >= 0; i--) {
-            Location lt = lm.getLastKnownLocation(providers.get(i));
-            if (lt != null) {
-                Log.d("TAG", "provider: " + lt.getProvider());
-                Log.d("TAG", "latitude: " + lt.getLatitude());
-                Log.d("TAG", "longitude: " + lt.getLongitude());
-                location = lt;
-                break;
-            }
-        }
-
-        double[] coordinates = null;
-        if (location != null) {
-            coordinates = new double[2];
-            coordinates[0] = location.getLatitude();
-            coordinates[1] = location.getLongitude();
-        }
-        return coordinates;
+    private void showFirstCityWeather() {
+        final int currentCityWoeid = WeatherLoaderService.getCurrentCity(getApplicationContext());
+        Cursor cursor = getContentResolver().query(
+                WeatherProvider.CONTENT_URI,
+                new String[] {WeatherTable.COLUMN_ID, WeatherTable.COLUMN_WOEID},
+                WeatherTable.COLUMN_WOEID + " = ?",
+                new String[] {String.valueOf(currentCityWoeid)},
+                null);
+        if (cursor == null)
+            return;
+        cursor.moveToFirst();
+        final int currentCityRowId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_ID));
+        cursor.close();
+        onItemSelected(String.valueOf(currentCityRowId));
     }
 
     // Callback indicating that the item with the given ID was selected.
@@ -114,7 +122,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
         CityDetailFragment fragment = new CityDetailFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                //                    .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                 .replace(R.id.city_detail_container, fragment)
                 .commit();
         if (!mTwoPane)
@@ -151,7 +159,7 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
                 result = inf.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
             }
             TextView tv = (TextView) result.findViewById(android.R.id.text1);
-            tv.setText(cityList.get(position).getCityName() + ", " + cityList.get(position).getCountry());
+            tv.setText(cityList.get(position).getCityName() + ", " + cityList.get(position).getDistrict() + ", " + cityList.get(position).getCountry());
             return result;
         }
 
@@ -246,11 +254,17 @@ public class CitiesActivity extends ActionBarActivity implements CityListFragmen
             invalidateOptionsMenu();
         } else {
             // hide search icon and show search box
+            searchBox.setFocusable(true);
+            searchBox.setFocusableInTouchMode(true);
             searchBox.setVisibility(View.VISIBLE);
-            searchBox.requestFocus();
             // show the keyboard
+            if(searchBox.requestFocus()) {
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            }
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
+            searchBox.requestFocus();
         }
     }
 

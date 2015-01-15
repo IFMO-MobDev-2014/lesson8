@@ -1,6 +1,7 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,13 +9,16 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
+import android.support.v4.widget.CursorAdapter;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import ru.ifmo.md.lesson8.database.WeatherProvider;
 import ru.ifmo.md.lesson8.database.WeatherTable;
@@ -22,7 +26,7 @@ import ru.ifmo.md.lesson8.database.WeatherTable;
 public class CityListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LOADER_CITIES = 0;
-    private SimpleCursorAdapter mAdapter;
+    private CursorAdapter mAdapter;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
@@ -89,18 +93,30 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mAdapter = new CursorAdapter(getActivity(), null, false) {
+            @Override
+            public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                return LayoutInflater.from(context).inflate(
+                        android.R.layout.simple_list_item_activated_1, parent, false);
+            }
 
-        mAdapter = new SimpleCursorAdapter(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                null,
-                new String[]{WeatherTable.COLUMN_CITY},
-                new int[]{android.R.id.text1},
-                0);
+            @Override
+            public void bindView(View view, Context context, Cursor cursor) {
+                final String city = cursor.getString(cursor.getColumnIndex(WeatherTable.COLUMN_CITY));
+                final TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setText(city);
+                final long cityWoeid = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+                final long currentCityWeatherId = WeatherLoaderService.getCurrentCity(getActivity());
+                if (cityWoeid == currentCityWeatherId) {
+                    textView.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_mylocation, 0, 0, 0);
+                }
+            }
+        };
         setListAdapter(mAdapter);
         registerForContextMenu(getListView());
         getLoaderManager().initLoader(LOADER_CITIES, Bundle.EMPTY, this);
     }
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -125,16 +141,25 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
+    private void showFirstCityWeather() {
+        getListView().performItemClick(mAdapter.getView(0, null, null), 0, mAdapter.getItemId(0));
+    }
+
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.action_delete:
                 Cursor cursor = (Cursor) getListAdapter().getItem(acmi.position);
-                final int cityId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
-                Log.d("TAG", "delete city woeid = " + cityId);
-                getActivity().getContentResolver().delete(
-                        WeatherProvider.buildCityUri(Integer.toString(cityId)), null, null);
+                final int cityId = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_ID));
+                final int cityWoeid = cursor.getInt(cursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+                final int currentCityWoeid = WeatherLoaderService.getCurrentCity(getActivity());
+                if (cityWoeid == currentCityWoeid) {
+                    Toast.makeText(getActivity(), "You cannot delete current city", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                showFirstCityWeather();
+                getActivity().getContentResolver().delete(WeatherProvider.buildCityUri(Integer.toString(cityId)), null, null);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -156,7 +181,6 @@ public class CityListFragment extends ListFragment implements LoaderManager.Load
         } else {
             getListView().setItemChecked(position, true);
         }
-
         mActivatedPosition = position;
     }
 }

@@ -80,12 +80,10 @@ public class YahooClient {
         HttpURLConnection yahooHttpConn = null;
         try {
             String query = makeQueryCityURL(cityName);
-            //Log.d("Swa", "URL [" + query + "]");
             yahooHttpConn = (HttpURLConnection) (new URL(query)).openConnection();
             yahooHttpConn.connect();
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
             parser.setInput(new InputStreamReader(yahooHttpConn.getInputStream()));
-//            Log.d("Swa", "XML Parser ok");
             int event = parser.getEventType();
 
             CityFindResult cty = null;
@@ -112,6 +110,9 @@ public class YahooClient {
                                 break;
                             case "country":
                                 cty.setCountry(parser.getText());
+                                break;
+                            case "admin1":
+                                cty.setDistrict(parser.getText());
                                 break;
                         }
                     }
@@ -141,6 +142,7 @@ public class YahooClient {
             String query = makeWeatherURL(String.valueOf(woeid), "c");
             yahooHttpConn = (HttpURLConnection) (new URL(query)).openConnection();
             yahooHttpConn.connect();
+
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
             parser.setInput(new InputStreamReader(yahooHttpConn.getInputStream()));
 
@@ -211,8 +213,11 @@ public class YahooClient {
                         currentTag = null;
                     }
                 } else if (event == XmlPullParser.TEXT) {
-                    if ("update".equals(currentTag))
-                        result.lastUpdate = parser.getText();
+                    String text = parser.getText();
+                    if ("update".equals(currentTag)) {
+                        result.lastUpdate = text;
+                        currentTag = "another";
+                    }
                 }
                 event = parser.next();
             }
