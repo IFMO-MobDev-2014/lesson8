@@ -1,8 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/back"
     >
 
     <LinearLayout
@@ -45,13 +47,31 @@
             android:id="@+id/textView2"
             android:textStyle="italic" />
     </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/item_list"
-    android:name="ru.ifmo.md.lesson8.ItemListFragment" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp" tools:context=".ItemListActivity"
-    tools:layout="@android:layout/list_content" />
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/item_list"
+            android:name="ru.ifmo.md.lesson8.ItemListFragment" android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp" tools:context=".ItemListActivity"
+            tools:layout="@android:layout/list_content"
+            />
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/item_open"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent" android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:name="ru.ifmo.md.lesson8.ItemDetailFragment"
+            tools:layout="@layout/fragment_item_detail"
+            />
+    </LinearLayout>
+
 
 
 

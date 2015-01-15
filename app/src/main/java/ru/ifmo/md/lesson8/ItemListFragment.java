@@ -3,10 +3,13 @@ package ru.ifmo.md.lesson8;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+
+import java.util.ArrayList;
 
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
@@ -19,7 +22,7 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<ArrayList<DummyContent.CitiesItem>> {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -38,6 +41,26 @@ public class ItemListFragment extends ListFragment {
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
+
+
+
+    @Override
+    public Loader<ArrayList<DummyContent.CitiesItem>> onCreateLoader(int id, Bundle args) {
+        return new CitiesLoader(getActivity());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<DummyContent.CitiesItem>> loader, ArrayList<DummyContent.CitiesItem> data) {
+        setListAdapter(new CitiesAdapter(getActivity(), data));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<ArrayList<DummyContent.CitiesItem>> loader) {
+        setListAdapter(new CitiesAdapter(getActivity(),new ArrayList<DummyContent.CitiesItem>()));
+    }
+
+
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -47,7 +70,7 @@ public class ItemListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(int position);
     }
 
     /**
@@ -56,7 +79,7 @@ public class ItemListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(int position) {
         }
     };
 
@@ -71,12 +94,8 @@ public class ItemListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        setListAdapter(new CitiesAdapter(getActivity(), DummyContent.ITEMS));
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -114,9 +133,10 @@ public class ItemListFragment extends ListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
+
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(position);
     }
 
     @Override
@@ -148,5 +168,8 @@ public class ItemListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+    public void update() {
+        getLoaderManager().restartLoader(0, null, this);
     }
 }

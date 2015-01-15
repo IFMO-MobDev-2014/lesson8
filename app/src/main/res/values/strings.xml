@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Weather</string>
+    <string name="app_name">ITMO Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="open">Opened</string>
+    <string name="close">Closed</string>
+    <string name="action_search">Search</string>
 
 </resources>
