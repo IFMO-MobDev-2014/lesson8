@@ -12,21 +12,17 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 import ru.eugene.weather.ContentProviders.WeatherProvider;
@@ -73,6 +69,7 @@ public class DetailWeather extends Activity implements LoaderManager.LoaderCallb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_weather);
+        getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar));
         link = getIntent().getStringExtra(CityDataSource.COLUMN_LINK);
         idCity = getIntent().getIntExtra(CityDataSource.COLUMN_ID, -1);
         tempView = (TextView) findViewById(R.id.temp);
@@ -176,9 +173,15 @@ public class DetailWeather extends Activity implements LoaderManager.LoaderCallb
 
     private String getValue(int a) {
         if (a >= 0) {
-            return "+" + a;
+            if (a < 10) {
+                return "  " + a;
+            } else {
+                return " " + a;
+            }
+        } else if (a > -10) {
+            return " " + a;
         }
-        return String.valueOf(a);
+        return "" + a;
     }
 
     private void updInterface(ArrayList<WeatherItem> items) throws ParseException {
@@ -207,38 +210,32 @@ public class DetailWeather extends Activity implements LoaderManager.LoaderCallb
             ((TextView) findViewById(R.id.visibility)).setText("Visibility " + Double.toString(mainItem.getVisibility()) + "km");
         }
 
-        ((TextView) findViewById(R.id.max)).setText("↑" + mainItem.getTempMax() + "° ");
-        ((TextView) findViewById(R.id.min)).setText("↓" + mainItem.getTempMin() + "°");
+        ((TextView) findViewById(R.id.min)).setText(mainItem.getTempMin() + "° .. " + mainItem.getTempMax() + "° ");
 
         SimpleDateFormat parserSDF1 = new SimpleDateFormat("EEE", Locale.US);
         SimpleDateFormat parserSDF2 = new SimpleDateFormat("EEEE", Locale.US);
         WeatherItem day1 = items.get(1);
         String date1 = parserSDF2.format(parserSDF1.parse(day1.getPubDate()));
-        ((TextView) findViewById(R.id.day1)).setText(date1);
-        ((TextView) findViewById(R.id.tempMax1)).setText("↑" + getValue(day1.getTempMax()) + "° ");
-        ((TextView) findViewById(R.id.tempMin1)).setText("↓" + getValue(day1.getTempMin()) + "°");
+        ((TextView) findViewById(R.id.day1)).setText(" " + date1);
+        ((TextView) findViewById(R.id.tempMin1)).setText(getValue(day1.getTempMin()) + "° .. "+ getValue(day1.getTempMax()) + "° ");
 
         WeatherItem day2 = items.get(2);
         String date2 = parserSDF2.format(parserSDF1.parse(day2.getPubDate()));
-        ((TextView) findViewById(R.id.day2)).setText(date2);
-        ((TextView) findViewById(R.id.tempMax2)).setText("↑" + getValue(day2.getTempMax()) + "° ");
-        ((TextView) findViewById(R.id.tempMin2)).setText("↓" + getValue(day2.getTempMin()) + "°");
+        ((TextView) findViewById(R.id.day2)).setText(" " + date2);
+        ((TextView) findViewById(R.id.tempMin2)).setText(getValue(day2.getTempMin()) + "° .. " + getValue(day2.getTempMin()) + "° ");
 
         WeatherItem day3 = items.get(3);
         String date3 = parserSDF2.format(parserSDF1.parse(day3.getPubDate()));
-        ((TextView) findViewById(R.id.day3)).setText(date3);
-        ((TextView) findViewById(R.id.tempMax3)).setText("↑" + getValue(day3.getTempMax()) + "° ");
-        ((TextView) findViewById(R.id.tempMin3)).setText("↓" + getValue(day3.getTempMin()) + "°");
+        ((TextView) findViewById(R.id.day3)).setText(" " + date3);
+        ((TextView) findViewById(R.id.tempMin3)).setText(getValue(day3.getTempMin()) + "° .. " + getValue(day3.getTempMin()) + "° ");
 
         WeatherItem day4 = items.get(4);
         String date4 = parserSDF2.format(parserSDF1.parse(day4.getPubDate()));
-        ((TextView) findViewById(R.id.day4)).setText(date4);
-        ((TextView) findViewById(R.id.tempMax4)).setText("↑" + getValue(day4.getTempMax()) + "° ");
-        ((TextView) findViewById(R.id.tempMin4)).setText("↓" + getValue(day4.getTempMin()) + "°");
+        ((TextView) findViewById(R.id.day4)).setText(" " + date4);
+        ((TextView) findViewById(R.id.tempMin4)).setText(getValue(day4.getTempMin()) + "° .. " + getValue(day4.getTempMin()) + "° ");
 
 
 
-        Log.i("LOG", "items.size() : " + items.size());
 //        for (WeatherItem item : items) {
 //            Log.i("LOG", item.getText());
 //        }

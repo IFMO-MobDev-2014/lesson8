@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:background="@drawable/big">
+    android:background="@drawable/ddd">
 
     <LinearLayout
         android:orientation="horizontal"

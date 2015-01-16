@@ -2,15 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/big"
+    android:background="@drawable/ddd"
     android:orientation="horizontal"
     tools:context="ru.eugene.weather.DetailWeather">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="5dp">
+        android:layout_margin="5dp"
+        android:layout_weight="1.1">
 
         <TextView
             android:id="@+id/city"
@@ -21,7 +22,7 @@
             android:layout_alignParentTop="true"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#fff"
-            android:textSize="30dp"/>
+            android:textSize="30dp" />
 
         <TextView
             android:id="@+id/city2"
@@ -32,7 +33,7 @@
             android:layout_below="@+id/city"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#fff"
-            android:textSize="15dp"/>
+            android:textSize="15dp" />
 
         <TextView
             android:id="@+id/text"
@@ -43,8 +44,7 @@
             android:layout_alignParentStart="true"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#fff"
-            android:textSize="25dp"
-            />
+            android:textSize="25dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -73,8 +73,7 @@
                     android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="#fff"
-                    android:textSize="22dp"
-                    />
+                    android:textSize="22dp" />
 
                 <TextView
                     android:id="@+id/visibility"
@@ -87,8 +86,7 @@
                     android:singleLine="false"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="#fff"
-                    android:textSize="22dp"
-                    />
+                    android:textSize="22dp" />
 
             </LinearLayout>
 
@@ -100,44 +98,20 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="end">
 
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/min"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@+id/temp"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:textColor="#fff"
-                        android:textSize="25dp"
-                        android:singleLine="false"
-                        />
-
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:id="@+id/max"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/temp"
-                        android:layout_alignStart="@+id/temp"
-                        android:layout_below="@+id/temp"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:textColor="#fff"
-                        android:textSize="25dp"
-                        />
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/temp"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#fff"
+                    android:textSize="25dp"
+                    android:singleLine="false" />
 
                 <TextView
                     android:id="@+id/temp"
@@ -155,31 +129,21 @@
 
     </LinearLayout>
 
-    <Space
-        android:layout_width="20dp"
-        android:layout_height="40dp" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <TableLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/visibility"
-        android:orientation="vertical"
+        android:layout_height="fill_parent"
         android:layout_margin="5dp"
         android:layout_weight="1">
 
-        <LinearLayout
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@+id/day1"
-            android:layout_centerHorizontal="true"
+            android:layout_height="0dp"
             android:background="@drawable/background"
             android:layout_weight="1"
             android:gravity="center|center_vertical|center_horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/day1"
                 android:layout_alignParentTop="true"
@@ -187,60 +151,39 @@
                 android:textColor="#fff"
                 android:textSize="25dp"
                 android:alpha="1"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <Space
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tempMin1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp"
-                    android:singleLine="false"/>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/tempMax1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/temp"
-                    android:layout_alignStart="@+id/temp"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp"/>
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <Space
-            android:layout_width="fill_parent"
-            android:layout_height="5dp" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/background"
-            android:gravity="center|clip_horizontal|clip_vertical">
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/tempMin1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/temp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#fff"
+                android:textSize="25dp"
+                android:singleLine="false" />
+        </TableRow>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp" />
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/background"
+            android:layout_weight="1"
+            android:gravity="center|center_vertical|center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/day2"
                 android:layout_alignParentTop="true"
@@ -250,59 +193,37 @@
                 android:alpha="1"
                 android:layout_weight="1" />
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    android:id="@+id/tempMin2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp"
-                    android:singleLine="false" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/tempMax2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/temp"
-                    android:layout_alignStart="@+id/temp"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <Space
-            android:layout_width="fill_parent"
-            android:layout_height="5dp" />
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@+id/day3"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/background"
-            android:layout_weight="1"
-            android:gravity="center|center_horizontal|clip_vertical">
+                android:layout_weight="1" />
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/tempMin2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/temp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#fff"
+                android:textSize="25dp"
+                android:singleLine="false" />
+        </TableRow>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp" />
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/background"
+            android:layout_weight="1"
+            android:gravity="center|center_vertical|center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/day3"
                 android:layout_alignParentTop="true"
@@ -312,59 +233,37 @@
                 android:alpha="1"
                 android:layout_weight="1" />
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1" />
 
-                <TextView
-                    android:id="@+id/tempMin3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp"
-                    android:singleLine="false" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/tempMax3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/temp"
-                    android:layout_alignStart="@+id/temp"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp" />
-            </LinearLayout>
-
-        </LinearLayout>
+            <TextView
+                android:id="@+id/tempMin3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/temp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#fff"
+                android:textSize="25dp"
+                android:singleLine="false" />
+        </TableRow>
 
         <Space
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="5dp" />
 
-        <LinearLayout
+        <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@+id/day4"
-            android:layout_centerHorizontal="true"
+            android:layout_height="0dp"
             android:background="@drawable/background"
             android:layout_weight="1"
             android:gravity="center|center_vertical|center_horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/day4"
                 android:layout_alignParentTop="true"
@@ -374,44 +273,24 @@
                 android:alpha="1"
                 android:layout_weight="1" />
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1" />
 
-                <TextView
-                    android:id="@+id/tempMin4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp"
-                    android:singleLine="false" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/tempMax4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/temp"
-                    android:layout_alignStart="@+id/temp"
-                    android:layout_below="@+id/temp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="#fff"
-                    android:textSize="25dp" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tempMin4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/temp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#fff"
+                android:textSize="25dp"
+                android:singleLine="false" />
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>
 

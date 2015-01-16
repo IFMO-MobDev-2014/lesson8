@@ -1,59 +1,38 @@
 package ru.eugene.weather;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.LoaderManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.InputStream;
-import java.security.ProviderException;
-import java.util.ArrayList;
-import java.util.Scanner;
-
 import ru.eugene.weather.ContentProviders.WeatherProvider;
 import ru.eugene.weather.database.CityDataSource;
 import ru.eugene.weather.database.CityItem;
 import ru.eugene.weather.database.WeatherInfoDataSource;
-import ru.eugene.weather.database.WeatherItem;
-import ru.eugene.weather.downloadWeather.ServiceDownload;
 
 
 public class MainActivity extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -70,6 +49,7 @@ public class MainActivity extends ListActivity implements LoaderManager.LoaderCa
         Log.i("LOG", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar));
         listView = getListView();
         String[] fromColumns = new String[]{CityDataSource.COLUMN_CITY};
         int[] toControlIds = new int[]{android.R.id.text1};
@@ -154,6 +134,8 @@ public class MainActivity extends ListActivity implements LoaderManager.LoaderCa
                 cv.put(CityDataSource.COLUMN_CITY, nameCity);
                 cv.put(CityDataSource.COLUMN_LINK, linkCity);
                 getContentResolver().insert(WeatherProvider.CONTENT_URI_CITY, cv);
+
+                city.setText("");
 
                 View view = getCurrentFocus();
                 if (view != null) {
