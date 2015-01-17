@@ -2,6 +2,16 @@
 <resources>
 
     <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="toggle_open">Open city list</string>
+    <string name="toggle_close">Close city list</string>
+    <string name="city_list">Cities</string>
+    <string name="description_refresh">lalala</string>
+    <string name="action_add">Add</string>
+    <string name="action_set_update">Set update interval</string>
+    <string name="action_update">Update</string>
+    <string name="action_delete">Remove</string>
+    <string name="string_settings_title">Interval settings</string>
+    <string name="string_search_city">Search city</string>
+    <string name="no_connection">Network connection is not available</string>
 
 </resources>
