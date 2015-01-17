@@ -3,5 +3,25 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="degree">\u00b0</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_add">Add</string>
+    <string name="action_locate">Locate</string>
+    <string name="internet_problem">No internet connection</string>
+    <string name="parse_problem">We can\'t parse the weather</string>
+    <string name="current_city_weather_refreshed">Current city weather is refreshed</string>
+    <string name="current_location_weather_refreshed">Current location weather is refreshed</string>
+    <string name="there_is_no_any_city">There is no any city in the Cities List</string>
+    <string name="city">City</string>
+    <string name="already_added">This city is already added to the Cities List</string>
+    <string name="gps_internet_enabled">We can\'t determine your location. Please enable GPS or Internet and try again</string>
+    <string name="gps_enabled">GPS is disabled. Please, enable it or try another way</string>
+    <string name="internet_enabled">Internet is disabled. Please, enable it or try another way</string>
+    <string name="internet_gps_problem">No internet connection. Enable internet and try update location again</string>
+    <string name="which_way">"Which way should we use for determining your location now?\nIf determining is too long, please try another way."</string>
+    <string name="internet_not_allowed">You should allow to use Internet for determining location in your Phone Settings</string>
 
 </resources>
