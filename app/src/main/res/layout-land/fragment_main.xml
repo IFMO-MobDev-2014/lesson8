@@ -53,7 +53,7 @@
                 android:textColor="#FFF"/>
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
@@ -81,16 +81,14 @@
                     android:layout_height="wrap_content"
                     android:textColor="#FFF"
                     android:padding="5dp" />
+                <TextView
+                    android:id="@+id/weather_mood"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFF"
+                    android:padding="5dp" />
                 </LinearLayout>
             </LinearLayout>
-        <TextView
-            android:id="@+id/weather_mood"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#FFF"
-            android:textSize="20sp"
-            android:padding="20dp" />
 
         <LinearLayout
             android:id="@+id/weather_future"

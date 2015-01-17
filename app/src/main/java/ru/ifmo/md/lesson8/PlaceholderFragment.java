@@ -1,5 +1,6 @@
 package ru.ifmo.md.lesson8;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,11 +8,8 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.method.CharacterPickerDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +24,6 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -43,7 +40,10 @@ public class PlaceholderFragment extends Fragment {
     TextView mood;
     LinearLayout futureList;
 
-    Handler handler = new Handler();
+    Context context;
+
+    ResponseReceiver responseReceiver;
+    IntentFilter mStatusIntentFilter;
 
     private static final String ARG_SECTION_CITY = "section_city";
 
@@ -55,8 +55,12 @@ public class PlaceholderFragment extends Fragment {
         return fragment;
     }
 
-    public PlaceholderFragment() {
-        handler = new Handler();
+    public PlaceholderFragment() {}
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        context = activity;
     }
 
     @Override
@@ -64,8 +68,7 @@ public class PlaceholderFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-//        Log.i("", "PLACEHOLDER ON_CREATE");
-        weatherFont = Typeface.createFromAsset(getActivity().getAssets(), "fonts/weather.ttf");
+        weatherFont = Typeface.createFromAsset(context.getAssets(), "fonts/weather.ttf");
 
         date = (TextView) rootView.findViewById(R.id.weather_date);
         sign = (TextView) rootView.findViewById(R.id.weather_sign);
@@ -88,42 +91,53 @@ public class PlaceholderFragment extends Fragment {
             }
         });
 
-        Cursor cursor = getActivity().getContentResolver().query(
+        Cursor cursor = context.getContentResolver().query(
                 Weather.JustWeather.CONTENT_URI,
                 null,
                 Weather.JustWeather.CITY_NAME + "=\""
                         + getArguments().getString(ARG_SECTION_CITY) + "\"",
                 null, null);
         cursor.moveToLast();
+
         try {
-            JSONObject json = new JSONObject(cursor.getString(2));
+            JSONObject json = new JSONObject(cursor.getString(Weather.JustWeather.TODAY_COLUMN));
             renderToday(json);
-            json = new JSONObject(cursor.getString(3));
+            json = new JSONObject(cursor.getString(Weather.JustWeather.FUTURE_COLUMN));
             renderForecast(json);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        cursor.close();
 
-        IntentFilter mStatusIntentFilter = new IntentFilter(
+        mStatusIntentFilter = new IntentFilter(
                 WeatherIntentService.BROADCAST_ACTION);
-        ResponseReceiver responseReceiver = new ResponseReceiver();
-        LocalBroadcastManager.getInstance(getActivity())
-                .registerReceiver(responseReceiver, mStatusIntentFilter);
-
-        updateWeatherData(getArguments().getString(ARG_SECTION_CITY));
+        responseReceiver = new ResponseReceiver();
 
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(context)
+                .registerReceiver(responseReceiver, mStatusIntentFilter);
+        updateWeatherData(getArguments().getString(ARG_SECTION_CITY));
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(context)
+                .unregisterReceiver(responseReceiver);
+        super.onPause();
+    }
+
     private void updateWeatherData(final String city) {
-//        Log.i("", "PLACEHOLDER UPDATE_WEATHER_DATA");
-        Intent intent = new Intent(getActivity(), WeatherIntentService.class);
+        Intent intent = new Intent(context, WeatherIntentService.class);
         intent.putExtra(WeatherIntentService.EXTRA_CITY, city);
-        getActivity().startService(intent);
+        context.startService(intent);
     }
 
     private void renderToday(JSONObject json) {
-//        Log.i("", "PLACEHOLDER RENDER_WEATHER");
         try {
             JSONObject details = json.getJSONArray("weather").getJSONObject(0);
             JSONObject main = json.getJSONObject("main");
@@ -144,8 +158,8 @@ public class PlaceholderFragment extends Fragment {
                     json.getJSONObject("sys").getLong("sunrise") * 1000,
                     json.getJSONObject("sys").getLong("sunset") * 1000));
         } catch (Exception e) {
-            //showToast(getString(R.string.error_message));
-            Log.e("SimpleWeather", "One or more fields not found in the JSON data");
+            showToast(context.getString(R.string.error_message));
+            e.printStackTrace();
         }
     }
 
@@ -169,7 +183,7 @@ public class PlaceholderFragment extends Fragment {
                 String dayTemp = String.format("%.0f", day.getJSONObject("temp")
                         .getDouble("day")) + " ℃";
 
-                LinearLayout item = (LinearLayout) LayoutInflater.from(getActivity())
+                LinearLayout item = (LinearLayout) LayoutInflater.from(context)
                         .inflate(R.layout.future_weather_item, null);
                 ((TextView) item.findViewById(R.id.item_date)).setText(dayDate);
                 ((TextView) item.findViewById(R.id.item_sign)).setTypeface(weatherFont);
@@ -178,89 +192,72 @@ public class PlaceholderFragment extends Fragment {
                 futureList.addView(item);
             }
         } catch (Exception e) {
-            //showToast(getActivity().getString(R.string.error_message));
+            showToast(context.getString(R.string.error_message));
             e.printStackTrace();
         }
     }
 
     private String getWeatherIcon(int actualId, long sunrise, long sunset) {
-//        Log.i("", "PLACEHOLDER SET_ICON");
         int id = actualId / 100;
         String icon = "";
         if (actualId == 800) {
             long currentTime = new Date().getTime();
             if (currentTime >= sunrise && currentTime < sunset) {
-                icon = getActivity().getString(R.string.weather_sunny);
+                icon = context.getString(R.string.weather_sunny);
             } else {
-                icon = getActivity().getString(R.string.weather_clear_night);
+                icon = context.getString(R.string.weather_clear_night);
             }
         } else {
             switch (id) {
                 case 2:
-                    icon = getActivity().getString(R.string.weather_thunder);
+                    icon = context.getString(R.string.weather_thunder);
                     break;
                 case 3:
-                    icon = getActivity().getString(R.string.weather_drizzle);
+                    icon = context.getString(R.string.weather_drizzle);
                     break;
                 case 7:
-                    icon = getActivity().getString(R.string.weather_foggy);
+                    icon = context.getString(R.string.weather_foggy);
                     break;
                 case 8:
-                    icon = getActivity().getString(R.string.weather_cloudy);
+                    icon = context.getString(R.string.weather_cloudy);
                     break;
                 case 6:
-                    icon = getActivity().getString(R.string.weather_snowy);
+                    icon = context.getString(R.string.weather_snowy);
                     break;
                 case 5:
-                    icon = getActivity().getString(R.string.weather_rainy);
+                    icon = context.getString(R.string.weather_rainy);
                     break;
             }
         }
         return icon;
     }
 
+    private class ResponseReceiver extends BroadcastReceiver {
+        private ResponseReceiver() {}
 
-
-    private class ResponseReceiver extends BroadcastReceiver
-    {
-        private ResponseReceiver() {
-        }
-
-        public boolean todayCalled = false;
-        public boolean forecastCalled = false;
         public void onReceive(Context context, Intent intent) {
-            if (!todayCalled || !forecastCalled) {
-//                Log.i("RESPONSE", " - OK");
-                try {
-                    String today = intent.getStringExtra(WeatherIntentService.EXTRA_TODAY);
-                    if (today != null && !today.isEmpty() && !todayCalled) {
-                        renderToday(new JSONObject(today));
-//                        todayCalled = true;
-                        //showToast(getString(R.string.today_success));
-                    }
-                    String forecast = intent.getStringExtra(WeatherIntentService.EXTRA_FORECAST);
-                    if (forecast != null && !forecast.isEmpty() && !forecastCalled) {
-                        renderForecast(new JSONObject(forecast));
-//                        forecastCalled = true;
-                        //showToast(getString(R.string.forecast_success));
-                    }
-                } catch (JSONException e) {
-                    //showToast(getString(R.string.error_message));
-                    e.printStackTrace();
+            try {
+                String today = intent.getStringExtra(WeatherIntentService.EXTRA_TODAY);
+                if (today != null && !today.isEmpty()) {
+                    renderToday(new JSONObject(today));
+                    showToast(context.getString(R.string.today_success));
                 }
+                String forecast = intent.getStringExtra(WeatherIntentService.EXTRA_FORECAST);
+                if (forecast != null && !forecast.isEmpty()) {
+                    renderForecast(new JSONObject(forecast));
+                    showToast(context.getString(R.string.forecast_success));
+                }
+            } catch (JSONException e) {
+                showToast(context.getString(R.string.error_message));
+                e.printStackTrace();
             }
         }
     }
 
     private void showToast(final String text) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getActivity(),
-                        text,
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
-        });
+        Toast.makeText(context,
+                text,
+                Toast.LENGTH_SHORT)
+                .show();
     }
 }

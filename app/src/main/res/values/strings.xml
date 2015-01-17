@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Weather</string>
+    <string name="app_name">Purple Weather</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_section1">Syktyvkar</string>

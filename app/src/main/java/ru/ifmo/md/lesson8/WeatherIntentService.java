@@ -3,7 +3,6 @@ package ru.ifmo.md.lesson8;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.Context;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
@@ -15,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class WeatherIntentService extends IntentService {
@@ -44,14 +42,11 @@ public class WeatherIntentService extends IntentService {
             String city = intent.getStringExtra(EXTRA_CITY);
 
             String today = load(city, OPEN_WEATHER_MAP_API);
+            String forecast = load(city, OPEN_WEATHER_FORECAST);
+
             Intent localIntent =
                     new Intent(BROADCAST_ACTION)
-                            .putExtra(EXTRA_TODAY, today);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
-
-            String forecast = load(city, OPEN_WEATHER_FORECAST);
-            localIntent =
-                    new Intent(BROADCAST_ACTION)
+                            .putExtra(EXTRA_TODAY, today)
                             .putExtra(EXTRA_FORECAST, forecast);
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
@@ -79,8 +74,8 @@ public class WeatherIntentService extends IntentService {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()));
 
-        StringBuffer json = new StringBuffer(1024);
-        String tmp = "";
+        StringBuilder json = new StringBuilder(1024);
+        String tmp;
         while ((tmp = reader.readLine()) != null)
             json.append(tmp).append("\n");
         reader.close();
