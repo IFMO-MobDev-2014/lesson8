@@ -175,6 +175,8 @@ public class WeatherLoaderService extends IntentService {
         CityWeather weather = loadWeather(cityWoeid);
         ContentValues contentValues = weather.getContentValues();
         contentValues.put(WeatherTable.COLUMN_WOEID, cityWoeid);
+        if (weather.location.name == null || weather.condition.description == null)
+            return;
         getContentResolver().update(WeatherProvider.buildCityUri(Integer.toString(cityId)), contentValues, null, null);
         Intent intent = new Intent("update");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);

@@ -12,5 +12,6 @@
     <string name="action_delete">Remove</string>
     <string name="string_settings_title">Interval settings</string>
     <string name="string_search_city">Search city</string>
+    <string name="no_connection">Network connection is not available</string>
 
 </resources>

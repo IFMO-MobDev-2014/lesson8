@@ -301,26 +301,26 @@
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:padding="@dimen/internal_padding"
                             android:id="@+id/forecast_desc1"
-                            android:gravity="center"
-                            android:text="Party Cloudy"
+                            android:text="Rain/Snow Showers"
                             android:layout_marginLeft="@dimen/internal_padding"
                             android:fontFamily="sans-serif"
-                            android:layout_gravity="center" />
+                            android:layout_gravity="center"
+                            android:gravity="center" />
                     </LinearLayout>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="14&quot;...18&quot;"
+                        android:text="-14&quot;...-18&quot;"
                         android:id="@+id/forecast_temp1"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:fontFamily="sans-serif-light"
-                        android:textSize="24sp"
+                        android:textSize="@dimen/big_font"
                         android:textColor="#ffffa900"
                         android:textStyle="bold" />
 
@@ -374,11 +374,11 @@
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:padding="@dimen/internal_padding"
                             android:id="@+id/forecast_desc2"
                             android:gravity="center"
-                            android:text="Party Cloudy"
+                            android:text="Rain/Snow Showers"
                             android:layout_marginLeft="@dimen/internal_padding"
                             android:fontFamily="sans-serif"
                             android:layout_gravity="center" />
@@ -388,12 +388,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="14&quot;...18&quot;"
+                        android:text="-14&quot;...-18&quot;"
                         android:id="@+id/forecast_temp2"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:fontFamily="sans-serif-light"
-                        android:textSize="24sp"
+                        android:textSize="@dimen/big_font"
                         android:textColor="#ffffa900"
                         android:textStyle="bold" />
 
@@ -447,11 +447,11 @@
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:padding="@dimen/internal_padding"
                             android:id="@+id/forecast_desc3"
                             android:gravity="center"
-                            android:text="Party Cloudy"
+                            android:text="Rain/Snow Showers"
                             android:layout_marginLeft="@dimen/internal_padding"
                             android:fontFamily="sans-serif"
                             android:layout_gravity="center" />
@@ -461,12 +461,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="14&quot;...18&quot;"
+                        android:text="-14&quot;...-18&quot;"
                         android:id="@+id/forecast_temp3"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:fontFamily="sans-serif-light"
-                        android:textSize="24sp"
+                        android:textSize="@dimen/big_font"
                         android:textColor="#ffffa900"
                         android:textStyle="bold" />
 
@@ -520,11 +520,11 @@
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:padding="@dimen/internal_padding"
                             android:id="@+id/forecast_desc4"
                             android:gravity="center"
-                            android:text="Party Cloudy"
+                            android:text="AM Rain/Snow Showers"
                             android:layout_marginLeft="@dimen/internal_padding"
                             android:fontFamily="sans-serif"
                             android:layout_gravity="center" />
@@ -534,12 +534,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="14&quot;...18&quot;"
+                        android:text="-14&quot;...-18&quot;"
                         android:id="@+id/forecast_temp4"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:fontFamily="sans-serif-light"
-                        android:textSize="24sp"
+                        android:textSize="@dimen/big_font"
                         android:textColor="#ffffa900"
                         android:textStyle="bold" />
 
@@ -593,11 +593,11 @@
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:padding="@dimen/internal_padding"
                             android:id="@+id/forecast_desc5"
                             android:gravity="center"
-                            android:text="Party Cloudy"
+                            android:text="AM Rain/Snow Showers"
                             android:layout_marginLeft="@dimen/internal_padding"
                             android:fontFamily="sans-serif"
                             android:layout_gravity="center" />
@@ -607,12 +607,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="14&quot;...18&quot;"
+                        android:text="-14&quot;...-18&quot;"
                         android:id="@+id/forecast_temp5"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:fontFamily="sans-serif-light"
-                        android:textSize="24sp"
+                        android:textSize="@dimen/big_font"
                         android:textColor="#ffffa900"
                         android:textStyle="bold" />
 

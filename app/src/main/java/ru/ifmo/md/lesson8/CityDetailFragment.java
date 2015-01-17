@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -13,6 +15,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ru.ifmo.md.lesson8.database.WeatherProvider;
 import ru.ifmo.md.lesson8.database.WeatherTable;
@@ -52,11 +56,34 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    public boolean isNetworkAvailable() {
+        boolean status=false;
+        try{
+            ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getNetworkInfo(0);
+            if (netInfo != null && netInfo.getState()==NetworkInfo.State.CONNECTED) {
+                status= true;
+            }else {
+                netInfo = cm.getNetworkInfo(1);
+                if(netInfo!=null && netInfo.getState()==NetworkInfo.State.CONNECTED)
+                    status= true;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return status;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_update:
                 mCityWoeid = mCursor.getInt(mCursor.getColumnIndex(WeatherTable.COLUMN_WOEID));
+                if (!isNetworkAvailable()) {
+                    Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_LONG).show();
+                    return true;
+                }
                 WeatherLoaderService.startActionUpdateCity(getActivity(), mCityId, mCityWoeid);
                 return true;
             default:
@@ -94,6 +121,7 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
         return mRootView;
     }
 
+    private static final int SMALL_FONT_SIZE = 20;
     private void updateUserInterface() {
         if (mCursor == null) {
             return;
@@ -149,46 +177,67 @@ public class CityDetailFragment extends Fragment implements LoaderManager.Loader
                 int code = Integer.parseInt(parts[i + 5]);
                 int index = i / 6;
 
+                if (description.contains("AM"))
+                    description = description.replace("AM", "");
+                else if (description.contains("PM"))
+                    description = description.replace("PM", "");
+
+                TextView tvTextView;
                 switch (index) {
                     case 0:
-                        ((TextView) mRootView.findViewById(R.id.forecast_temp1)).setText(tempBounds);
                         ((TextView) mRootView.findViewById(R.id.forecast_dayofweek1)).setText(day);
                         ((TextView) mRootView.findViewById(R.id.forecast_date1)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc1)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_1))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
+                        tvTextView = (TextView) mRootView.findViewById(R.id.forecast_temp1);
+                        tvTextView.setText(tempBounds);
+                        if (tvTextView.getLineCount() > 1)
+                            tvTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, SMALL_FONT_SIZE);
                         break;
                     case 1:
-                        ((TextView) mRootView.findViewById(R.id.forecast_temp2)).setText(tempBounds);
                         ((TextView) mRootView.findViewById(R.id.forecast_dayofweek2)).setText(day);
                         ((TextView) mRootView.findViewById(R.id.forecast_date2)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc2)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_2))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
+                        tvTextView = (TextView) mRootView.findViewById(R.id.forecast_temp2);
+                        tvTextView.setText(tempBounds);
+                        if (tvTextView.getLineCount() > 1)
+                            tvTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, SMALL_FONT_SIZE);
                         break;
                     case 2:
-                        ((TextView) mRootView.findViewById(R.id.forecast_temp3)).setText(tempBounds);
                         ((TextView) mRootView.findViewById(R.id.forecast_dayofweek3)).setText(day);
                         ((TextView) mRootView.findViewById(R.id.forecast_date3)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc3)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_3))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
+                        tvTextView = (TextView) mRootView.findViewById(R.id.forecast_temp3);
+                        tvTextView.setText(tempBounds);
+                        if (tvTextView.getLineCount() > 1)
+                            tvTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, SMALL_FONT_SIZE);
                         break;
                     case 3:
-                        ((TextView) mRootView.findViewById(R.id.forecast_temp4)).setText(tempBounds);
                         ((TextView) mRootView.findViewById(R.id.forecast_dayofweek4)).setText(day);
                         ((TextView) mRootView.findViewById(R.id.forecast_date4)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc4)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_4))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
+                        tvTextView = (TextView) mRootView.findViewById(R.id.forecast_temp4);
+                        tvTextView.setText(tempBounds);
+                        if (tvTextView.getLineCount() > 1)
+                            tvTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, SMALL_FONT_SIZE);
                         break;
                     case 4:
-                        ((TextView) mRootView.findViewById(R.id.forecast_temp5)).setText(tempBounds);
                         ((TextView) mRootView.findViewById(R.id.forecast_dayofweek5)).setText(day);
                         ((TextView) mRootView.findViewById(R.id.forecast_date5)).setText(date);
                         ((TextView) mRootView.findViewById(R.id.forecast_desc5)).setText(description);
                         ((ImageView) mRootView.findViewById(R.id.forecast_icon_5))
                                 .setImageBitmap(BitmapFactory.decodeResource(getResources(), getImageByCode(code)));
+                        tvTextView = (TextView) mRootView.findViewById(R.id.forecast_temp5);
+                        tvTextView.setText(tempBounds);
+                        if (tvTextView.getLineCount() > 1)
+                            tvTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, SMALL_FONT_SIZE);
                         break;
                 }
             }
