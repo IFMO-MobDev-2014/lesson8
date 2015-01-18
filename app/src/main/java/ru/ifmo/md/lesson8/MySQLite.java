@@ -35,12 +35,13 @@ public class MySQLite extends ContentProvider {
     static final String COMMENT = "comment";
     static final String SUNSET = "sunset";
     static final String SUNRISE = "sunrise";
+    static final String NUM = "number";
 
 
     static final String DB_CREATE = "create table " + WEATHER_TABLE + "("
             + WEATHER_ID + " integer primary key autoincrement, "
-//            + CITY_ID + " integer, "
             + CITY + " text, "
+            + NUM + " integer, "
             + DAY + " text, "
             + TEMP + " text, "
             + COMMENT + " text, "
@@ -166,16 +167,9 @@ public class MySQLite extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case URI_WEATHER:
                 Log.d(LOG_TAG, "URI_WEATHER");
-
                 break;
             case URI_WEATHER_ID:
-                String id = uri.getLastPathSegment();
-                Log.d(LOG_TAG, "URI_WEATHER_ID, " + id);
-                if (TextUtils.isEmpty(selection)) {
-                    selection = WEATHER_ID + " = " + id;
-                } else {
-                    selection = selection + " AND " + WEATHER_ID + " = " + id;
-                }
+                Log.d(LOG_TAG, "URI_WEATHER_ID, ");
                 break;
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);

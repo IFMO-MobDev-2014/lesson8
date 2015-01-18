@@ -56,13 +56,13 @@ public class ItemListActivity extends FragmentActivity
         setContentView(R.layout.activity_item_list);
         Log.d(LOG_TAG, "itemlistactivity");
 
-        ((Button) findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String res = getLocation();
-                ((TextView) findViewById(R.id.textView)).setText(res);
-            }
-        });
+//        ((Button) findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String res = getLocation();
+//                ((TextView) findViewById(R.id.textView)).setText(res);
+//            }
+//        });
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -78,12 +78,6 @@ public class ItemListActivity extends FragmentActivity
         }
     }
 
-        // TODO: If exposing deep links into your app, handle intents here.
-
-    /**
-     * Callback method from {@link ItemListFragment.Callbacks}
-     * indicating that the item with the given ID was selected.
-     */
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {

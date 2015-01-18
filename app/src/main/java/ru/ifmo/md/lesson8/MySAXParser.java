@@ -57,7 +57,7 @@ public class MySAXParser extends DefaultHandler {
             weather = new Weather(city, date, temp, comment, sunrise, sunset);
         }
         if (qName.equals("yweather:forecast")) {
-            weather.addDay(atts.getValue("day"), atts.getValue("date"),
+            weather.addDay(atts.getValue("date"),
                     atts.getValue("low"), atts.getValue("high"), atts.getValue("text"));
         }
     }

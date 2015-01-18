@@ -20,22 +20,15 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  */
 
 public class MyAdapter extends CursorAdapter {
-//    private Cursor cursor;
-//    Context ctx;
-//    LayoutInflater inflater;
 
     MyAdapter(Context context, Cursor cur) {
         super(context, cur);
-
-//        cursor = cur;
-//        ctx = context;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.my_item, parent, false);
-//        bindView(view, context, cursor);
         return view;
     }
 
@@ -52,7 +45,6 @@ public class MyAdapter extends CursorAdapter {
                 ((ImageView) view.findViewById(R.id.image)).setImageResource(icon);
             }
         }
-
     }
 
     Weather getIt(int position) {

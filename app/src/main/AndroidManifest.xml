@@ -32,6 +32,7 @@
         <provider
             android:name="ru.ifmo.md.lesson8.MySQLite"
             android:authorities="ru.ifmo.md.lesson8.providers.weather"></provider>
+        <service android:name="ru.ifmo.md.lesson8.MyIntentService" />
     </application>
 
 </manifest>

@@ -27,19 +27,17 @@ public class Weather {
         this.sunset = sunset;
         days = new ArrayList<>();
     }
-    void addDay(String day, String date, String low, String high, String comment) {
-        days.add(new Days(day, date, low, high, comment));
+    void addDay(String date, String low, String high, String comment) {
+        days.add(new Days(date, low, high, comment));
     }
 }
 
 class Days{
-    public final String day;
     public final String date;
     public final String low;
     public final String high;
     public final String comment;
-    protected Days(String day, String date, String low, String high, String comment) {
-        this.day = day;
+    protected Days(String date, String low, String high, String comment) {
         this.date = date;
         this.low = low;
         this.high = high;

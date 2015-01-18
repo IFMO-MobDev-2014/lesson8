@@ -1,23 +1,29 @@
 package ru.ifmo.md.lesson8;
 
-import android.content.ContentUris;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+
+import java.util.ArrayList;
 
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
@@ -47,6 +53,8 @@ public class ItemDetailFragment extends Fragment {
     }
 
     public static final String DEBUG_TAG = "itemdetailactivity";
+    MyBroadcastReceiver myBroadcastReceiver;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,11 +62,10 @@ public class ItemDetailFragment extends Fragment {
 
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
             mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
         }
+
+        myBroadcastReceiver = new MyBroadcastReceiver();
     }
 
     View setDay(View v, Days d, int r) {
@@ -67,7 +74,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     View setParam(View v) {
-        Cursor result = getActivity().getContentResolver().query(DB_URI, null, null, null, null);
+        Cursor result = getActivity().getContentResolver().query(DB_URI, null, "number > 10", null, null);
         result.moveToPosition(Integer.parseInt(mItem.id) - 1);
         ((TextView) v.findViewById(R.id.comment)).setText("Current Temperature: "
                 + result.getString(result.getColumnIndex(MySQLite.TEMP))
@@ -76,6 +83,21 @@ public class ItemDetailFragment extends Fragment {
                 + "\n" + "Sunset: " + result.getString(result.getColumnIndex(MySQLite.SUNSET)));
         ((TextView) v.findViewById(R.id.city)).setText(result.getString(result.getColumnIndex(MySQLite.CITY)));
         ((TextView) v.findViewById(R.id.date)).setText(result.getString(result.getColumnIndex(MySQLite.DAY)));
+        String city = result.getString(result.getColumnIndex(MySQLite.NUM));
+        Log.d(DEBUG_TAG, "city = " + city);
+        int days[] = {R.id.day1, R.id.day2, R.id.day3};
+        for (int i = 0; i < 3; i++) {
+            Cursor dayC = getActivity().getContentResolver().query(DB_URI, null,
+                    "city = " + city + " AND number = " + (i + 1), null, null);
+            dayC.moveToFirst();
+            Log.d(DEBUG_TAG, dayC.getCount() + " " +result.getColumnIndex(MySQLite.DAY) + " "+dayC.getColumnIndex(MySQLite.DAY) );
+            String date = dayC.getString(result.getColumnIndex(MySQLite.DAY));
+            String low = dayC.getString(result.getColumnIndex(MySQLite.SUNRISE));
+            String high = dayC.getString(result.getColumnIndex(MySQLite.SUNSET));
+            String comment = dayC.getString(result.getColumnIndex(MySQLite.COMMENT));
+            v = setDay(v, new Days(date, low, high, comment), days[i]);
+        }
+
         boolean findImage = false;
         for (int i = 0; i < DummyContent.images.size(); i++) {
             String name = DummyContent.images.get(i).getWeather();
@@ -94,12 +116,9 @@ public class ItemDetailFragment extends Fragment {
     View rootView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
         if (mItem != null) {
-            final Uri updUri = ContentUris.withAppendedId(DB_URI, Integer.parseInt(mItem.id));
-            Log.d(DEBUG_TAG, "update" + updUri.toString() + " from " + mItem.id);
             rootView = setParam(rootView);
             ((Button) rootView.findViewById(R.id.update)).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -107,30 +126,41 @@ public class ItemDetailFragment extends Fragment {
                     ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                     if (networkInfo != null && networkInfo.isConnected()) {
-                        new DownloadWeatherTask() {
-
-                            @Override
-                            protected void onPostExecute(Weather result) {
-                                ContentValues cv = new ContentValues();
-                                cv.put(MySQLite.CITY, result.city);
-                                cv.put(MySQLite.DAY, result.date);
-                                cv.put(MySQLite.TEMP, result.temp);
-                                cv.put(MySQLite.COMMENT, result.comment);
-                                cv.put(MySQLite.SUNRISE, result.sunrise);
-                                cv.put(MySQLite.SUNSET, result.sunset);
-                                int cnt = getActivity().getContentResolver().update(updUri, cv, null, null);
-                                Log.d(DEBUG_TAG, "update" + updUri.toString() + " from " + mItem.id);
-                                rootView = setParam(rootView);
-                                rootView = setDay(rootView, result.days.get(0), R.id.day1);
-                                rootView = setDay(rootView, result.days.get(1), R.id.day2);
-                                rootView = setDay(rootView, result.days.get(2), R.id.day3);
-
-                            }
-                        }.execute("http://weather.yahooapis.com/forecastrss?w=" + mItem.content + "&u=c");
+                        Log.d(DEBUG_TAG, "update from " + mItem.id);
+                        Intent myService = new Intent(getActivity(), MyIntentService.class);
+                        IntentFilter intentFilter = new IntentFilter(MyIntentService.ACTION_MYINTENTSERVICE);
+                        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+                        myService.putExtra("url", "http://weather.yahooapis.com/forecastrss?w=" + mItem.content + "&u=c");
+                        myService.putExtra("id", mItem.id);
+                        myService.putExtra("action", "update");
+                        myService.putExtra("city", mItem.content);
+                        getActivity().registerReceiver(myBroadcastReceiver, intentFilter);
+                        getActivity().startService(myService);
+                        rootView = setParam(rootView);
+                        Log.d(DEBUG_TAG, "update ok from " + mItem.id);
                     }
                 }
             });
         }
         return rootView;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            getActivity().unregisterReceiver(myBroadcastReceiver);
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+        private static final String DEBUG_TAG = "BroadcastReceiver";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(DEBUG_TAG, "start BR");
+        }
+    }
+
 }

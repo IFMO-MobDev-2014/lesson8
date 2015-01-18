@@ -3,6 +3,8 @@ package ru.ifmo.md.lesson8;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,6 +14,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,7 +41,7 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -86,11 +91,16 @@ public class ItemListFragment extends ListFragment {
     }
     DummyContent.DummyItem mItem;
     MyAdapter adapter;
+    private static final int LOADER_ID = 1;
+    private LoaderManager.LoaderCallbacks<Cursor> mCallbacks1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(LOG_TAG, "itemlistfragment");
+        mCallbacks1 = this;
+        LoaderManager lm = getLoaderManager();
+        lm.initLoader(LOADER_ID, null, mCallbacks1);
         Cursor cur = getActivity().getContentResolver().query(DB_URI, null, null, null, null);
         if (cur.getCount() == 0) {
             ContentValues cv = new ContentValues();
@@ -99,39 +109,50 @@ public class ItemListFragment extends ListFragment {
                 ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                 if (networkInfo != null && networkInfo.isConnected()) {
-                    new DownloadWeatherTask() {
-
-                        @Override
-                        protected void onPostExecute(Weather result) {
                             Log.d(LOG_TAG, "add " + mItem.content);
-                            ContentValues cv = new ContentValues();
-                            cv.put(MySQLite.CITY, result.city);
-                            cv.put(MySQLite.DAY, result.date);
-                            cv.put(MySQLite.TEMP, result.temp);
-                            cv.put(MySQLite.COMMENT, result.comment);
-                            cv.put(MySQLite.SUNRISE, result.sunrise);
-                            cv.put(MySQLite.SUNSET, result.sunset);
-                            getActivity().getContentResolver().insert(DB_URI, cv);
-                            Log.d(LOG_TAG, "add" + DB_URI.toString() + " from " + mItem.id);
-                        }
-                    }.execute("http://weather.yahooapis.com/forecastrss?w=" + mItem.content + "&u=c");
+                    Intent myService = new Intent(getActivity(), MyIntentService.class);
+                    IntentFilter intentFilter = new IntentFilter(MyIntentService.ACTION_MYINTENTSERVICE);
+                    intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+                    myService.putExtra("url", "http://weather.yahooapis.com/forecastrss?w=" + mItem.content + "&u=c");
+                    myService.putExtra("id", mItem.id);
+                    myService.putExtra("action", "add");
+                    myService.putExtra("city", mItem.content);
+                    getActivity().startService(myService);
                 } else {
                     Log.d(LOG_TAG, "no internet");
                     Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_LONG);
                 }
             }
         }
-        adapter = new MyAdapter(getActivity(), cur);
+        adapter = new MyAdapter(getActivity(), null);
         setListAdapter(adapter);
-//        getListAdapter().notifyAll();
         adapter.notifyDataSetChanged();
     }
 
     @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), DB_URI, null, "number > 10", null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        switch (loader.getId()) {
+            case LOADER_ID:
+                adapter.swapCursor(cursor);
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
+
+
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
@@ -142,7 +163,6 @@ public class ItemListFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        // Activities containing this fragment must implement its callbacks.
         if (!(activity instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
