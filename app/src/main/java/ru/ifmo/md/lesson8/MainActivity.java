@@ -49,6 +49,8 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
             editor.putBoolean(CITY_DEFAULT_SELECTED, false);
             editor.putInt(CITY_DEFAULT, 0);
             editor.apply();
+            getContentResolver().delete(DatabaseContentProvider.URI_CITY_DIR, CitiesTable.URL + " = " + 0, null);
+            getContentResolver().notifyChange(DatabaseContentProvider.URI_CITY_DIR, null);
             onCityAdded(getString(R.string.current_location), 0);
 
         }

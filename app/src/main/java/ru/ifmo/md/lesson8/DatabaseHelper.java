@@ -21,11 +21,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onConfigure(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.setForeignKeyConstraintsEnabled(true);
-    }
-
-    @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         citiesTable = new CitiesTable(sqLiteDatabase);
         weatherTable = new WeatherTable(sqLiteDatabase);
