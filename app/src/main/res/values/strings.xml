@@ -2,6 +2,15 @@
 <resources>
 
     <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="open_weather_maps_app_id">513eb46ad14138f6f6b59e3430966714</string>
+    <string name="title_activity_weather_fragment">WeatherFragment</string>
+    <string name="title_activity_menu">MenuActivity</string>
+    <string name="positive">Yes</string>
+    <string name="negative">No</string>
+    <string name="dialog_title">Delete this city?</string>
+    <string name="enter_city">Enter city name</string>
+    <string name="enter_city_name">Enter</string>
 
 </resources>

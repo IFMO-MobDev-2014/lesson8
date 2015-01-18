@@ -1,0 +1,47 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="year2013.ifmo.weather.MenuActivity"
+    android:orientation="vertical"
+    android:background="#FFFFFFFF">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/add_button"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="65dp"
+            android:onClick="enterCity"
+            android:text="@string/enter_city_name"
+            android:textStyle="bold|italic"
+            android:background="@drawable/far"/>
+
+        <EditText
+            android:textStyle="bold|italic"
+            android:id="@+id/enter_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="@string/enter_city"/>
+
+        </LinearLayout>
+
+
+    <ListView
+
+        android:id="@+id/city_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="italic">
+
+
+        </ListView>
+
+
+</LinearLayout>
