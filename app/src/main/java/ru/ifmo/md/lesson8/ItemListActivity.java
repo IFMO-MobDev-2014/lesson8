@@ -1,8 +1,26 @@
 package ru.ifmo.md.lesson8;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.Date;
+
+import ru.ifmo.md.lesson8.dummy.DummyContent;
 
 
 /**
@@ -24,6 +42,8 @@ import android.support.v4.app.FragmentActivity;
 public class ItemListActivity extends FragmentActivity
         implements ItemListFragment.Callbacks {
 
+    private static final String LOG_TAG = "intemlistactivity";
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -34,7 +54,15 @@ public class ItemListActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+        Log.d(LOG_TAG, "itemlistactivity");
 
+//        ((Button) findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String res = getLocation();
+//                ((TextView) findViewById(R.id.textView)).setText(res);
+//            }
+//        });
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -48,14 +76,8 @@ public class ItemListActivity extends FragmentActivity
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
         }
-
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
-    /**
-     * Callback method from {@link ItemListFragment.Callbacks}
-     * indicating that the item with the given ID was selected.
-     */
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {
@@ -78,4 +100,87 @@ public class ItemListActivity extends FragmentActivity
             startActivity(detailIntent);
         }
     }
+    String tvEnabledGPS = "";
+    String tvStatusGPS = "";
+    String tvLocationGPS = "";
+    String tvEnabledNet = "";
+    String tvStatusNet = "";
+    String tvLocationNet = "";
+
+    public LocationManager locationManager;
+    StringBuilder sbGPS = new StringBuilder();
+    StringBuilder sbNet = new StringBuilder();
+    public String getLocation() {
+        Log.d(LOG_TAG, "getLocation");
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Log.d(LOG_TAG, "request1");
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 10, 10, locationListener);
+        Log.d(LOG_TAG, "request2");
+//        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 10, 10, locationListener);
+        checkEnabled();
+        String res = tvEnabledGPS + "\n" + tvStatusGPS + "\n" + tvLocationGPS + "\n\n" +
+                tvEnabledNet + "\n" + tvStatusNet + "\n" + tvLocationNet;
+        Log.d(LOG_TAG, res);
+        locationManager.removeUpdates(locationListener);
+        return res;
+    }
+    private void showLocation(Location location) {
+        if (location == null)
+            return;
+        Log.d(LOG_TAG, "showLocation");
+        if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+            tvLocationGPS = formatLocation(location);
+        } else if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER)) {
+            tvLocationNet = formatLocation(location);
+        }
+    }
+
+    private String formatLocation(Location location) {
+        if (location == null)
+            return "";
+        Log.d(LOG_TAG, "formatLocation");
+        return String.format(
+                "Coordinates: lat = %1$.4f, lon = %2$.4f, time = %3$tF %3$tT",
+                location.getLatitude(), location.getLongitude(), new Date(
+                        location.getTime()));
+    }
+
+    private void checkEnabled() {
+        Log.d(LOG_TAG, "checkEnabled");
+        tvEnabledGPS = "Enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        tvEnabledNet = "Enabled: " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+    public LocationListener locationListener = new LocationListener() {
+
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.d(LOG_TAG, "onLocation");
+            showLocation(location);
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Log.d(LOG_TAG, "onProvider");
+            checkEnabled();
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Log.d(LOG_TAG, "onProviderE");
+            checkEnabled();
+            showLocation(locationManager.getLastKnownLocation(provider));
+        }
+
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d(LOG_TAG, "onStatus");
+            if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                tvStatusGPS = "Status: " + String.valueOf(status);
+            } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
+                tvStatusNet = "Status: " + String.valueOf(status);
+            }
+        }
+    };
+
 }

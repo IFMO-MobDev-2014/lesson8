@@ -1,12 +1,34 @@
 package ru.ifmo.md.lesson8;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+
+import org.w3c.dom.Text;
+
+import java.util.Date;
 
 import ru.ifmo.md.lesson8.dummy.DummyContent;
 
@@ -19,14 +41,15 @@ import ru.ifmo.md.lesson8.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment {
+public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
      */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
-
+    private static final String LOG_TAG = "itemlistfragment";
+    private static final Uri DB_URI = Uri.parse("content://ru.ifmo.md.lesson8.providers.weather/weather");
     /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
@@ -66,24 +89,70 @@ public class ItemListFragment extends ListFragment {
      */
     public ItemListFragment() {
     }
+    DummyContent.DummyItem mItem;
+    MyAdapter adapter;
+    private static final int LOADER_ID = 1;
+    private LoaderManager.LoaderCallbacks<Cursor> mCallbacks1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+        Log.d(LOG_TAG, "itemlistfragment");
+        mCallbacks1 = this;
+        LoaderManager lm = getLoaderManager();
+        lm.initLoader(LOADER_ID, null, mCallbacks1);
+        Cursor cur = getActivity().getContentResolver().query(DB_URI, null, null, null, null);
+        if (cur.getCount() == 0) {
+            ContentValues cv = new ContentValues();
+            for (int i = 0; i < DummyContent.ITEMS.size(); i++) {
+                mItem = DummyContent.ITEMS.get(i);
+                ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if (networkInfo != null && networkInfo.isConnected()) {
+                            Log.d(LOG_TAG, "add " + mItem.content);
+                    Intent myService = new Intent(getActivity(), MyIntentService.class);
+                    IntentFilter intentFilter = new IntentFilter(MyIntentService.ACTION_MYINTENTSERVICE);
+                    intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+                    myService.putExtra("url", "http://weather.yahooapis.com/forecastrss?w=" + mItem.content + "&u=c");
+                    myService.putExtra("id", mItem.id);
+                    myService.putExtra("action", "add");
+                    myService.putExtra("city", mItem.content);
+                    getActivity().startService(myService);
+                } else {
+                    Log.d(LOG_TAG, "no internet");
+                    Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_LONG);
+                }
+            }
+        }
+        adapter = new MyAdapter(getActivity(), null);
+        setListAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), DB_URI, null, "number > 10", null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        switch (loader.getId()) {
+            case LOADER_ID:
+                adapter.swapCursor(cursor);
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
+
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
@@ -94,7 +163,6 @@ public class ItemListFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        // Activities containing this fragment must implement its callbacks.
         if (!(activity instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
@@ -117,6 +185,7 @@ public class ItemListFragment extends ListFragment {
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+
     }
 
     @Override
@@ -146,7 +215,7 @@ public class ItemListFragment extends ListFragment {
         } else {
             getListView().setItemChecked(position, true);
         }
-
         mActivatedPosition = position;
     }
+
 }
