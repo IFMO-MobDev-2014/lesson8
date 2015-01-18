@@ -7,6 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     tools:context="ru.ifmo.md.lesson8.MainActivity$PlaceholderFragment"
     android:fillViewport="false"
+    android:scrollbars="none"
     android:background="#B16B00B5"
     android:id="@+id/scroll_view">
 
@@ -27,7 +28,7 @@
                 android:gravity="center"
                 android:padding="10dp"
                 android:textColor="#FFF"
-                android:textSize="20sp"
+                android:textSize="30sp"
                 android:textIsSelectable="true" />
             <Button
                 android:id="@+id/update_button"
@@ -38,7 +39,7 @@
                 android:textStyle="bold"
                 android:background="@drawable/update_button"
                 android:text="@string/update_button"/>
-            </LinearLayout>
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,21 +47,21 @@
             <TextView
                 android:id="@+id/weather_sign"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:layout_height="match_parent"
-                android:textSize="80sp"
+                android:textSize="150sp"
                 android:gravity="center"
                 android:textColor="#FFF"/>
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/weather_temp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="40sp"
+                    android:textSize="60sp"
                     android:textColor="#FFF"
                     android:padding="10dp" />
                 <TextView
@@ -68,27 +69,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#FFF"
+                    android:textSize="20sp"
                     android:padding="5dp" />
                 <TextView
                     android:id="@+id/weather_pressure"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#FFF"
+                    android:textSize="20sp"
                     android:padding="5dp" />
                 <TextView
                     android:id="@+id/weather_wind"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#FFF"
+                    android:textSize="20sp"
                     android:padding="5dp" />
-                <TextView
-                    android:id="@+id/weather_mood"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFF"
-                    android:padding="5dp" />
-                </LinearLayout>
             </LinearLayout>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/weather_mood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#FFF"
+            android:textSize="30sp"
+            android:padding="20dp" />
 
         <LinearLayout
             android:id="@+id/weather_future"
@@ -97,6 +103,6 @@
             android:orientation="vertical"
             android:background="@drawable/forecast_background"
             android:layout_marginBottom="25dp"/>
-        </LinearLayout>
+    </LinearLayout>
 
 </ScrollView>

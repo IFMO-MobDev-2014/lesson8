@@ -7,20 +7,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.OnNavigationListener
@@ -44,9 +32,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
         adapter = new SimpleCursorAdapter(this,
                 R.layout.action_bar_item, null, from, to);
 
-        // Set up the dropdown list navigation in the action bar.
         actionBar.setListNavigationCallbacks(
-                // Specify a SpinnerAdapter to populate the dropdown list.
                 adapter,
                 this);
 
@@ -55,7 +41,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        // Restore the previously serialized current dropdown position.
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
             getSupportActionBar().setSelectedNavigationItem(
                     savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
@@ -64,43 +49,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // Serialize the current dropdown position.
         outState.putInt(STATE_SELECTED_NAVIGATION_ITEM,
                 getSupportActionBar().getSelectedNavigationIndex());
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @Override
     public boolean onNavigationItemSelected(int position, long id) {
-        // When the given dropdown item is selected, show its contents in the
-        // container view.
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(
                         adapter.getCursor().getString(Weather.JustWeather.CITY_COLUMN)))
                 .commit();
-//        Log.i("CURRENT ITEM: ", adapter.getCursor().getString(1));
         return true;
     }
 

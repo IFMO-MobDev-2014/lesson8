@@ -30,6 +30,16 @@
             android:name=".WeatherIntentService"
             android:exported="false" >
         </service>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+
+        <activity
+            android:name=".EditCityActivity"
+            android:label="@string/title_activity_edit_city" >
+        </activity>
     </application>
 
 </manifest>

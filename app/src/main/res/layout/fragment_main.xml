@@ -7,6 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     tools:context="ru.ifmo.md.lesson8.MainActivity$PlaceholderFragment"
     android:fillViewport="false"
+    android:scrollbars="none"
     android:background="#B16B00B5"
     android:id="@+id/scroll_view">
 

@@ -23,27 +23,28 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class PlaceholderFragment extends Fragment {
-    Typeface weatherFont;
+    private Typeface weatherFont;
 
-    Button upd;
-    TextView date;
-    TextView sign;
-    TextView temperature;
-    TextView humidity;
-    TextView pressure;
-    TextView wind;
-    TextView mood;
-    LinearLayout futureList;
+    private TextView date;
+    private TextView sign;
+    private TextView temperature;
+    private TextView humidity;
+    private TextView pressure;
+    private TextView wind;
+    private TextView mood;
+    private LinearLayout futureList;
 
-    Context context;
+    private Context context;
 
-    ResponseReceiver responseReceiver;
-    IntentFilter mStatusIntentFilter;
+    private ResponseReceiver responseReceiver;
+    private IntentFilter mStatusIntentFilter;
 
     private static final String ARG_SECTION_CITY = "section_city";
 
@@ -81,7 +82,7 @@ public class PlaceholderFragment extends Fragment {
 
         futureList = (LinearLayout) rootView.findViewById(R.id.weather_future);
 
-        upd = (Button) rootView.findViewById(R.id.update_button);
+        Button upd = (Button) rootView.findViewById(R.id.update_button);
         upd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,7 +122,19 @@ public class PlaceholderFragment extends Fragment {
         super.onResume();
         LocalBroadcastManager.getInstance(context)
                 .registerReceiver(responseReceiver, mStatusIntentFilter);
-        updateWeatherData(getArguments().getString(ARG_SECTION_CITY));
+        long lastUpd = 0;
+        try {
+            DateFormat df = new SimpleDateFormat("E, d MMM HH:mm");
+            df.setTimeZone(TimeZone.getDefault());
+            Date d = df.parse(date.getText().toString());
+            d.setYear(new Date().getYear());
+            lastUpd = d.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (new Date().getTime() - lastUpd > 3L * 60 * 60 * 1000) { // if 3 hrs since last upd
+            updateWeatherData(getArguments().getString(ARG_SECTION_CITY));
+        }
     }
 
     @Override
@@ -144,6 +157,7 @@ public class PlaceholderFragment extends Fragment {
             JSONObject jwind = json.getJSONObject("wind");
 
             DateFormat df = new SimpleDateFormat("E, d MMM HH:mm");
+            df.setTimeZone(TimeZone.getDefault());
             String updatedOn = df.format(new Date(json.getLong("dt") * 1000));
 
             date.setText(updatedOn);
@@ -215,17 +229,17 @@ public class PlaceholderFragment extends Fragment {
                 case 3:
                     icon = context.getString(R.string.weather_drizzle);
                     break;
+                case 5:
+                    icon = context.getString(R.string.weather_rainy);
+                    break;
+                case 6:
+                    icon = context.getString(R.string.weather_snowy);
+                    break;
                 case 7:
                     icon = context.getString(R.string.weather_foggy);
                     break;
                 case 8:
                     icon = context.getString(R.string.weather_cloudy);
-                    break;
-                case 6:
-                    icon = context.getString(R.string.weather_snowy);
-                    break;
-                case 5:
-                    icon = context.getString(R.string.weather_rainy);
                     break;
             }
         }
@@ -240,13 +254,15 @@ public class PlaceholderFragment extends Fragment {
                 String today = intent.getStringExtra(WeatherIntentService.EXTRA_TODAY);
                 if (today != null && !today.isEmpty()) {
                     renderToday(new JSONObject(today));
-                    showToast(context.getString(R.string.today_success));
+//                    showToast(context.getString(R.string.today_success));
                 }
                 String forecast = intent.getStringExtra(WeatherIntentService.EXTRA_FORECAST);
                 if (forecast != null && !forecast.isEmpty()) {
                     renderForecast(new JSONObject(forecast));
-                    showToast(context.getString(R.string.forecast_success));
+//                    showToast(context.getString(R.string.forecast_success));
                 }
+                showToast(String.format(context.getString(R.string.weather_success),
+                        intent.getStringExtra(WeatherIntentService.EXTRA_CITY)));
             } catch (JSONException e) {
                 showToast(context.getString(R.string.error_message));
                 e.printStackTrace();

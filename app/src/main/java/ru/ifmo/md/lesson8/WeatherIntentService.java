@@ -46,6 +46,7 @@ public class WeatherIntentService extends IntentService {
 
             Intent localIntent =
                     new Intent(BROADCAST_ACTION)
+                            .putExtra(EXTRA_CITY, city)
                             .putExtra(EXTRA_TODAY, today)
                             .putExtra(EXTRA_FORECAST, forecast);
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
