@@ -24,7 +24,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="ru.sergeybudkov.weathertogo"
+            android:enabled="true">
+        </provider>
     </application>
 
 </manifest>

@@ -1,15 +1,19 @@
 package weathertogo.sergeybudkov.ru.weathertogo;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.LoaderManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Address;
@@ -17,17 +21,17 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -48,15 +52,22 @@ import java.util.Locale;
 
 //Sergey Budkov 2536
 
-public class MainActivity extends Activity {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     private LocationManager locationManager;
     SharedPreferences sPref;
     TextView loc;
-    String prevLocatedCity = "";
-    public static String NOW = "NOW", LAST = "LAST", INTENT = "key_intent", CITY = "city", COUNTRY = "country", NO = "NO", YES = "YES", YANDEX_ID = "yandex_id", CITY_YES = "";
-    public String[] finalWeather = new String[10];
-    int inFinalWeather = 0;
-    public static WeatherDataBase wBase;
+    boolean noNeed = false;
+    public static String NOW = "NOW",
+            LAST = "LAST",
+            INTENT = "key_intent",
+            CITY = "city",
+            COUNTRY = "country",
+            NO = "NO",
+            YES = "YES",
+            YANDEX_ID = "yandex_id",
+            CITY_YES = "";
+    static ShowBuilder wt ;
     private static final String SAVEDPREVCITY = "savedprevcity";
     ArrayList<Integer> allCitiesID = new ArrayList<Integer>();
     ArrayList<HashMap<String, String>> allCities = new ArrayList<HashMap<String, String>>();
@@ -69,42 +80,38 @@ public class MainActivity extends Activity {
     ViewPager viewScreen;
     ProgressDialog dialog;
     MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
-    boolean isConnect = false, isDialog = false, isFirst = false,needLoc = false;
+    boolean isConnect = false,
+            isDialog = false,
+            isFirst = false,
+            needLoc = false;
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        wt=new ShowBuilder();
         needLoc = true;
-        preCreate();
+        getLoaderManager().initLoader(0, null, this);
         tutorialShow();
-        wBase = new WeatherDataBase(this);
-        wBase.open();
         buildingViewPages();
         loc = (TextView) screens.get(1).findViewById(R.id.textView);
         currentCitiesListView = (ListView) screens.get(0).findViewById(R.id.all_cities);
         addedCitiesListView = (ListView) screens.get(1).findViewById(R.id.added_cities);
         openFileAndPrintAllCities();
         printCityFromTable();
-        inFinalWeather = 1;
-        composeToday(LAST);
-        composeNextDays(3, LAST);
-        composeNextDays(4, LAST);
-        composeNextDays(5, LAST);
+        compose(LAST);
         showWeather();
+        printCityFromTable();
 
         if (addedCities.isEmpty() == true) {
             isFirst = true;
         } else {
-            viewScreen.setCurrentItem(2);
+            viewScreen.setCurrentItem(1);
         }
         addedCitiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long number) {
-                composeToday(addedCities.get(index).get(CITY));
-                inFinalWeather=1;
-                composeNextDays(3, addedCities.get(index).get(CITY));
-                composeNextDays(4, addedCities.get(index).get(CITY));
-                composeNextDays(5, addedCities.get(index).get(CITY));
+                compose(addedCities.get(index).get(CITY));
                 showWeather();
                 viewScreen.setCurrentItem(2);
             }
@@ -118,11 +125,15 @@ public class MainActivity extends Activity {
         currentCitiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long number) {
 
-                wBase.deleteWeatherInCity(currentCities.get(index).get(CITY), currentCities.get(index).get(COUNTRY));
+                ContentValues cv = new ContentValues();
+                cv.put("city",currentCities.get(index).get(CITY));
+                cv.put("country",currentCities.get(index).get(COUNTRY));
+                getContentResolver().delete(Uri.parse("content://ru.sergeybudkov.weathertogo/cities"),currentCities.get(index).get(CITY)+" "+currentCities.get(index).get(COUNTRY),null);
 
                 isConnect = true;
                 isDialog = true;
                 dialog = new ProgressDialog(MainActivity.this);
+                dialog.setCancelable(false);
                 dialog.setTitle("Загружаем погоду..");
                 dialog.setMessage("┏(-_-)┛┗(-_-﻿ )┓┗(-_-)┛┏(-_-)┓");
                 dialog.show();
@@ -133,7 +144,6 @@ public class MainActivity extends Activity {
                 intentMyIntentService.putExtra(COUNTRY, currentCities.get(index).get(COUNTRY));
                 intentMyIntentService.putExtra(YANDEX_ID, currentCitiesID.get(index).toString());
                 startService(intentMyIntentService);
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 viewScreen.setCurrentItem(1);
                 showWeather();
             }
@@ -157,7 +167,6 @@ public class MainActivity extends Activity {
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.cancel(pendingIntent);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 60 * 60 * 1000,   60 * 60 * 1000, pendingIntent);
-        Log.d("Alaram", "" + System.currentTimeMillis());
     }
 
 
@@ -191,7 +200,6 @@ public class MainActivity extends Activity {
         public void onLocationChanged(Location location) {
             try {
                 if(location != null) {
-                    //loc.setText("" + location.getLatitude());
                     if(needLoc) {
                         locatiFind(location);
                         needLoc = false;
@@ -209,6 +217,13 @@ public class MainActivity extends Activity {
 
 
 
+    public void compose(String s){
+        wt.inFinalWeather = 1;
+        wt.composeToday(s);
+        wt.composeNextDays(3, s);
+        wt.composeNextDays(4, s);
+        wt.composeNextDays(5, s);
+    }
 
 
     int pozition = -1;
@@ -228,19 +243,17 @@ public class MainActivity extends Activity {
         {
             case 1:
 
-                wBase.deleteWeatherInCity(addedCities.get(pozition).get(CITY), addedCities.get(pozition).get(COUNTRY));
+                getContentResolver().delete(Uri.parse("content://ru.sergeybudkov.weathertogo/cities"),addedCities.get(pozition).get(CITY)+" "+ addedCities.get(pozition).get(COUNTRY) , null);
                 printCityFromTable();
                 break;
             case 2:
                 String city_from_table = addedCities.get(pozition).get(CITY);
                 String country_from_table = addedCities.get(pozition).get(COUNTRY);
                 String yandex_id_from_table = addedCitiesID.get(pozition).toString();
-                wBase.deleteWeatherInCity(addedCities.get(pozition).get(CITY), addedCities.get(pozition).get(COUNTRY));
-
+                getContentResolver().delete(Uri.parse("content://ru.sergeybudkov.weathertogo/cities"),addedCities.get(pozition).get(CITY)+" "+ addedCities.get(pozition).get(COUNTRY) , null);
                 IntentFilter intentFilter = new IntentFilter(WeatherIntent.ACTION_MyIntentService);
                 intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
                 registerReceiver(myBroadcastReceiver, intentFilter);
-
                 isConnect = true;
                 isDialog = true;
                 dialog = new ProgressDialog(MainActivity.this);
@@ -255,7 +268,10 @@ public class MainActivity extends Activity {
                 intentMyIntentService.putExtra(YANDEX_ID, yandex_id_from_table);
                 startService(intentMyIntentService);
                 flagForContext = true;
-                showWeather();
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Обновление завершено", Toast.LENGTH_SHORT);
+                toast.show();
+                noNeed=true;
                 break;
 
             case 3:
@@ -348,18 +364,30 @@ public class MainActivity extends Activity {
 
 
     boolean flagForContext = false;
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
     private class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (isDialog == false || flagForContext == true) {
                 flagForContext = false;
-                composeToday(LAST);
-                inFinalWeather=1;
-                composeNextDays(3, LAST);
-                composeNextDays(4, LAST);
-                composeNextDays(5, LAST);
+                compose(LAST);
                 showWeather();
-                viewScreen.setCurrentItem(2);
+                viewScreen.setCurrentItem(1);
             }
             printCityFromTable();
             if (isDialog == true) dialog.dismiss();
@@ -367,205 +395,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void composeNextDays(int index, String mainCity) {
-        String tmp = "";
-        boolean isEmpty = true;
-        Cursor cursor = wBase.sqLiteDatabase.query(WeatherDataBase.TABLE_WEATHER_NAME, new String[]{
-                        WeatherDataBase.ID_WEATHER, WeatherDataBase.CITY, WeatherDataBase.COUNTRY, WeatherDataBase.YANDEX_ID,
-                        WeatherDataBase.TEMPERATURE, WeatherDataBase.DESCRIPTION, WeatherDataBase.PRESSURE, WeatherDataBase.WIND_DIRECTION,
-                        WeatherDataBase.WIND_SPEED, WeatherDataBase.HUMIDITY, WeatherDataBase.DAY_PART, WeatherDataBase.WEATHER_NOW, WeatherDataBase.DATA},
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        while (cursor.moveToNext()) {
-            String weather_now_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.WEATHER_NOW));
-            if (weather_now_from_table.equals(YES)) {
-                isEmpty = false;
-                break;
-            }
-        }
-        if (isEmpty == true) return;
-
-        cursor.moveToLast();
-        while (cursor.moveToPrevious()) {
-            String day_part_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART));
-            String city_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY));
-            String weather_now_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.WEATHER_NOW));
-
-            if (day_part_from_table.equals(NOW)) {
-                if (mainCity.equals(LAST)) {
-                    if (weather_now_from_table.equals(YES))
-                        break;
-                } else {
-                    if (city_from_table.equals(mainCity))
-                        break;
-                }
-            }
-        }
-        int stop = 1;
-        while (cursor.moveToNext()) {
-            String day_part_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART));
-            if (day_part_from_table.equals("morning")) {
-                ++stop;
-                if (stop == index) break;
-            }
-        }
-
-        if (index == 3)
-            tmp += "ПОГОДА НА ЗАВТРА \n \n";
-        if (index == 4)
-            tmp += "ПОГОДА НА ПОСЛЕЗАВТРА \n \n";
-        if (index == 5)
-            tmp += "ПОГОДА ЧЕРЕЗ 2 ДНЯ \n \n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.DATA)) + "\n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY)) + "\n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART)) + "\n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.TEMPERATURE)) + "°C \n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.DESCRIPTION)) + "\n";
-        tmp += "Давление: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.PRESSURE)) + "mm \n";
-        tmp += "Влажность: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.HUMIDITY)) + "% \n";
-        tmp += "Направление ветра: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_DIRECTION)) + "\n";
-        tmp += "Скорость ветра: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_SPEED)) + "m/s \n";
-
-        finalWeather[inFinalWeather] = tmp;
-        inFinalWeather++;
-        tmp = "";
-
-        cursor.moveToNext();
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART)) + "\n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.TEMPERATURE)) + "°C \n";
-        tmp += "Давление: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.PRESSURE)) + "mm \n";
-        tmp += "Влажность: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.HUMIDITY)) + "% \n";
-        tmp += "Направление ветра: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_DIRECTION)) + "\n";
-        tmp += "Скорость ветра: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_SPEED)) + "m/s\n";
-
-        finalWeather[inFinalWeather] = tmp;
-        inFinalWeather++;
-        tmp = "";
-
-        cursor.moveToNext();
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART)) + "\n";
-        tmp += cursor.getString(cursor.getColumnIndex(WeatherDataBase.TEMPERATURE)) + "°C\n";
-        tmp += "Давление: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.PRESSURE)) + "mm\n";
-        tmp += "Влажность: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.HUMIDITY)) + "%\n";
-        tmp += "Направление ветра: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_DIRECTION)) + "\n";
-        tmp += "Скорость ветра: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_SPEED)) + "m/s\n";
-
-        finalWeather[inFinalWeather] = tmp;
-        inFinalWeather++;
-    }
-    private void composeToday(String mainCity) {
-        changeFlags(mainCity);
-        boolean isEmpty = true;
-        Cursor cursor = wBase.sqLiteDatabase.query(WeatherDataBase.TABLE_WEATHER_NAME, new String[] {
-                        WeatherDataBase.ID_WEATHER, WeatherDataBase.CITY, WeatherDataBase.COUNTRY, WeatherDataBase.YANDEX_ID,
-                        WeatherDataBase.TEMPERATURE, WeatherDataBase.DESCRIPTION, WeatherDataBase.PRESSURE, WeatherDataBase.WIND_DIRECTION,
-                        WeatherDataBase.WIND_SPEED, WeatherDataBase.HUMIDITY, WeatherDataBase.DAY_PART, WeatherDataBase.WEATHER_NOW, WeatherDataBase.DATA},
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        while (cursor.moveToNext()) {
-            String weather_now_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.WEATHER_NOW));
-            String city_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY));
-
-            if (weather_now_from_table.equals(YES)) {
-                isEmpty = false;
-                CITY_YES = city_from_table;
-                break;
-            }
-        }
-        if (isEmpty == true) return;
-
-        cursor.moveToLast();
-        while (cursor.moveToPrevious()) {
-            String day_part_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART));
-            String city_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY));
-            String weather_now_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.WEATHER_NOW));
-
-            if (day_part_from_table.equals(NOW)) {
-                if (mainCity.equals(LAST)) {
-                    if (weather_now_from_table.equals(YES))
-                        break;
-                } else {
-                    if (city_from_table.equals(mainCity))
-                        break;
-                }
-            }
-        }
-        String tmp = "";
-
-        tmp+="ПОГОДА СЕЙЧАС \n \n";
-        tmp+=cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY)) + "\n";
-        tmp+=cursor.getString(cursor.getColumnIndex(WeatherDataBase.TEMPERATURE))+"°C \n";
-        tmp+=cursor.getString(cursor.getColumnIndex(WeatherDataBase.DESCRIPTION))+"\n";
-        tmp+="Давление: "+cursor.getString(cursor.getColumnIndex(WeatherDataBase.PRESSURE))+"mm \n";
-        tmp+="Влажность: "+ cursor.getString(cursor.getColumnIndex(WeatherDataBase.HUMIDITY))+"%\n";
-        tmp+="Направление ветра: "+ cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_DIRECTION))+"\n";
-        tmp+="Скорость ветра: "+cursor.getString(cursor.getColumnIndex(WeatherDataBase.WIND_SPEED))+"m/s\n";
-        tmp+="Последнее обновление: " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.DATA)).substring(0, cursor.getString(cursor.getColumnIndex(WeatherDataBase.DATA)).indexOf("T")) +
-                " " + cursor.getString(cursor.getColumnIndex(WeatherDataBase.DATA)).substring(cursor.getString(cursor.getColumnIndex(WeatherDataBase.DATA)).indexOf("T") + 1, cursor.getString(cursor.getColumnIndex(WeatherDataBase.DATA)).length())+"\n";
-       finalWeather[0] = tmp;
-    }
-
-    private void changeFlags(String city) {
-        if (city.equals(LAST)) return;
-        Cursor cursor = wBase.sqLiteDatabase.query(WeatherDataBase.TABLE_WEATHER_NAME, new String[] {
-                        WeatherDataBase.ID_WEATHER, WeatherDataBase.CITY, WeatherDataBase.COUNTRY, WeatherDataBase.YANDEX_ID,
-                        WeatherDataBase.TEMPERATURE, WeatherDataBase.DESCRIPTION, WeatherDataBase.PRESSURE, WeatherDataBase.WIND_DIRECTION,
-                        WeatherDataBase.WIND_SPEED, WeatherDataBase.HUMIDITY, WeatherDataBase.DAY_PART, WeatherDataBase.WEATHER_NOW, WeatherDataBase.DATA},
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        while (cursor.moveToNext()) {
-            String weather_now_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.WEATHER_NOW));
-            String city_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY));
-            String day_part_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.DAY_PART));
-
-            if (weather_now_from_table.equals(YES)) {
-                wBase.changeYesOrNo(cursor.getString(cursor.getColumnIndex(WeatherDataBase.ID_WEATHER)), NO);
-            }
-            if (city_from_table.equals(city) == true && day_part_from_table.equals(NOW) == true) {
-                wBase.changeYesOrNo(cursor.getString(cursor.getColumnIndex(WeatherDataBase.ID_WEATHER)), YES);
-            }
-        }
-    }
-
-
-
     private void printCityFromTable() {
         addedCitiesID = new ArrayList<Integer>();
         addedCities = new ArrayList<HashMap<String, String>>();
-        Cursor cursor = wBase.sqLiteDatabase.query(WeatherDataBase.TABLE_WEATHER_NAME, new String[] {
-                        WeatherDataBase.ID_WEATHER, WeatherDataBase.CITY, WeatherDataBase.COUNTRY, WeatherDataBase.YANDEX_ID,
-                        WeatherDataBase.TEMPERATURE, WeatherDataBase.DESCRIPTION, WeatherDataBase.PRESSURE, WeatherDataBase.WIND_DIRECTION,
-                        WeatherDataBase.WIND_SPEED, WeatherDataBase.HUMIDITY, WeatherDataBase.DAY_PART, WeatherDataBase.WEATHER_NOW, WeatherDataBase.DATA},
-                null, 
-                null, 
-                null, 
-                null, 
-                null 
-        );
-        while (cursor.moveToNext()) {
-            String city_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.CITY));
-            String country_from_table = cursor.getString(cursor.getColumnIndex(WeatherDataBase.COUNTRY));
-            int id_from_table = Integer.parseInt(cursor.getString(cursor.getColumnIndex(WeatherDataBase.YANDEX_ID)));
-            HashMap <String, String> map = new HashMap<String, String>();
-            map.put(CITY, city_from_table);
-            map.put(COUNTRY, country_from_table);
-            if (addedCities.contains(map) == false) {
-                addedCities.add(map);
-                addedCitiesID.add(id_from_table);
-            }
-        }
+        addedCities =wt.takeSmall();
+        addedCitiesID=wt.takeBig();
         SimpleAdapter adapter = new SimpleAdapter(MainActivity.this, addedCities, R.layout.row, new String[] {CITY, COUNTRY}, new int[] {R.id.ColCity, R.id.ColCountry});
         addedCitiesListView.setAdapter(adapter);
     }
@@ -633,26 +467,8 @@ public class MainActivity extends Activity {
 
     public void showWeather()
     {
-        String[] f = new String[16];
-        f[0] = "----------------------------------";
-        f[1] = finalWeather[0];
-        f[2] = "----------------------------------";
-        for(int i = 0 ; i < 3 ; i++)
-        {
-            f[i+3] = finalWeather[i+1];
-        }
-        f[6] = "----------------------------------";
-        for(int i = 0 ; i < 3 ; i++)
-        {
-            f[i+7] = finalWeather[i+4];
-        }
-        f[10] = "----------------------------------";
-        for(int i = 0 ; i < 3 ; i++)
-        {
-            f[i+11] = finalWeather[i+7];
-        }
-        f[14] = "----------------------------------";
-        f[15] = "Created by Sergey Budkov 2536 \n >----(^_^)----<";
+        String[] f;
+        f=wt.compose();
         if(isFirst){
             isFirst=false;
             return;
@@ -662,16 +478,10 @@ public class MainActivity extends Activity {
         lv.setAdapter(adapter);
     }
 
-    public void preCreate(){
-        finalWeather[0] = "Что-то пошло не так.. Пожалуйста выберете город еще раз. Мне действительно очень жаль :("; 
-        for(int i = 1 ; i < 10;i++){
-            finalWeather[i] = ""+i;
-        }
-    }
+
 
     @Override
     protected void onDestroy() {
-        wBase.close();
         super.onDestroy();
         if (isConnect == true) {
             unregisterReceiver(myBroadcastReceiver);

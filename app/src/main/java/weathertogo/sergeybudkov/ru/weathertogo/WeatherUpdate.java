@@ -13,6 +13,7 @@ public class WeatherUpdate extends IntentService {
 
     public void onCreate() {
         super.onCreate();
+        wBase = MyContentProvider.database;
     }
 
     @Override

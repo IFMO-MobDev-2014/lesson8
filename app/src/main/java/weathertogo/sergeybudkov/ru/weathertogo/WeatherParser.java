@@ -1,6 +1,7 @@
 package weathertogo.sergeybudkov.ru.weathertogo;
 
 import android.content.ContentValues;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -116,7 +117,7 @@ public class WeatherParser extends DefaultHandler {
             values.put(WeatherDataBase.DAY_PART, day_part);
             values.put(WeatherDataBase.DATA, data);
             values.put(WeatherDataBase.HUMIDITY, humidity);
-            MainActivity.wBase.insertWeather(WeatherIntent.city, WeatherIntent.country, WeatherIntent.yandex_id, temperature_avg, weather_type,
+            MyContentProvider.database.insertWeather(WeatherIntent.city, WeatherIntent.country, WeatherIntent.yandex_id, temperature_avg, weather_type,
                     pressure, wind_direction, wind_speed, day_part, data, humidity);
         }
         if (name.equalsIgnoreCase("OBSERVATION_TIME")) {

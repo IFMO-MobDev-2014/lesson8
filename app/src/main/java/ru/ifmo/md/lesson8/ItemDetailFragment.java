@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
 import ru.ifmo.md.lesson8.dummy.DummyContent;
+import weathertogo.sergeybudkov.ru.weathertogo.R;
 
 /**
  * A fragment representing a single Item detail screen.

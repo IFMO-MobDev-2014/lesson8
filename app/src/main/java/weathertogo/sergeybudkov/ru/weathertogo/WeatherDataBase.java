@@ -14,7 +14,7 @@ public class WeatherDataBase {
     public SQLiteDatabase sqLiteDatabase;
     private Context context;
     public DatabaseHelper databaseHelper;
-
+    public static WeatherDataBase dataBase = null;
     public static final String DATABASE_NAME = "WeatherToGo";
     public static final int DATABASE_VERSION = 1;
     public static final String TABLE_WEATHER_NAME = "AddedCitiesWeather";
@@ -46,6 +46,7 @@ public class WeatherDataBase {
         databaseHelper = new DatabaseHelper(context);
         sqLiteDatabase = databaseHelper.getWritableDatabase();
         return this;
+
     }
 
     public void close() {
@@ -92,6 +93,12 @@ public class WeatherDataBase {
 
     public int deleteWeatherTable() {
         return sqLiteDatabase.delete(TABLE_WEATHER_NAME, null, null);
+    }
+
+    public static WeatherDataBase getDataBase(Context context) {
+        if (dataBase == null)
+            dataBase = new WeatherDataBase(context.getApplicationContext()).open();
+        return dataBase;
     }
 
     public void changeYesOrNo(String id, String flag) {
