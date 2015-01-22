@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.ifmo.md.extratask1" >
+    package="ru.ifmo.md.lesson8" >
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <provider
+            android:name="ru.ifmo.md.lesson8.provider.WeatherProvider"
+            android:authorities="ru.ifmo.md.lesson8.weather"
+            android:enabled="true"
+            android:exported="false" >
+        </provider>
+
+        <service
+            android:name="ru.ifmo.md.lesson8.WeatherLoaderService"
+            android:exported="false" >
+        </service>
+
         <activity
-            android:name="ru.ifmo.md.extratask1.MainActivity"
-            android:theme="@style/AppTheme"
+            android:name="ru.ifmo.md.lesson8.CityListActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,18 +31,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service android:name="ru.ifmo.md.extratask1.DownloadImagesService" />
-
-        <provider
-            android:name="ru.ifmo.md.extratask1.ImagesContentProvider"
-            android:authorities="ru.ifmo.md.extratask1.imagesContentProvider"
-            android:enabled="true" >
-        </provider>
-
         <activity
-            android:name="ru.ifmo.md.extratask1.ImageViewActivity"
-            android:label="@string/app_name" >
+            android:name="ru.ifmo.md.lesson8.CityDetailActivity"
+            android:label="@string/title_city_detail"
+            android:parentActivityName="ru.ifmo.md.lesson8.CityListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.ifmo.md.lesson8.CityListActivity" />
         </activity>
     </application>
 
