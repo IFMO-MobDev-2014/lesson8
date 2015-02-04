@@ -179,7 +179,6 @@ public class MainActivity extends ActionBarActivity
         cityFragment.setArguments(data);
 
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                 .replace(R.id.city_frame, cityFragment)
                 .replace(R.id.forecast_frame, forecastFragment)
                 .addToBackStack(null)
