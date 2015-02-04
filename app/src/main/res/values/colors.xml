@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="button_color_default">#2196F3</color>
+    <color name="temp_color">#9B9AFF</color>
+    <color name="forecast_background">#ff3c3c3c</color>
+</resources>
