@@ -3,5 +3,11 @@
 
     <string name="app_name">Weather</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="drawer_open">Drawer opened</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint">Type name of the city</string>
 
+    <string name="last_upd">Last update: </string>
+    <string name="weather_frag_tag">weather_frag</string>
 </resources>
