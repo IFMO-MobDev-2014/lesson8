@@ -23,6 +23,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import com.pinguinson.lesson10.R;

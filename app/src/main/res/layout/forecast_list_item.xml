@@ -26,14 +26,14 @@
         android:layout_toRightOf="@+id/forecast_condition_icon"
         android:layout_toEndOf="@+id/forecast_condition_icon"
         android:textSize="@dimen/primary_list_item_text_size"
-        android:textColor="#ffb3b3b3"/>
+        android:textColor="@color/almost_white_grey"/>
 
     <TextView
         android:id="@android:id/text2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/default_conditions"
-        android:textColor="#ffb3b3b3"
+        android:textColor="@color/almost_white_grey"
         android:layout_toRightOf="@+id/forecast_condition_icon"
         android:layout_toEndOf="@+id/forecast_condition_icon"
         android:layout_below="@android:id/text1"
@@ -51,7 +51,7 @@
             android:textSize="20sp"
             android:id="@+id/low_temp"
             android:text="@string/default_temp"
-            android:textColor="#ffb3b3b3"
+            android:textColor="@color/almost_white_grey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/temp_separator"
-            android:textColor="#ffb3b3b3"
+            android:textColor="@color/almost_white_grey"
             android:paddingRight="3dp"
             android:paddingLeft="3dp"/>
 
@@ -68,7 +68,7 @@
             android:textSize="20sp"
             android:id="@+id/high_temp"
             android:text="@string/default_temp"
-            android:textColor="#ffb3b3b3"
+            android:textColor="@color/almost_white_grey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

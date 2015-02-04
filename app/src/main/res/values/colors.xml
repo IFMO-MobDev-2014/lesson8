@@ -3,4 +3,6 @@
     <color name="button_color_default">#2196F3</color>
     <color name="temp_color">#9B9AFF</color>
     <color name="forecast_background">#ff3c3c3c</color>
+    <color name="almost_white_grey">#ffdadada</color>
+    <color name="almost_black_grey">#ff3a3a3a</color>
 </resources>
