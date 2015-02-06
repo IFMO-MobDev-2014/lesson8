@@ -14,7 +14,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:paddingRight="@dimen/default_padding"
-        android:src="@drawable/weather_42"/>
+        android:src="@drawable/condition_16"/>
 
     <TextView
         android:id="@android:id/text1"

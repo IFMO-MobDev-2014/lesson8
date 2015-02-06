@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Weather Forecast</string>
+    <string name="app_name">Status Caeli</string>
     <string name="cities_list_empty_text">Loading cities…</string>
     <string name="forecasts_loading_text">Getting the forecasts…</string>
     <string name="forecasts_empty_text">No forecasts are available.\nPull down to refresh.</string>

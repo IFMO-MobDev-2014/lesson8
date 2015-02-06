@@ -25,7 +25,7 @@ public class ForecastAdapter extends CursorAdapter {
 
     public static int getIconID(int num, Context context) {
         try {
-            String imageName = "weather_" + Integer.toString(num);
+            String imageName = "condition_" + Integer.toString(num);
             return context.getResources().getIdentifier(imageName, "drawable", context.getPackageName());
         } catch (Exception e) {
             e.printStackTrace();

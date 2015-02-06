@@ -19,7 +19,7 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:src="@drawable/weather_42"
+            android:src="@drawable/condition_18"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
