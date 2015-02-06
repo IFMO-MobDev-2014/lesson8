@@ -14,7 +14,8 @@
             android:id="@+id/city_frame"
             android:layout_weight="1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:measureAllChildren="false" />
 
         <FrameLayout
             android:id="@+id/forecast_frame"
@@ -30,7 +31,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/cities_list"
         android:name="com.pinguinson.lesson10.fragments.CitiesListFragment"
-        android:layout_width="match_parent"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         tools:context=".CitiesListFragment"

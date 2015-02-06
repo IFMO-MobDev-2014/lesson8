@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.pinguinson.lesson10.activities.MainActivity;
+import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
 import com.pinguinson.lesson10.adapters.ForecastAdapter;
 import com.pinguinson.lesson10.db.tables.ForecastsTable;
@@ -66,11 +66,11 @@ public class ForecastListFragment extends ListFragment implements
         forecastAdapter = new ForecastAdapter(getActivity(), null);
         setListAdapter(forecastAdapter);
 
-        if (getArguments().containsKey(MainActivity.CITY_ID)) {
+        if (getArguments().containsKey(ForecastActivity.CITY_ID)) {
             Bundle args = new Bundle();
-            cityId = getArguments().getString(MainActivity.CITY_ID);
-            woeid = getArguments().getLong(MainActivity.WOEID);
-            args.putString(MainActivity.CITY_ID, cityId);
+            cityId = getArguments().getString(ForecastActivity.CITY_ID);
+            woeid = getArguments().getLong(ForecastActivity.WOEID);
+            args.putString(ForecastActivity.CITY_ID, cityId);
             getLoaderManager().initLoader(LOADER_ID, args, this);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReceiver,
                     new IntentFilter(ForecastService.ACTION_FORECASTS_FETCH));
@@ -86,7 +86,7 @@ public class ForecastListFragment extends ListFragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (getArguments().containsKey(MainActivity.CITY_ID)) {
+        if (getArguments().containsKey(ForecastActivity.CITY_ID)) {
             setEmptyText(getResources().getString(R.string.forecasts_loading_text));
         } else {
             setEmptyText(getResources().getString(R.string.forecasts_invalid_text));

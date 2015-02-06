@@ -18,12 +18,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.pinguinson.lesson10.activities.MainActivity;
+import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
 import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.db.WeatherContentProvider;
@@ -81,8 +80,8 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        ViewGroup parent = (ViewGroup) inflater.inflate(R.layout.nav_drawer, container, false);
-        parent.addView(v, 2);
+        ViewGroup parent = (ViewGroup) inflater.inflate(R.layout.cities_list_drawer, container, false);
+        parent.addView(v);
         return parent;
     }
 
@@ -92,11 +91,11 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
 
         view.setBackgroundResource(android.R.color.background_light);
 
-        Button currentLocBtn = (Button) view.findViewById(R.id.current_location_button);
+        ImageButton currentLocBtn = (ImageButton) view.findViewById(R.id.current_location_button);
         ImageButton newCityBtn = (ImageButton) view.findViewById(R.id.add_new_city_button);
 
-        currentLocBtn.setOnClickListener((MainActivity) getActivity());
-        newCityBtn.setOnClickListener((MainActivity) getActivity());
+        currentLocBtn.setOnClickListener((ForecastActivity) getActivity());
+        newCityBtn.setOnClickListener((ForecastActivity) getActivity());
 
         getListView().setOnItemLongClickListener(this);
         setEmptyText(getResources().getString(R.string.cities_list_empty_text));
@@ -130,7 +129,7 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
         String cityId = c.getString(c.getColumnIndexOrThrow(CitiesTable._ID));
         long woeid = c.getLong(c.getColumnIndexOrThrow(CitiesTable.COLUMN_NAME_WOEID));
         Bundle data = new Bundle();
-        data.putLong(MainActivity.WOEID, woeid);
+        data.putLong(ForecastActivity.WOEID, woeid);
         mCallbacks.onItemSelected(cityId, data);
     }
 

@@ -17,17 +17,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.pinguinson.lesson10.R;
@@ -39,7 +38,7 @@ import com.pinguinson.lesson10.fragments.ForecastListFragment;
 import com.pinguinson.lesson10.services.AlarmService;
 import com.pinguinson.lesson10.services.ForecastService;
 
-public class MainActivity extends ActionBarActivity
+public class ForecastActivity extends ActionBarActivity
         implements CitiesListFragment.Callbacks, LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     public static final String CITY_ID = "city_id";
@@ -53,7 +52,8 @@ public class MainActivity extends ActionBarActivity
     private ProgressDialog dialog;
     private CityDetailFragment cityFragment;
     private ForecastListFragment forecastFragment;
-    private MainActivity self = this;
+    private ForecastActivity self = this;
+
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -156,6 +156,7 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         //Simple crutch to prevent app from loading forecast for last city in db on screen rotate
         onItemSelected(savedInstanceState.getString(CITY_ID), null);
     }
@@ -178,13 +179,15 @@ public class MainActivity extends ActionBarActivity
         forecastFragment.setArguments(data);
         cityFragment.setArguments(data);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.city_frame, cityFragment)
-                .replace(R.id.forecast_frame, forecastFragment)
-                .addToBackStack(null)
-                .commitAllowingStateLoss();
-        mDrawerLayout.closeDrawers();
-        currentCityId = id;
+        if(!isFinishing()) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.city_frame, cityFragment)
+                    .replace(R.id.forecast_frame, forecastFragment)
+                    .addToBackStack(null)
+                    .commitAllowingStateLoss();
+            mDrawerLayout.closeDrawers();
+            currentCityId = id;
+        }
     }
 
     public void addNewCity() {
@@ -233,6 +236,10 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.today_weather_menu, menu);
@@ -240,12 +247,8 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    @Override
     public void onClick(View v) {
+        v.startAnimation(AnimationUtils.loadAnimation(this, R.anim.on_click_animation));
         switch (v.getId()) {
             case R.id.current_location_button:
                 startCurrentLocationUpdate(true);

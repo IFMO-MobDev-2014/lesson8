@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pinguinson.lesson10.activities.MainActivity;
+import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
 import com.pinguinson.lesson10.adapters.ForecastAdapter;
 import com.pinguinson.lesson10.db.tables.CitiesTable;
@@ -60,10 +60,10 @@ public class CityDetailFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(MainActivity.CITY_ID)) {
+        if (getArguments().containsKey(ForecastActivity.CITY_ID)) {
             Bundle args = new Bundle();
-            cityId = getArguments().getString(MainActivity.CITY_ID);
-            args.putString(MainActivity.CITY_ID, cityId);
+            cityId = getArguments().getString(ForecastActivity.CITY_ID);
+            args.putString(ForecastActivity.CITY_ID, cityId);
             getLoaderManager().initLoader(LOADER_ID, args, this);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReceiver,
                     new IntentFilter(ForecastService.ACTION_FORECASTS_FETCH));

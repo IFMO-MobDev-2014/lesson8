@@ -25,13 +25,23 @@ public class CitySearchTask extends AsyncTask<String, Void, ForecastParser.Locat
     protected ForecastParser.LocationResult doInBackground(String... params) {
         String name = params[0];
         String searchUrl = CITY_SEARCH_URI.replace("  *cityName*  ", name);
+        InputStream inputStream = null;
         try {
-            InputStream response = new URL(searchUrl).openStream();
-            return new ForecastParser().parseLocation(response);
+            inputStream = new URL(searchUrl).openStream();
+            return new ForecastParser().parseLocation(inputStream);
         } catch (IOException | SAXException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                //can't do anything about it
+            }
         }
+        //this try/catch/finally structure looks bulky
     }
 
     @Override

@@ -26,7 +26,7 @@ import com.pinguinson.lesson10.services.ForecastService;
 public class AddCityActivity extends ActionBarActivity implements TextWatcher, AsyncResponseReceiver<ForecastParser.LocationResult> {
 
     EditText searchField;
-    TextView suggestion;
+    TextView suggestedCityName;
     ForecastParser.LocationResult currentResult;
 
     @Override
@@ -35,7 +35,7 @@ public class AddCityActivity extends ActionBarActivity implements TextWatcher, A
         setContentView(R.layout.activity_add_city);
 
         searchField = (EditText) findViewById(R.id.search_field);
-        suggestion = (TextView) findViewById(R.id.suggestion);
+        suggestedCityName = (TextView) findViewById(R.id.suggestion);
 
         searchField.addTextChangedListener(this);
     }
@@ -60,9 +60,9 @@ public class AddCityActivity extends ActionBarActivity implements TextWatcher, A
     @Override
     public void processFinish(ForecastParser.LocationResult result) {
         if (result == null) {
-            suggestion.setText(R.string.add_city_error);
+            suggestedCityName.setText(R.string.add_city_error);
         } else {
-            suggestion.setText(result.cityName);
+            suggestedCityName.setText(result.cityName);
             currentResult = result;
         }
     }

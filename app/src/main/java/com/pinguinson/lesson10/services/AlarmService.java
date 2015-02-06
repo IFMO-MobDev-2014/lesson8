@@ -24,7 +24,7 @@ public class AlarmService extends IntentService {
         PendingIntent pending = PendingIntent.getBroadcast(this, 0, in, PendingIntent.FLAG_CANCEL_CURRENT);
         manager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 Calendar.getInstance().getTimeInMillis(),
-                AlarmManager.INTERVAL_HOUR * 4,
+                AlarmManager.INTERVAL_HOUR * 6,
                 pending);
     }
 }

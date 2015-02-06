@@ -9,7 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.pinguinson.lesson10.activities.MainActivity;
+import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
 import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.db.tables.ForecastsTable;
@@ -57,8 +57,8 @@ public class ForecastService extends IntentService {
     public static void fetchForecasts(Context context, String cityId, long woeid) {
         Intent intent = new Intent(context, ForecastService.class);
         intent.setAction(ACTION_FORECASTS_FETCH);
-        intent.putExtra(MainActivity.CITY_ID, cityId);
-        intent.putExtra(MainActivity.WOEID, woeid);
+        intent.putExtra(ForecastActivity.CITY_ID, cityId);
+        intent.putExtra(ForecastActivity.WOEID, woeid);
         context.startService(intent);
     }
 
@@ -69,8 +69,8 @@ public class ForecastService extends IntentService {
             String cityId;
             switch (intent.getAction()) {
                 case ACTION_FORECASTS_FETCH:
-                    woeid = intent.getLongExtra(MainActivity.WOEID, -1);
-                    cityId = intent.getStringExtra(MainActivity.CITY_ID);
+                    woeid = intent.getLongExtra(ForecastActivity.WOEID, -1);
+                    cityId = intent.getStringExtra(ForecastActivity.CITY_ID);
                     handleForecastFetching(woeid, cityId);
                     break;
                 case ACTION_GET_LOCATION_WOEID:
@@ -117,7 +117,7 @@ public class ForecastService extends IntentService {
         }
         Intent localIntent = new Intent(ACTION_FORECASTS_FETCH)
                 .putExtra(STATUS, STATUS_OK)
-                .putExtra(MainActivity.CITY_ID, cityId);
+                .putExtra(ForecastActivity.CITY_ID, cityId);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
@@ -162,7 +162,7 @@ public class ForecastService extends IntentService {
 
         Intent localIntent = new Intent(ACTION_GET_LOCATION_WOEID)
                 .putExtra(STATUS, STATUS_OK)
-                .putExtra(MainActivity.WOEID, res.woeid);
+                .putExtra(ForecastActivity.WOEID, res.woeid);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
