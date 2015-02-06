@@ -18,11 +18,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
+import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.adapters.ForecastAdapter;
-import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.db.WeatherContentProvider;
+import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.services.ForecastService;
 
 /**

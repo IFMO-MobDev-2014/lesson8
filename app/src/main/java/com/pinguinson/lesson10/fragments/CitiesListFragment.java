@@ -22,10 +22,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
-import com.pinguinson.lesson10.db.tables.CitiesTable;
+import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.db.WeatherContentProvider;
+import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.services.ForecastService;
 
 public class CitiesListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, ListView.OnItemLongClickListener {

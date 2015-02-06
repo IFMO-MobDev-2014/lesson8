@@ -17,21 +17,18 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.pinguinson.lesson10.R;
-import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.db.WeatherContentProvider;
+import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.fragments.CitiesListFragment;
 import com.pinguinson.lesson10.fragments.CityDetailFragment;
 import com.pinguinson.lesson10.fragments.ForecastListFragment;
@@ -179,7 +176,7 @@ public class ForecastActivity extends ActionBarActivity
         forecastFragment.setArguments(data);
         cityFragment.setArguments(data);
 
-        if(!isFinishing()) {
+        if (!isFinishing()) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.city_frame, cityFragment)
                     .replace(R.id.forecast_frame, forecastFragment)

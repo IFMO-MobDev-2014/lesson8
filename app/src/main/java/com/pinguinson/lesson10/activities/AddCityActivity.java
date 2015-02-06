@@ -13,8 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.pinguinson.lesson10.R;
-import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.db.WeatherContentProvider;
+import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.services.AsyncResponseReceiver;
 import com.pinguinson.lesson10.services.CitySearchTask;
 import com.pinguinson.lesson10.services.ForecastParser;
