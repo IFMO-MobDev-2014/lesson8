@@ -8,18 +8,21 @@ import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.pinguinson.lesson10.activities.ForecastActivity;
 import com.pinguinson.lesson10.R;
 import com.pinguinson.lesson10.db.tables.CitiesTable;
 import com.pinguinson.lesson10.db.tables.ForecastsTable;
 import com.pinguinson.lesson10.db.WeatherContentProvider;
+import com.pinguinson.lesson10.fragments.ForecastListFragment;
 
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 
 /**
  * Created by pinguinson.
@@ -146,10 +149,12 @@ public class ForecastService extends IntentService {
                 new String[]{Long.toString(res.woeid)},
                 null);
         if (current.getCount() == 0) {
+            //found new city
             row.put(CitiesTable.COLUMN_NAME_CITY_NAME, res.cityName);
             row.put(CitiesTable.COLUMN_NAME_WOEID, res.woeid);
             getContentResolver().insert(WeatherContentProvider.CITIES_CONTENT_URL, row);
         } else {
+            //found existing city
             ContentValues reset = new ContentValues();
             reset.put(CitiesTable.COLUMN_NAME_IS_CURRENT, 0);
             getContentResolver().update(WeatherContentProvider.CITIES_CONTENT_URL,
