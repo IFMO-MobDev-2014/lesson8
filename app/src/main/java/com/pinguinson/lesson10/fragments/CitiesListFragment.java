@@ -165,7 +165,7 @@ public class CitiesListFragment extends ListFragment implements LoaderManager.Lo
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+        //super.onSaveInstanceState(outState);
     }
 
     public void setActivateOnItemClick(boolean activateOnItemClick) {

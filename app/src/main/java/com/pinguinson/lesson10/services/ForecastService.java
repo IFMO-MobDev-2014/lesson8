@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.pinguinson.lesson10.R;
 import com.pinguinson.lesson10.activities.ForecastActivity;
@@ -20,6 +21,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 
 /**
  * Created by pinguinson.
@@ -88,12 +90,14 @@ public class ForecastService extends IntentService {
                         handleForecastFetching(woeid, cityId);
                         allCities.moveToNext();
                     }
+                    allCities.close();
                     break;
             }
         }
     }
 
     private void handleForecastFetching(long woeid, String cityId) {
+        Log.d("Forecast", "forecasts updated for city #" + cityId);
         try {
             InputStream response = new URL(String.format(FORECAST_FETCH_URI, woeid)).openStream();
             ForecastParser.Result result = new ForecastParser().parse(response);
@@ -104,6 +108,24 @@ public class ForecastService extends IntentService {
             //this should never happen
             onError(ACTION_FORECASTS_FETCH, getBaseContext().getString(R.string.parsing_error));
         }
+    }
+
+    private void updateForecast(long woeid) {
+        String cityID = getCityIDbyWOEID(woeid);
+        fetchForecasts(this, cityID, woeid);
+    }
+
+    private String getCityIDbyWOEID(long woeid) {
+        Cursor current = getContentResolver().query(WeatherContentProvider.CITIES_CONTENT_URL,
+                new String[]{"*"},
+                CitiesTable.COLUMN_NAME_WOEID + "=?",
+                new String[]{Long.toString(woeid)},
+                null);
+
+        current.moveToNext();
+        String result = String.valueOf(current.getInt(current.getPosition()));
+        current.close();
+        return result;
     }
 
     protected void onForecastSuccess(String cityId, ForecastParser.Result result) {
@@ -147,6 +169,7 @@ public class ForecastService extends IntentService {
                 null);
         if (current.getCount() == 0) {
             //found new city
+            Log.d("Forecast", "found new city");
             row.put(CitiesTable.COLUMN_NAME_CITY_NAME, res.cityName);
             row.put(CitiesTable.COLUMN_NAME_WOEID, res.woeid);
             getContentResolver().insert(WeatherContentProvider.CITIES_CONTENT_URL, row);
@@ -162,8 +185,12 @@ public class ForecastService extends IntentService {
                     new String[]{Long.toString(res.woeid)});
         }
 
+        current.close();
+        updateForecast(res.woeid);
+        String cityID = getCityIDbyWOEID(res.woeid);
         Intent localIntent = new Intent(ACTION_GET_LOCATION_WOEID)
                 .putExtra(STATUS, STATUS_OK)
+                .putExtra(ForecastActivity.CITY_ID, cityID)
                 .putExtra(ForecastActivity.WOEID, res.woeid);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }

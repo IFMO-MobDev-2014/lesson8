@@ -5,4 +5,4 @@
 /.idea/libraries
 .DS_Store
 /build
-/app/manifest-merger-release-report.txt
+manifest-merger-release-report.txt
