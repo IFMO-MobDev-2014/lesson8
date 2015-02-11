@@ -19,8 +19,8 @@
         <provider
             android:authorities="com.example.alexey.wather.provider"
             android:name=".provider"/>
-        <service android:name=".IServise" />
-        <service android:name=".IServiseAddCity" />
+        <service android:name=".IService" />
+        <service android:name=".IServiceAddCity" />
     </application>
 
 </manifest>

@@ -16,13 +16,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
 /**
  * Created by Alexey on 08.12.2014.
  */
-public class IServiseAddCity extends IntentService {
+public class IServiceAddCity extends IntentService {
 
 
     static String RECEIVER = "1";
@@ -30,11 +32,11 @@ public class IServiseAddCity extends IntentService {
     static String RECEIVER_DATA = "4";
     static int STATUS_FINISHED = 5;
 
-    public IServiseAddCity() {
-        this("IServise");
+    public IServiceAddCity() {
+        this("Iservice");
     }
 
-    public IServiseAddCity(String name) {
+    public IServiceAddCity(String name) {
         super(name);
     }
 
@@ -51,18 +53,56 @@ public class IServiseAddCity extends IntentService {
         ResultReceiver receiver = intent.getParcelableExtra(RECEIVER);
 
 
-        receiver.send(STATUS_RUNNING,
-                Bundle.EMPTY);
+//        receiver.send(STATUS_RUNNING,
+  //              Bundle.EMPTY);
 
 
         final Bundle data = new Bundle();
+        Boolean connect=true;
+        URL url1= null;
+        try {
+            url1 = new URL("http://www.google.ru/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            connect=false;
+        }
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        try {
+            urlConnection = (HttpURLConnection) url1.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+            connect=false;
+        }
+        try {
+            urlConnection.setRequestMethod("GET");
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            connect=false;
+        }
+        try {
+            urlConnection.connect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            connect=false;
+        }
 
-        String s = intent.getStringExtra("name");
+        if (connect) {
+            data.putBoolean("status", true);
+
+        }
+        else {
+            data.putBoolean("status", false);
+            receiver.send(STATUS_FINISHED, data);
+            return;
+        }
+
+        String s = intent.getStringExtra("city");
         URL url = null;
         try {
             url = new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/"+s+".json");
             Bundle bundle=parseJ(getJ(url), s);
-            data.putString(RECEIVER_DATA, "Sample result data");
+            data.putString(RECEIVER_DATA, "cities");
             data.putBundle("ans",bundle);
         } catch (IOException e) {
             data.putString(RECEIVER_DATA, "Error");
@@ -83,7 +123,7 @@ public class IServiseAddCity extends IntentService {
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
 
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -115,7 +155,9 @@ public class IServiseAddCity extends IntentService {
             }
             if (dataJsonObj.has("location"))
             {
+                String l=dataJsonObj.getJSONObject("location").getString("l");
                 bundle.putString("result","one");
+                bundle.putString("link",l);
                 return bundle;
             }
             bundle.putString("result","many");
@@ -128,6 +170,7 @@ public class IServiseAddCity extends IntentService {
             String country;
             ContentValues cv;
             String zmw;
+            int t=0;
             for (int i = 0; i < results.length(); i++) {
                 temp = results.getJSONObject(i);
                 city=temp.getString("city");
@@ -139,9 +182,11 @@ public class IServiseAddCity extends IntentService {
                 zmw=temp.getString("l");
                 //zmw = "http://api.wunderground.com/api/" + "0c4d0979336b962f" + "/forecast10day/q/" + zmw + ".json";
                 links.add(zmw);
+                t++;
                 }
             bundle.putStringArrayList("links",links);
             bundle.putStringArrayList("list",list);
+            bundle.putInt("size",t);
             return bundle;
         } catch (JSONException e) {
             e.printStackTrace();
