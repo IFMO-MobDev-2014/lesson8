@@ -26,8 +26,8 @@ public class provider extends ContentProvider {
     static final String TYPE = "type";
     static final String NIGHT = "night";
     static final String TEMPERATURE = "temperature";
-    static final String FIVE_PATH = "five";
-    static final String SIX_PATH = "six";
+    static final String FIRST_PIC = "five";
+    static final String SECOND_PIC = "six";
     static final String HESH = "hesh";
     static final String AUTHORITY = "com.example.alexey.wather.provider";
     public static final Uri CONTENT_URI = Uri.parse("content://"
@@ -46,7 +46,6 @@ public class provider extends ContentProvider {
     }
 
     private static final UriMatcher uriMatcher;
-
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(AUTHORITY, PATH, URI_TO);
@@ -96,22 +95,19 @@ public class provider extends ContentProvider {
     }
 
     private class DBHelper extends SQLiteOpenHelper {
-
         public DBHelper(Context context) {
             super(context, PATH, null, DB_VERSION);
         }
-
         @Override
         public void onCreate(SQLiteDatabase db) {
             String DB_CREATE = "create table " + TABLE_NAME + "("
                 + _ID + " integer primary key autoincrement, " + DATE + " text, "
                 + DAY + " text, " + NIGHT + " text, " + TEMPERATURE + " text, "
-                + HESH + " text, " + TYPE + " text, " + FIVE_PATH + " BLOB,"
-                + SIX_PATH + " BLOB" + ");";
+                + HESH + " text, " + TYPE + " text, " + FIRST_PIC + " BLOB,"
+                + SECOND_PIC + " BLOB" + ");";
 
             db.execSQL(DB_CREATE);
         }
-
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         }
     }

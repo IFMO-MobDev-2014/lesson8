@@ -1,7 +1,6 @@
 package com.example.alexey.wather;
 
 import android.app.IntentService;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -21,16 +20,9 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
-/**
- * Created by Alexey on 08.12.2014.
- */
+
 public class IServiceAddCity extends IntentService {
 
-
-    static String RECEIVER = "1";
-    static int STATUS_RUNNING = 2;
-    static String RECEIVER_DATA = "4";
-    static int STATUS_FINISHED = 5;
 
     public IServiceAddCity() {
         this("Iservice");
@@ -50,90 +42,77 @@ public class IServiceAddCity extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i("started", "onhandle");
-        ResultReceiver receiver = intent.getParcelableExtra(RECEIVER);
-
-
-//        receiver.send(STATUS_RUNNING,
-  //              Bundle.EMPTY);
-
-
+        ResultReceiver receiver = intent.getParcelableExtra(Consts.RECEIVER);
         final Bundle data = new Bundle();
-        Boolean connect=true;
-        URL url1= null;
+        Boolean connect=ifExistConnection();
+        if (connect) {
+            data.putBoolean("status", true);
+        }
+        else {
+            data.putBoolean("status", false);
+            receiver.send(Consts.STATUS_FINISHED, data);
+            return;
+        }
+        String cityName = intent.getStringExtra("city");
+        URL url;
         try {
-            url1 = new URL("http://www.google.ru/");
+            url = new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/"+cityName+".json");
+            Bundle bundle=parseJ(getJ(url), cityName);
+            data.putString(Consts.RECEIVER_DATA, "cities");
+            data.putBundle("ans",bundle);
+        } catch (IOException e) {
+            data.putString(Consts.RECEIVER_DATA, "Error");
+        }
+        receiver.send(Consts.STATUS_FINISHED, data);
+    }
+
+    Boolean ifExistConnection(){
+        URL url;
+        try {
+            url = new URL("http://www.google.ru/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            connect=false;
+            return false;
         }
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
+        HttpURLConnection urlConnection;
         try {
-            urlConnection = (HttpURLConnection) url1.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
         } catch (IOException e) {
             e.printStackTrace();
-            connect=false;
+            return false;
         }
         try {
             urlConnection.setRequestMethod("GET");
         } catch (ProtocolException e) {
             e.printStackTrace();
-            connect=false;
+            return  false;
         }
         try {
             urlConnection.connect();
         } catch (IOException e) {
             e.printStackTrace();
-            connect=false;
+            return false;
         }
-
-        if (connect) {
-            data.putBoolean("status", true);
-
-        }
-        else {
-            data.putBoolean("status", false);
-            receiver.send(STATUS_FINISHED, data);
-            return;
-        }
-
-        String s = intent.getStringExtra("city");
-        URL url = null;
-        try {
-            url = new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/"+s+".json");
-            Bundle bundle=parseJ(getJ(url), s);
-            data.putString(RECEIVER_DATA, "cities");
-            data.putBundle("ans",bundle);
-        } catch (IOException e) {
-            data.putString(RECEIVER_DATA, "Error");
-        }
-        receiver.send(STATUS_FINISHED, data);
+        return true;
     }
 
     String getJ(URL url) {
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
+        HttpURLConnection urlConnection;
+        BufferedReader reader;
         String resultJson = "";
-
-
         try {
-
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-
             InputStream inputStream = urlConnection.getInputStream();
             StringBuilder buffer = new StringBuilder();
-
             reader = new BufferedReader(new InputStreamReader(inputStream));
-
             String line;
             while ((line = reader.readLine()) != null) {
                 buffer.append(line);
             }
-
+            reader.close();
             resultJson = buffer.toString();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -155,9 +134,9 @@ public class IServiceAddCity extends IntentService {
             }
             if (dataJsonObj.has("location"))
             {
-                String l=dataJsonObj.getJSONObject("location").getString("l");
+                String shortLink=dataJsonObj.getJSONObject("location").getString("l");
                 bundle.putString("result","one");
-                bundle.putString("link",l);
+                bundle.putString("link",shortLink);
                 return bundle;
             }
             bundle.putString("result","many");
@@ -168,7 +147,6 @@ public class IServiceAddCity extends IntentService {
             JSONObject temp;
             String state;
             String country;
-            ContentValues cv;
             String zmw;
             int t=0;
             for (int i = 0; i < results.length(); i++) {
@@ -180,7 +158,6 @@ public class IServiceAddCity extends IntentService {
                 else city=city+", "+state+", "+country;
                 list.add(city);
                 zmw=temp.getString("l");
-                //zmw = "http://api.wunderground.com/api/" + "0c4d0979336b962f" + "/forecast10day/q/" + zmw + ".json";
                 links.add(zmw);
                 t++;
                 }

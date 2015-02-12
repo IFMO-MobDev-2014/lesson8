@@ -9,5 +9,24 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Refresh</string>
     <string name="action_settings">Add City</string>
-
+    <string name="signal_true">1</string>
+    <string name="signal_false">0</string>
+    <string name="importance">importance</string>
+    <string name="refresh">refresh</string>
+    <string name="task">task</string>
+    <string name="success">SUCCESS</string>
+    <string name="mistake">MISTAKE</string>
+    <string name="one">one</string>
+    <string name="many">many</string>
+    <string name="status">status</string>
+    <string name="signal_city">city</string>
+    <string name="signal_cities">cities</string>
+    <string name="error">Error</string>
+    <string name="METHOD_NAME">GET</string>
+    <string name="AUTO_LINK">http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/autoip.json</string>
+    <string name="RECEIVER">1</string>
+    <string name="RECEIVER_DATA">4</string>
+    <string name="STATE_SELECTED_POSITION">selected_navigation_drawer_position</string>
+    <string name="PREF_USER_LEARNED_DRAWER">navigation_drawer_learned</string>
+    <string name="ARG_SECTION_NUMBER">section_number</string>
 </resources>

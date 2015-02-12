@@ -1,9 +1,5 @@
 package com.example.alexey.wather;
 
-/**
- * Created by Alexey on 01.12.2014.
- */
-
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -30,10 +26,7 @@ import java.net.URL;
 public class IService extends IntentService {
 
 
-    static String RECEIVER = "1";
-    static int STATUS_RUNNING = 2;
-    static String RECEIVER_DATA = "4";
-    static int STATUS_FINISHED = 5;
+    public Boolean exc=false;
 
     public IService() {
         this("Iservice");
@@ -53,101 +46,103 @@ public class IService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i("started", "onhandle");
-        ResultReceiver receiver = intent.getParcelableExtra(RECEIVER);
+        ResultReceiver receiver = intent.getParcelableExtra(Consts.RECEIVER);
         Boolean importance=true;
+
         if(intent.getStringExtra("importance").equals("0")){importance=false;}
 
-      //  if (importance)
-      //  receiver.send(STATUS_RUNNING,
-      //          Bundle.EMPTY);
-
-
         final Bundle data = new Bundle();
-        Boolean connect=true;
-        URL url1= null;
-        try {
-            url1 = new URL("http://www.google.ru/");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            connect=false;
-        }
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        try {
-            urlConnection = (HttpURLConnection) url1.openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-            connect=false;
-        }
-        try {
-            urlConnection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-            connect=false;
-        }
-        try {
-            urlConnection.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            connect=false;
-        }
-
+        Boolean connect;
+        connect=ifExistConnection();
         if (connect) {
             data.putBoolean("status", true);
 
         }
         else {
             data.putBoolean("status", false);
-            receiver.send(STATUS_FINISHED, data);
+            receiver.send(Consts.STATUS_FINISHED, data);
             return;
         }
-
-
         Boolean refresh=false;
-        if (intent.getStringExtra("ref").equals("1")) {
+        if (intent.getStringExtra("refresh").equals("1")) {
             data.putString("ref","1");
             refresh=true;
         }
-        String s = intent.getStringExtra("task");
-        String name=ImageConverter.hash(s);
-        Cursor cursor_2 = getContentResolver().query(provider.CONTENT_URI, null, "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )", null, null);
+        String cityName = intent.getStringExtra("task");
+        String name=ImageConverter.hash(cityName);
+        Cursor cursor_2 = getContentResolver().query(provider.CONTENT_URI,
+                null,
+                "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )",
+                null, null);
         if (!refresh&&cursor_2.moveToFirst()) {
-            data.putString(RECEIVER_DATA, "Sample result data");
+            data.putString(Consts.RECEIVER_DATA, "Sample result data");
             if (importance)
-                receiver.send(STATUS_FINISHED, data);
+                receiver.send(Consts.STATUS_FINISHED, data);
             return;
         }
         if (refresh)
-            getContentResolver().delete(provider.CONTENT_URI, "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )", null);
-        cursor_2= getContentResolver().query(provider.CONTENT_URI, null, "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '1' )", null, null);
+            getContentResolver().delete(provider.CONTENT_URI,
+                    "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )",
+                    null);
+        cursor_2= getContentResolver().query(provider.CONTENT_URI, null,
+                "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '1' )",
+                null, null);
         cursor_2.moveToFirst();
         try {
             String link=cursor_2.getString(cursor_2.getColumnIndex(provider.DAY));
             URL url =new URL(link);
-            String st=getJ(url);
+            String responceFile=getJ(url);
             if (exc) throw (new Exception("Connection priblems"));
-            parseJ(st, s);
-            data.putString(RECEIVER_DATA, "Sample result data");
+            parseJ(responceFile, cityName);
+            data.putString(Consts.RECEIVER_DATA, "Sample result data");
         } catch (IOException e) {
-
-            data.putString(RECEIVER_DATA, "error");
+            data.putString(Consts.RECEIVER_DATA, "error");
         } catch (Exception e) {
-            if(exc) data.putString(RECEIVER_DATA, "Connection problems");
+            if(exc) data.putString(Consts.RECEIVER_DATA, "Connection problems");
             e.printStackTrace();
         }
 
         if (importance)
-        receiver.send(STATUS_FINISHED, data);
+        receiver.send(Consts.STATUS_FINISHED, data);
+    }
+
+    Boolean ifExistConnection(){
+        URL url;
+        try {
+            url = new URL("http://www.google.ru/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        HttpURLConnection urlConnection;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        try {
+            urlConnection.setRequestMethod("GET");
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            return  false;
+        }
+        try {
+            urlConnection.connect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     void parseJ(String strJson, String name) {
         String LOG_TAG = "JSON_PARS";
         Log.d(LOG_TAG, strJson);
-        JSONObject dataJsonObj = null;
+        JSONObject dataJsonObj;
         String work=ImageConverter.hash(name);
         try {
             dataJsonObj = new JSONObject(strJson);
-
             JSONObject friends = dataJsonObj.getJSONObject("forecast").getJSONObject("txt_forecast");
             JSONArray kol = friends.getJSONArray("forecastday");
             JSONArray simp = dataJsonObj.getJSONObject("forecast").getJSONObject("simpleforecast").getJSONArray("forecastday");
@@ -175,9 +170,9 @@ public class IService extends IntentService {
                 cv.put(provider.DAY, day);
                 cv.put(provider.NIGHT, night);
                 cv.put(provider.TEMPERATURE, temper);
-                cv.put(provider.FIVE_PATH, ImageConverter.getBytes(bm));
+                cv.put(provider.FIRST_PIC, ImageConverter.getBytes(bm));
                 bm = BitmapFactory.decodeStream((InputStream) new URL(img2).getContent());
-                cv.put(provider.SIX_PATH, ImageConverter.getBytes(bm));
+                cv.put(provider.SECOND_PIC, ImageConverter.getBytes(bm));
                 getContentResolver().insert(provider.CONTENT_URI, cv);
             }
         } catch (JSONException e) {
@@ -191,29 +186,22 @@ public class IService extends IntentService {
     }
 
     String getJ(URL url) {
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String resultJson = "";
-
-
+        HttpURLConnection urlConnection;
+        BufferedReader reader;
+        String resultJson;
         try {
-
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-
             InputStream inputStream = urlConnection.getInputStream();
             StringBuilder buffer = new StringBuilder();
-
             reader = new BufferedReader(new InputStreamReader(inputStream));
-
             String line;
             while ((line = reader.readLine()) != null) {
                 buffer.append(line);
             }
-
+            reader.close();
             resultJson = buffer.toString();
-
         } catch (Exception e) {
             e.printStackTrace();
             exc=true;
@@ -221,27 +209,24 @@ public class IService extends IntentService {
         }
         return resultJson;
     }
-    public Boolean exc=false;
+
+    //auto-determine city
     void getAuto()
     {
-        String Jo_S = null;
+        String JSON = null;
         try {
-            URL url=new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/autoip.json");
-            Jo_S=getJ(url);
+            URL url=new URL(Consts.AUTO_LINK);
+            JSON=getJ(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         try {
-            JSONObject dataJsonObj = new JSONObject(Jo_S);
+            JSONObject dataJsonObj = new JSONObject(JSON);
             String shortLink = dataJsonObj.getJSONObject("location").getString("l");
             String name =dataJsonObj.getJSONObject("location").getString("city");
-            //ContentValues cv.put(provider.SIX_PATH, ImageConverter.getBytes(bm));
-            //getContentResolver().insert(provider.CONTENT_URI, cv);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
 }
