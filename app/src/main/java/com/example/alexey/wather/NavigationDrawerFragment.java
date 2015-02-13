@@ -48,7 +48,7 @@ public class NavigationDrawerFragment extends Fragment {
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
-    public static Boolean pushed=false;
+    public static Boolean pushed = false;
 
     public NavigationDrawerFragment() {
     }
@@ -82,7 +82,7 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        Cursor cursor=getActivity().getContentResolver().query(provider.CONTENT_URI,null,provider.TYPE + " = '1' ",null,null);
+        Cursor cursor = getActivity().getContentResolver().query(provider.CONTENT_URI, null, provider.TYPE + " = '1' ", null, null);
         SimpleCursorAdapter adapter;
         adapter = new SimpleCursorAdapter(getActivity(),
                 android.R.layout.simple_list_item_activated_1,
@@ -100,7 +100,7 @@ public class NavigationDrawerFragment extends Fragment {
                 alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         getActivity().getContentResolver().delete(provider.CONTENT_URI, provider.HESH + " = " + "'" + ImageConverter.hash(name) + "'", null);
-                        pushed=true;
+                        pushed = true;
                     }
                 });
                 alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -226,15 +226,15 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
         if (item.getItemId() == R.id.action_example) {
-            if(pushed) return true;
-            pushed=true;
-            Intent intent=new Intent(getActivity(),IService.class);
-            intent.putExtra("importance","1")
-                    .putExtra("refresh","1")
-                    .putExtra("task",MainActivity.mTitle)
+            if (pushed) return true;
+            pushed = true;
+            Intent intent = new Intent(getActivity(), IService.class);
+            intent.putExtra("importance", "1")
+                    .putExtra("refresh", "1")
+                    .putExtra("task", MainActivity.mTitle)
                     .putExtra("1", MainActivity.mReceiver);
             getActivity().startService(intent);
-            ProgressBar progressBar=(ProgressBar) getActivity().findViewById(R.id.progressBar2);
+            ProgressBar progressBar = (ProgressBar) getActivity().findViewById(R.id.progressBar2);
             progressBar.setVisibility(View.VISIBLE);
             return true;
         }

@@ -44,11 +44,10 @@ public class IServiceAddCity extends IntentService {
         Log.i("started", "onhandle");
         ResultReceiver receiver = intent.getParcelableExtra(Consts.RECEIVER);
         final Bundle data = new Bundle();
-        Boolean connect=ifExistConnection();
+        Boolean connect = ifExistConnection();
         if (connect) {
             data.putBoolean("status", true);
-        }
-        else {
+        } else {
             data.putBoolean("status", false);
             receiver.send(Consts.STATUS_FINISHED, data);
             return;
@@ -56,17 +55,17 @@ public class IServiceAddCity extends IntentService {
         String cityName = intent.getStringExtra("city");
         URL url;
         try {
-            url = new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/"+cityName+".json");
-            Bundle bundle=parseJ(getJ(url), cityName);
+            url = new URL("http://api.wunderground.com/api/0c4d0979336b962f/geolookup/q/" + cityName + ".json");
+            Bundle bundle = parseJ(getJ(url), cityName);
             data.putString(Consts.RECEIVER_DATA, "cities");
-            data.putBundle("ans",bundle);
+            data.putBundle("ans", bundle);
         } catch (IOException e) {
             data.putString(Consts.RECEIVER_DATA, "Error");
         }
         receiver.send(Consts.STATUS_FINISHED, data);
     }
 
-    Boolean ifExistConnection(){
+    Boolean ifExistConnection() {
         URL url;
         try {
             url = new URL("http://www.google.ru/");
@@ -85,7 +84,7 @@ public class IServiceAddCity extends IntentService {
             urlConnection.setRequestMethod("GET");
         } catch (ProtocolException e) {
             e.printStackTrace();
-            return  false;
+            return false;
         }
         try {
             urlConnection.connect();
@@ -125,45 +124,43 @@ public class IServiceAddCity extends IntentService {
         JSONObject dataJsonObj = null;
 
         try {
-            Bundle bundle=new Bundle();
+            Bundle bundle = new Bundle();
             dataJsonObj = new JSONObject(strJson);
-            if (dataJsonObj.getJSONObject("response").has("error"))
-            {
-                bundle.putString("result","mistake");
+            if (dataJsonObj.getJSONObject("response").has("error")) {
+                bundle.putString("result", "mistake");
                 return bundle;
             }
-            if (dataJsonObj.has("location"))
-            {
-                String shortLink=dataJsonObj.getJSONObject("location").getString("l");
-                bundle.putString("result","one");
-                bundle.putString("link",shortLink);
+            if (dataJsonObj.has("location")) {
+                String shortLink = dataJsonObj.getJSONObject("location").getString("l");
+                bundle.putString("result", "one");
+                bundle.putString("link", shortLink);
                 return bundle;
             }
-            bundle.putString("result","many");
-            ArrayList<String> list=new ArrayList<String>();
-            ArrayList<String> links=new ArrayList<String>();
+            bundle.putString("result", "many");
+            ArrayList<String> list = new ArrayList<String>();
+            ArrayList<String> links = new ArrayList<String>();
             JSONArray results = dataJsonObj.getJSONObject("response").getJSONArray("results");
             String city;
             JSONObject temp;
             String state;
             String country;
             String zmw;
-            int t=0;
+            int t = 0;
             for (int i = 0; i < results.length(); i++) {
                 temp = results.getJSONObject(i);
-                city=temp.getString("city");
-                state=temp.getString("state");
-                country=temp.getString("country_name");
-                if (state.equals("")) city=city+", "+country;
-                else city=city+", "+state+", "+country;
+                city = temp.getString("city");
+                state = temp.getString("state");
+                country = temp.getString("country_name");
+                if (state.equals("")) city = city + ", " + country;
+                else city = city + ", " + state + ", " + country;
                 list.add(city);
-                zmw=temp.getString("l");
+                zmw = temp.getString("l");
                 links.add(zmw);
                 t++;
-                }
-            bundle.putStringArrayList("links",links);
-            bundle.putStringArrayList("list",list);
-            bundle.putInt("size",t);
+            }
+            bundle.putStringArrayList("links", links);
+            bundle.putStringArrayList("list", list);
+            bundle.putInt("size", t);
             return bundle;
         } catch (JSONException e) {
             e.printStackTrace();

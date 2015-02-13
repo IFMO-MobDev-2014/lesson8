@@ -26,7 +26,7 @@ import java.net.URL;
 public class IService extends IntentService {
 
 
-    public Boolean exc=false;
+    public Boolean exc = false;
 
     public IService() {
         this("Iservice");
@@ -47,34 +47,35 @@ public class IService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i("started", "onhandle");
         ResultReceiver receiver = intent.getParcelableExtra(Consts.RECEIVER);
-        Boolean importance=true;
+        Boolean importance = true;
 
-        if(intent.getStringExtra("importance").equals("0")){importance=false;}
+        if (intent.getStringExtra("importance").equals("0")) {
+            importance = false;
+        }
 
         final Bundle data = new Bundle();
         Boolean connect;
-        connect=ifExistConnection();
+        connect = ifExistConnection();
         if (connect) {
             data.putBoolean("status", true);
 
-        }
-        else {
+        } else {
             data.putBoolean("status", false);
             receiver.send(Consts.STATUS_FINISHED, data);
             return;
         }
-        Boolean refresh=false;
+        Boolean refresh = false;
         if (intent.getStringExtra("refresh").equals("1")) {
-            data.putString("ref","1");
-            refresh=true;
+            data.putString("ref", "1");
+            refresh = true;
         }
         String cityName = intent.getStringExtra("task");
-        String name=ImageConverter.hash(cityName);
+        String name = ImageConverter.hash(cityName);
         Cursor cursor_2 = getContentResolver().query(provider.CONTENT_URI,
                 null,
                 "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )",
                 null, null);
-        if (!refresh&&cursor_2.moveToFirst()) {
+        if (!refresh && cursor_2.moveToFirst()) {
             data.putString(Consts.RECEIVER_DATA, "Sample result data");
             if (importance)
                 receiver.send(Consts.STATUS_FINISHED, data);
@@ -84,29 +85,29 @@ public class IService extends IntentService {
             getContentResolver().delete(provider.CONTENT_URI,
                     "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )",
                     null);
-        cursor_2= getContentResolver().query(provider.CONTENT_URI, null,
+        cursor_2 = getContentResolver().query(provider.CONTENT_URI, null,
                 "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '1' )",
                 null, null);
         cursor_2.moveToFirst();
         try {
-            String link=cursor_2.getString(cursor_2.getColumnIndex(provider.DAY));
-            URL url =new URL(link);
-            String responceFile=getJ(url);
+            String link = cursor_2.getString(cursor_2.getColumnIndex(provider.DAY));
+            URL url = new URL(link);
+            String responceFile = getJ(url);
             if (exc) throw (new Exception("Connection priblems"));
             parseJ(responceFile, cityName);
             data.putString(Consts.RECEIVER_DATA, "Sample result data");
         } catch (IOException e) {
             data.putString(Consts.RECEIVER_DATA, "error");
         } catch (Exception e) {
-            if(exc) data.putString(Consts.RECEIVER_DATA, "Connection problems");
+            if (exc) data.putString(Consts.RECEIVER_DATA, "Connection problems");
             e.printStackTrace();
         }
 
         if (importance)
-        receiver.send(Consts.STATUS_FINISHED, data);
+            receiver.send(Consts.STATUS_FINISHED, data);
     }
 
-    Boolean ifExistConnection(){
+    Boolean ifExistConnection() {
         URL url;
         try {
             url = new URL("http://www.google.ru/");
@@ -125,7 +126,7 @@ public class IService extends IntentService {
             urlConnection.setRequestMethod("GET");
         } catch (ProtocolException e) {
             e.printStackTrace();
-            return  false;
+            return false;
         }
         try {
             urlConnection.connect();
@@ -140,7 +141,7 @@ public class IService extends IntentService {
         String LOG_TAG = "JSON_PARS";
         Log.d(LOG_TAG, strJson);
         JSONObject dataJsonObj;
-        String work=ImageConverter.hash(name);
+        String work = ImageConverter.hash(name);
         try {
             dataJsonObj = new JSONObject(strJson);
             JSONObject friends = dataJsonObj.getJSONObject("forecast").getJSONObject("txt_forecast");
@@ -204,26 +205,25 @@ public class IService extends IntentService {
             resultJson = buffer.toString();
         } catch (Exception e) {
             e.printStackTrace();
-            exc=true;
-            resultJson=e.getMessage();
+            exc = true;
+            resultJson = e.getMessage();
         }
         return resultJson;
     }
 
     //auto-determine city
-    void getAuto()
-    {
+    void getAuto() {
         String JSON = null;
         try {
-            URL url=new URL(Consts.AUTO_LINK);
-            JSON=getJ(url);
+            URL url = new URL(Consts.AUTO_LINK);
+            JSON = getJ(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         try {
             JSONObject dataJsonObj = new JSONObject(JSON);
             String shortLink = dataJsonObj.getJSONObject("location").getString("l");
-            String name =dataJsonObj.getJSONObject("location").getString("city");
+            String name = dataJsonObj.getJSONObject("location").getString("city");
         } catch (JSONException e) {
             e.printStackTrace();
         }

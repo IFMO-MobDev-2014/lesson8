@@ -17,10 +17,10 @@ public class ImageConverter {
         return BitmapFactory.decodeByteArray(image, 0, image.length);
     }
 
-    public static String hash(String s){
-        String result="";
-        for(int i=0;i<s.length();i++)
-            result+= Integer.toString(s.charAt(i) % 10);
+    public static String hash(String s) {
+        String result = "";
+        for (int i = 0; i < s.length(); i++)
+            result += Integer.toString(s.charAt(i) % 10);
         return result;
     }
 }

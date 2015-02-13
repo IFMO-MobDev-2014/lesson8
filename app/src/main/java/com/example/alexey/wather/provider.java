@@ -46,6 +46,7 @@ public class provider extends ContentProvider {
     }
 
     private static final UriMatcher uriMatcher;
+
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(AUTHORITY, PATH, URI_TO);
@@ -80,7 +81,7 @@ public class provider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         db = dbHelper.getWritableDatabase();
-        int cnt = db.delete(TABLE_NAME, selection,null);
+        int cnt = db.delete(TABLE_NAME, selection, null);
         getContext().getContentResolver().notifyChange(uri, null);
         return cnt;
     }
@@ -98,16 +99,18 @@ public class provider extends ContentProvider {
         public DBHelper(Context context) {
             super(context, PATH, null, DB_VERSION);
         }
+
         @Override
         public void onCreate(SQLiteDatabase db) {
             String DB_CREATE = "create table " + TABLE_NAME + "("
-                + _ID + " integer primary key autoincrement, " + DATE + " text, "
-                + DAY + " text, " + NIGHT + " text, " + TEMPERATURE + " text, "
-                + HESH + " text, " + TYPE + " text, " + FIRST_PIC + " BLOB,"
-                + SECOND_PIC + " BLOB" + ");";
+                    + _ID + " integer primary key autoincrement, " + DATE + " text, "
+                    + DAY + " text, " + NIGHT + " text, " + TEMPERATURE + " text, "
+                    + HESH + " text, " + TYPE + " text, " + FIRST_PIC + " BLOB,"
+                    + SECOND_PIC + " BLOB" + ");";
 
             db.execSQL(DB_CREATE);
         }
+
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         }
     }

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends Activity
-        implements AppReceiver.Receiver,NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements AppReceiver.Receiver, NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     AlertDialog dialog = null;
     public String city;
@@ -42,10 +42,10 @@ public class MainActivity extends Activity
     static AppReceiver mReceiver;
     private NavigationDrawerFragment mNavigationDrawerFragment;
     public static CharSequence mTitle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mReceiver = new AppReceiver(new Handler());
         mReceiver.setReceiver(this);
         setContentView(R.layout.activity_wether);
@@ -64,20 +64,20 @@ public class MainActivity extends Activity
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
         Cursor cursor = getContentResolver().query(provider.CONTENT_URI, null, provider.TYPE + " = '1' ", null, null);
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             cursor.move(position);
-            String name=cursor.getString(cursor.getColumnIndex(provider.DATE));
-            Intent intent=new Intent(this,IService.class);
-            intent.putExtra(Consts.RECEIVER,mReceiver)
-                    .putExtra("refresh","1")
+            String name = cursor.getString(cursor.getColumnIndex(provider.DATE));
+            Intent intent = new Intent(this, IService.class);
+            intent.putExtra(Consts.RECEIVER, mReceiver)
+                    .putExtra("refresh", "1")
                     .putExtra("task", name)
                     .putExtra("importance", "1");
             startService(intent);
         }
     }
 
-    void showData(){
-        String name =ImageConverter.hash(mTitle.toString());
+    void showData() {
+        String name = ImageConverter.hash(mTitle.toString());
         Cursor cursor_2 = getContentResolver().query(provider.CONTENT_URI, null, "( " + provider.HESH + " = '" + name + "' ) AND ( " + provider.TYPE + " = '2' )", null, null);
         cursor_2.moveToFirst();
         ImageView im = (ImageView) findViewById(R.id.imageView);
@@ -95,22 +95,22 @@ public class MainActivity extends Activity
         tv = (TextView) findViewById(R.id.textView2);
         tv.setText(cursor_2.getString(cursor_2.getColumnIndex(provider.NIGHT)));
         ListView lv = (ListView) findViewById(R.id.listView);
-        String[] from=new String[]{provider.DATE, provider.TEMPERATURE, provider.DAY};
-        int[] to=new int[]{R.id.textView6, R.id.textView7, R.id.textView8};
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.item, cursor_2,from,to);
+        String[] from = new String[]{provider.DATE, provider.TEMPERATURE, provider.DAY};
+        int[] to = new int[]{R.id.textView6, R.id.textView7, R.id.textView8};
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.item, cursor_2, from, to);
         lv.setAdapter(adapter);
         ProgressBar mProgress = (ProgressBar) findViewById(R.id.progressBar2);
         mProgress.setVisibility(View.INVISIBLE);
     }
 
     public void onSectionAttached(int number) {
-        Cursor cursor=getContentResolver().query(provider.CONTENT_URI,null,provider.TYPE + " = '1' ",null,null);
-        mTitle="No city";
-        NavigationDrawerFragment.pushed=true;
+        Cursor cursor = getContentResolver().query(provider.CONTENT_URI, null, provider.TYPE + " = '1' ", null, null);
+        mTitle = "No city";
+        NavigationDrawerFragment.pushed = true;
         if (cursor.moveToFirst()) {
-            cursor.move(number-1);
+            cursor.move(number - 1);
             mTitle = cursor.getString(cursor.getColumnIndex(provider.DATE));
-            NavigationDrawerFragment.pushed=false;
+            NavigationDrawerFragment.pushed = false;
         }
     }
 
@@ -137,18 +137,19 @@ public class MainActivity extends Activity
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            final EditText editText=new EditText(this);
+            final EditText editText = new EditText(this);
+            editText.setSingleLine(true);
             alert.setView(editText);
             alert.setTitle("Enter city name!");
             alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    city=editText.getText().toString();
+                    city = editText.getText().toString();
                     alert_2 = new AlertDialog.Builder(MainActivity.this);
-                    final ProgressBar pb=new ProgressBar(MainActivity.this);
+                    final ProgressBar pb = new ProgressBar(MainActivity.this);
                     pb.setVisibility(View.VISIBLE);
                     alert_2.setView(pb);
-                    Intent intent =new Intent(MainActivity.this,IServiceAddCity.class);
-                    intent.putExtra("city",city).putExtra(Consts.RECEIVER,mReceiver);
+                    Intent intent = new Intent(MainActivity.this, IServiceAddCity.class);
+                    intent.putExtra("city", city).putExtra(Consts.RECEIVER, mReceiver);
                     startService(intent);
                 }
             });
@@ -162,12 +163,12 @@ public class MainActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-    void showCities(Bundle data,String result){
-        final AlertDialog .Builder alert = new AlertDialog.Builder(MainActivity.this);
-        result=data.getBundle("ans").getString("result");
-        if (result.equals("mistake")){
+    void showCities(Bundle data, String result) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+        result = data.getBundle("ans").getString("result");
+        if (result.equals("mistake")) {
             alert.setTitle("Not found!");
-            alert.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -202,11 +203,11 @@ public class MainActivity extends Activity
 
             }
         });
-        ListView listView=new ListView(this);
-        final ArrayList<String> list=data.getBundle("ans").getStringArrayList("links");
-        final ArrayList<String> links=data.getBundle("ans").getStringArrayList("list");
-        final int size=data.getBundle("ans").getInt("size");
-        ListAdapter adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,android.R.id.text1,links);
+        ListView listView = new ListView(this);
+        final ArrayList<String> list = data.getBundle("ans").getStringArrayList("links");
+        final ArrayList<String> links = data.getBundle("ans").getStringArrayList("list");
+        final int size = data.getBundle("ans").getInt("size");
+        ListAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, links);
         alert.setView(listView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -234,25 +235,25 @@ public class MainActivity extends Activity
                 dialog.cancel();
             }
         });
-        dialog =alert.create();
+        dialog = alert.create();
         dialog.show();
         Display display = getWindowManager().getDefaultDisplay();
         int width = display.getWidth();
         int height = display.getHeight();
-        dialog.getWindow().setLayout((int)(0.9*width),(int)(height*0.8));
+        dialog.getWindow().setLayout((int) (0.9 * width), (int) (height * 0.8));
     }
 
     @Override
     public void onReceiveResult(int resultCode, Bundle data) {
-        if (!data.getBoolean("status")){
+        if (!data.getBoolean("status")) {
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Check your network!", Toast.LENGTH_SHORT);
             toast.show();
             return;
         }
         String result = data.getString(Consts.RECEIVER_DATA);
-        if (result!=null&&result.equals("cities")) {
-            showCities(data,result);
+        if (result != null && result.equals("cities")) {
+            showCities(data, result);
             return;
         }
         if (result != null) {
@@ -267,11 +268,11 @@ public class MainActivity extends Activity
                 return;
             }
         }
-            showData();
-            if (data.getString("refresh") != null) NavigationDrawerFragment.pushed = false;
+        showData();
+        if (data.getString("refresh") != null) NavigationDrawerFragment.pushed = false;
     }
 
-    public static class PlaceholderFragment extends Fragment  {
+    public static class PlaceholderFragment extends Fragment {
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
