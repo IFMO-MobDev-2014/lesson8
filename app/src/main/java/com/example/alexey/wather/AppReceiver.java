@@ -1,4 +1,4 @@
-package com.example.alexey.wather_2;
+package com.example.alexey.wather;
 
 
 import android.os.Bundle;
