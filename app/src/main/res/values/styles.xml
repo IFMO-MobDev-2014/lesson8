@@ -1,8 +1,19 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="android:Theme.Material.Light">
         <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">#90CAF9</item>
+        <item name="android:colorPrimaryDark">#1E88E5</item>
+        <item name="android:colorAccent">#7B1FA2</item>
+        <item name="android:textColor">@color/primary_dark_material_dark</item>
+    </style>
+
+    <style name="scrollStyle">
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:fadeScrollbars">false</item>
     </style>
 
 </resources>
