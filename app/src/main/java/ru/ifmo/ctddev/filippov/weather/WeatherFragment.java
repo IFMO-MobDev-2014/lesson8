@@ -198,8 +198,9 @@ public class WeatherFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.weather_fragment, container, false);
+    public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = layoutInflater.inflate(R.layout.weather_fragment, container, false);
+
         forecastView = view;
         forecastList = (ListView) view.findViewById(R.id.forecast_list);
         forecastList.setAdapter(new WeatherCursorAdapter(getActivity().getApplicationContext(), null, false));

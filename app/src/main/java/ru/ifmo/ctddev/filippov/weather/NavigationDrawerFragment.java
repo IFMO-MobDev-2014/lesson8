@@ -124,12 +124,13 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        drawerListView = (ListView) inflater.inflate(
+    public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        drawerListView = (ListView) layoutInflater.inflate(
                 R.layout.fragment_navigation_drawer,
                 container,
                 false
         );
+
         drawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

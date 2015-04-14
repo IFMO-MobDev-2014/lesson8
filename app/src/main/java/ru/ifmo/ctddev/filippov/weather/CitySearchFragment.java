@@ -51,8 +51,8 @@ public class CitySearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.city_search_fragment, container, false);
-        SearchView searchView = (SearchView) view.findViewById(R.id.citySearch);
-        final ListView listView = (ListView) view.findViewById(R.id.searchList);
+        SearchView searchView = (SearchView) view.findViewById(R.id.city_search);
+        final ListView listView = (ListView) view.findViewById(R.id.search_list);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
