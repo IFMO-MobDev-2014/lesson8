@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -75,6 +76,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<Cursor>() {
             @Override
             public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -238,6 +240,9 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectItem(int id, int position, String name) {
+        Button button = (Button)getActivity().findViewById(R.id.button);
+        button.setVisibility(View.VISIBLE);
+
         currentSelectedPosition = position;
         if (drawerListView != null) {
             drawerListView.setItemChecked(position, true);

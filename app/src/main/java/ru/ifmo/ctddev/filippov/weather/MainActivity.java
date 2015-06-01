@@ -26,6 +26,7 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
     @Override
     protected void onResume() {
+        //refreshButton.setVisibility(View.VISIBLE);
         super.onResume();
         if ((System.currentTimeMillis() - timeOfLastUpdate) > timeToUpdate) {
             WeatherLoader.getAll(getApplicationContext());
@@ -52,6 +53,7 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_add) {
+
             navigationDrawerFragment.closeDrawer();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.container, CitySearchFragment.newInstance()).commit();

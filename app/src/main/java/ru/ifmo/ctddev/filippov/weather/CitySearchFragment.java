@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ public class CitySearchFragment extends Fragment {
     }
 
     private InteractionListener listener;
+    Button button;
 
     public static CitySearchFragment newInstance() {
         return new CitySearchFragment();
@@ -54,6 +56,8 @@ public class CitySearchFragment extends Fragment {
         SearchView searchView = (SearchView) view.findViewById(R.id.city_search);
         final ListView listView = (ListView) view.findViewById(R.id.search_list);
 
+        button = (Button)getActivity().findViewById(R.id.button);
+        button.setVisibility(View.GONE);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -91,6 +95,9 @@ public class CitySearchFragment extends Fragment {
                     @Override
                     protected void onPostExecute(JSONObject json) {
                         try {
+                            if (json == null) {
+                                return;
+                            }
                             int count = json.getInt("count");
                             final String[] cityNames = new String[count];
                             final int[] cityIds = new int[count];
@@ -145,6 +152,7 @@ public class CitySearchFragment extends Fragment {
                     }
                 };
                 task.execute(s);
+                button.setVisibility(View.VISIBLE);
                 return true;
             }
 
