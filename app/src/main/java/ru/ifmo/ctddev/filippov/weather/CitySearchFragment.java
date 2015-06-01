@@ -36,7 +36,6 @@ public class CitySearchFragment extends Fragment {
     }
 
     private InteractionListener listener;
-    Button button;
 
     public static CitySearchFragment newInstance() {
         return new CitySearchFragment();
@@ -56,8 +55,8 @@ public class CitySearchFragment extends Fragment {
         SearchView searchView = (SearchView) view.findViewById(R.id.city_search);
         final ListView listView = (ListView) view.findViewById(R.id.search_list);
 
-        button = (Button)getActivity().findViewById(R.id.button);
-        button.setVisibility(View.GONE);
+        Button refreshButton = (Button) getActivity().findViewById(R.id.refresh_button);
+        refreshButton.setVisibility(View.GONE);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -67,10 +66,11 @@ public class CitySearchFragment extends Fragment {
                         URL url = null;
                         try {
                             url = new URL("http://api.openweathermap.org/data/2.5/find?q=" + URLEncoder.encode(strings[0], "UTF-8"));
-                        } catch (MalformedURLException  e) {
+                        } catch (MalformedURLException | UnsupportedEncodingException e) {
                             e.printStackTrace();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                        }
+                        if (url == null) {
+                            return null;
                         }
 
                         HttpURLConnection urlConnection = null;
@@ -80,9 +80,7 @@ public class CitySearchFragment extends Fragment {
                             InputStream inputStream = urlConnection.getInputStream();
                             String resultString = WeatherLoader.streamToString(inputStream);
                             return new JSONObject(resultString);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
+                        } catch (IOException | JSONException e) {
                             e.printStackTrace();
                         } finally {
                             if (urlConnection != null) {
@@ -93,6 +91,7 @@ public class CitySearchFragment extends Fragment {
                     }
 
                     @Override
+                    @SuppressWarnings("unchecked")
                     protected void onPostExecute(JSONObject json) {
                         try {
                             if (json == null) {
@@ -152,7 +151,6 @@ public class CitySearchFragment extends Fragment {
                     }
                 };
                 task.execute(s);
-                button.setVisibility(View.VISIBLE);
                 return true;
             }
 

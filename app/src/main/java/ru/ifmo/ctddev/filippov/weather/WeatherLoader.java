@@ -103,6 +103,9 @@ public class WeatherLoader extends IntentService {
         boolean fail = true;
         HttpURLConnection connection = null;
         try {
+            if (url == null) {
+                throw new AssertionError("An error occurred while opening connection - url is null");
+            }
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
             InputStream inputStream = connection.getInputStream();
@@ -132,9 +135,7 @@ public class WeatherLoader extends IntentService {
             );
             getContentResolver().notifyChange(WeatherContentProvider.URI_CITY_DIRECTORY, null);
             fail = false;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         } finally {
             if (connection != null) {
@@ -198,9 +199,7 @@ public class WeatherLoader extends IntentService {
                         null
                 );
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         } finally {
             if (connection != null)

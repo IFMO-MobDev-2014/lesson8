@@ -10,23 +10,26 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks, WeatherFragment.OnFragmentInteractionListener, CitySearchFragment.InteractionListener {
     private NavigationDrawerFragment navigationDrawerFragment;
     private static long timeOfLastUpdate = 0;
     private static final long timeToUpdate = 500000L;
 
+    private Button refreshButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        refreshButton = (Button)findViewById(R.id.refresh_button);
         navigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
         navigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
     @Override
     protected void onResume() {
-        //refreshButton.setVisibility(View.VISIBLE);
         super.onResume();
         if ((System.currentTimeMillis() - timeOfLastUpdate) > timeToUpdate) {
             WeatherLoader.getAll(getApplicationContext());
@@ -53,7 +56,6 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_add) {
-
             navigationDrawerFragment.closeDrawer();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.container, CitySearchFragment.newInstance()).commit();
@@ -64,6 +66,7 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
     @Override
     public void onCityAdded(String cityName, int cityId) {
+        refreshButton.setVisibility(View.VISIBLE);
         ContentValues contentValues = new ContentValues();
         contentValues.put(WeatherDatabase.COLUMN_NAME, cityName);
         contentValues.put(WeatherDatabase.COLUMN_URL, cityId);
@@ -76,11 +79,17 @@ public class MainActivity extends Activity implements NavigationDrawerFragment.N
 
     public void setCityName(String cityName) {
         ActionBar actionBar = getActionBar();
+        if (actionBar == null) {
+            throw new AssertionError("An error occurred while creating Action Bar - null was returned");
+        }
         actionBar.setTitle(cityName);
     }
 
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
+        if (actionBar == null) {
+            throw new AssertionError("An error occurred while creating Action Bar - null was returned");
+        }
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
     }

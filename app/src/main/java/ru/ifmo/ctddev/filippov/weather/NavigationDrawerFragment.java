@@ -193,6 +193,9 @@ public class NavigationDrawerFragment extends Fragment {
         this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
 
         ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar == null) {
+            throw new AssertionError("An error occurred while creating Action Bar - null was returned");
+        }
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
@@ -240,8 +243,8 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectItem(int id, int position, String name) {
-        Button button = (Button)getActivity().findViewById(R.id.button);
-        button.setVisibility(View.VISIBLE);
+        Button refreshButton = (Button)getActivity().findViewById(R.id.refresh_button);
+        refreshButton.setVisibility(View.VISIBLE);
 
         currentSelectedPosition = position;
         if (drawerListView != null) {
@@ -298,6 +301,9 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void showGlobalContextActionBar() {
         ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar == null) {
+            throw new AssertionError("An error occurred while creating Action Bar - null was returned");
+        }
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setTitle(R.string.app_name);

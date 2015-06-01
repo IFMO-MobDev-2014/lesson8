@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:text="@string/refresh"
             android:onClick="onClickRefresh"
-            android:id="@+id/button"
+            android:id="@+id/refresh_button"
             android:layout_gravity="center_horizontal|top"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true" />
