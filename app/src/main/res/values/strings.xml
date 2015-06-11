@@ -1,7 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Weather</string>
-    <string name="title_item_detail">Item Detail</string>
-
+    <string name="app_name">Simple Weather</string>
+    <string name="input_city_name">Введите название города</string>
+    <string name="cancel_button">Отмена</string>
+    <string name="add_button">Добавить</string>
+    <string name="wrong_city_name">Не удалось найти город</string>
+    <string name="no_internet">Нет соединения с интернетом</string>
+    <string name="cur_place">Где я?</string>
+    <string-array name="weather_types">
+        <item>Умеренный или сильный снегопад с громом</item>
+        <item>Местами небольшой снегопад с громом</item>
+        <item>Умеренный или сильный дождь с громом</item>
+        <item>Местами небольшой дождь с громом</item>
+        <item>Умеренный или сильный град</item>
+        <item>Легкий град</item>
+        <item>Умеренные или сильный снегопад</item>
+        <item>Небольшой снегопад</item>
+        <item>Умеренный или сильный снегопад с дождем</item>
+        <item>Легкий снегопад с дождем</item>
+        <item>Проливной дождь</item>
+        <item>Умеренный или сильный дождь</item>
+        <item>Легкий дождь</item>
+        <item>Град</item>
+        <item>Сильный снегопад</item>
+        <item>Местами сильный снегопад</item>
+        <item>Умеренный снегопад</item>
+        <item>Местами умеренный снегопад</item>
+        <item>Небольшой снегопад</item>
+        <item>Местами небольшой снегопад</item>
+        <item>Умеренный или сильный дождь со снегом</item>
+        <item>Легкий снег с дождем</item>
+        <item>Облачно, дождь со снегом</item>
+        <item>Умеренный или сильный дождь с градом</item>
+        <item>Сильный дождь</item>
+        <item>Временами сильный дождь</item>
+        <item>Умеренный дождь</item>
+        <item>Местами умеренный дождь</item>
+        <item>Небольшой дождь</item>
+        <item>Местами небольшой дождь</item>
+        <item>Сильный снег с дождем</item>
+        <item>Снег с дождем</item>
+        <item>Легкий дождь</item>
+        <item>Местами моросящий дождь</item>
+        <item>Холодный туман</item>
+        <item>Густой туман</item>
+        <item>Метель с сильным снегопадом</item>
+        <item>Метель с небольшим снегопадом</item>
+        <item>Гроза неподалеку</item>
+        <item>Изморозь</item>
+        <item>Местами снег с дождем</item>
+        <item>Местами снегопад</item>
+        <item>Местами легкий дождь</item>
+        <item>Легкий туман</item>
+        <item>Ясно</item>
+        <item>Облачно</item>
+        <item>Небольшая облачность</item>
+        <item>Солнечно</item>
+    </string-array>
 </resources>
