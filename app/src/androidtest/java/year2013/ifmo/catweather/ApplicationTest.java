@@ -1,4 +1,4 @@
-package year2013.ifmo.weather;
+package year2013.ifmo.catweather;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

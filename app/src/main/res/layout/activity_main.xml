@@ -4,6 +4,5 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="year2013.ifmo.weather.MainActivity"
-    tools:ignore="MergeRootFrame"
-    android:background="#FFFFFFFF" />
+    tools:context="year2013.ifmo.catweather.MainActivity"
+    tools:ignore="MergeRootFrame" />
