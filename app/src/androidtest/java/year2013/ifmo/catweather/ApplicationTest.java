@@ -1,4 +1,4 @@
-package ru.ifmo.md.lesson8;
+package year2013.ifmo.catweather;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
